@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formats", "Formats\Formats.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DATUnpack", "DATUnpack\DATUnpack.csproj", "{9A65D41C-85CA-48AC-9BC5-706379DD02AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TX2toPNG", "TX2toPNG\TX2toPNG.csproj", "{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9A65D41C-85CA-48AC-9BC5-706379DD02AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A65D41C-85CA-48AC-9BC5-706379DD02AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A65D41C-85CA-48AC-9BC5-706379DD02AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
