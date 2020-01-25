@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DATUnpack", "DATUnpack\DATU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TX2toPNG", "TX2toPNG\TX2toPNG.csproj", "{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OM2toOBJ", "OM2toOBJ\OM2toOBJ.csproj", "{7B34A33C-3431-4688-82F5-E0189EC61199}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E0B6526-AFF3-4F2B-A921-FB4AA5B6C649}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B34A33C-3431-4688-82F5-E0189EC61199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B34A33C-3431-4688-82F5-E0189EC61199}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B34A33C-3431-4688-82F5-E0189EC61199}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B34A33C-3431-4688-82F5-E0189EC61199}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
