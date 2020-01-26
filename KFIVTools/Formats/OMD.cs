@@ -14,17 +14,17 @@ namespace KFIV.Format.OMD
         {
             public uint lenFile { private set; get; }
             public ushort numMesh { private set; get; }
-            public ushort numUkn06 { private set; get; }
+            public ushort numTriangle { private set; get; }
             public uint numVertex { private set; get; }
             public uint offUkn0C { private set; get; }
 
             public Header(InputStream bin)
             {
-                lenFile   = bin.ReadUInt32();
-                numMesh   = bin.ReadUInt16();
-                numUkn06  = bin.ReadUInt16();
-                numVertex = bin.ReadUInt32();
-                offUkn0C  = bin.ReadUInt32();
+                lenFile     = bin.ReadUInt32();
+                numMesh     = bin.ReadUInt16();
+                numTriangle = bin.ReadUInt16();
+                numVertex   = bin.ReadUInt32();
+                offUkn0C    = bin.ReadUInt32();
             }
         }
         public struct Mesh
@@ -83,6 +83,19 @@ namespace KFIV.Format.OMD
                 colour = bin.ReadVector4f();
             }
         }
+        public struct Triangle
+        {
+            public uint ind1 { private set; get; }
+            public uint ind2 { private set; get; }
+            public uint ind3 { private set; get; }
+
+            public Triangle(uint x, uint y, uint z)
+            {
+                ind1 = x;
+                ind2 = y;
+                ind3 = z;
+            }
+        }
         public struct Tristrip
         {
             public byte[] ukn00 { private set; get; }
@@ -94,7 +107,8 @@ namespace KFIV.Format.OMD
             public uint numVertex { private set; get; }
             public byte[] ukn71 { private set; get; }
 
-            public List<Vertex> vertices;
+            public List<Vertex>   vertices;
+            public List<Triangle> triangles;
 
             public Tristrip(InputStream bin)
             {
@@ -108,34 +122,24 @@ namespace KFIV.Format.OMD
                 ukn71 = bin.ReadBytes(31);
 
                 //Read vertices for this tristrip
-                List<Vertex> temp = new List<Vertex>();
+                vertices = new List<Vertex>();
 
                 for(uint i = 0; i < numVertex; ++i)
-                    temp.Add(new Vertex(bin));
+                    vertices.Add(new Vertex(bin));
 
                 //Skip 16 unknown bytes
                 bin.ReadBytes(16);
 
-                //Deconstruct tristrip into vertices
-                vertices = new List<Vertex>();
+                //Deconstruct Tristrip to triangles
+                triangles = new List<Triangle>();
 
-                for(int i = 0; i < numVertex - 2; ++i)
+                for (int i = 0; i < numVertex - 2; i++)
                 {
-                    if((i % 2) == 0)
-                    {
-                        vertices.Add(temp[i + 1]);
-                        vertices.Add(temp[i]);
-                        vertices.Add(temp[i + 2]);
-                    }
+                    if ((i % 2) == 1)
+                        triangles.Add(new Triangle((uint)i + 1, (uint)i, (uint)i + 2));
                     else
-                    {
-                        vertices.Add(temp[i]);
-                        vertices.Add(temp[i + 1]);
-                        vertices.Add(temp[i + 2]);
-                    }
+                        triangles.Add(new Triangle((uint)i, (uint)i + 1, (uint)i + 2));
                 }
-                numVertex = (uint) vertices.Count;
-
             }
         }
 
@@ -183,9 +187,9 @@ namespace KFIV.Format.OMD
                         foreach(Vertex v in ts.vertices)
                         {
                             obj.Write("v");
-                            obj.Write(" " + (v.position.x * 10).ToString());
-                            obj.Write(" " + (v.position.y * 10).ToString());
-                            obj.Write(" " + (v.position.z * 10).ToString());
+                            obj.Write(" " + v.position.z.ToString());
+                            obj.Write(" " + (-v.position.y).ToString());
+                            obj.Write(" " + v.position.x.ToString());
                             obj.WriteLine();
 
                             num++;
@@ -205,7 +209,7 @@ namespace KFIV.Format.OMD
                         {
                             obj.Write("vn");
                             obj.Write(" " + v.normal.x.ToString());
-                            obj.Write(" " + v.normal.y.ToString());
+                            obj.Write(" " + (-v.normal.y).ToString());
                             obj.Write(" " + v.normal.z.ToString());
                             obj.WriteLine();
 
@@ -226,7 +230,7 @@ namespace KFIV.Format.OMD
                         {
                             obj.Write("vt");
                             obj.Write(" " + v.texcoord.x.ToString());
-                            obj.Write(" " + v.texcoord.y.ToString());
+                            obj.Write(" " + (-v.texcoord.y).ToString());
                             obj.WriteLine();
 
                             num++;
@@ -238,29 +242,29 @@ namespace KFIV.Format.OMD
                 num = 0;
 
                 //Write Meshes
-                uint ind = 0;
+                uint ind = 1;
                 foreach(Mesh m in meshes)
                 {
                     obj.WriteLine("g Mesh" + num.ToString());
-                    foreach(Tristrip ts in m.tristrips)
+
+                    foreach (Tristrip ts in m.tristrips)
                     {
-                        for(uint i = 0; i < (ts.numVertex / 3); ++i)
+                        foreach (Triangle t in ts.triangles)
                         {
                             obj.Write("f");
-                            obj.Write(" " + (1 + (3 * ind) + 0).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 0).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 0).ToString());
-                            obj.Write(" " + (1 + (3 * ind) + 1).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 1).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 1).ToString());
-                            obj.Write(" " + (1 + (3 * ind) + 2).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 2).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 2).ToString());
+                            obj.Write(" " + (ind + t.ind1).ToString());
+                            obj.Write("/" + (ind + t.ind1).ToString());
+                            obj.Write("/" + (ind + t.ind1).ToString());
+                            obj.Write(" " + (ind + t.ind2).ToString());
+                            obj.Write("/" + (ind + t.ind2).ToString());
+                            obj.Write("/" + (ind + t.ind2).ToString());
+                            obj.Write(" " + (ind + t.ind3).ToString());
+                            obj.Write("/" + (ind + t.ind3).ToString());
+                            obj.Write("/" + (ind + t.ind3).ToString());
                             obj.WriteLine();
-
-                            ind++;
                         }
- 
+                        ind += ts.numVertex;
+
                     }
                     obj.WriteLine();
 

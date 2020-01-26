@@ -114,8 +114,8 @@ namespace KFIV.Format.OM2
                         foreach (Vertex v in m.vertices)
                         {
                             obj.Write("v");
-                            obj.Write(" " + v.position.x.ToString());
-                            obj.Write(" " + v.position.y.ToString());
+                            obj.Write(" " + (-v.position.x).ToString());
+                            obj.Write(" " + (-v.position.y).ToString());
                             obj.Write(" " + v.position.z.ToString());
                             obj.Write("\n");
 
@@ -132,8 +132,8 @@ namespace KFIV.Format.OM2
                         foreach (Vertex v in m.vertices)
                         {
                             obj.Write("vn");
-                            obj.Write(" " + v.normal.x.ToString());
-                            obj.Write(" " + v.normal.y.ToString());
+                            obj.Write(" " + (-v.normal.x).ToString());
+                            obj.Write(" " + (-v.normal.y).ToString());
                             obj.Write(" " + v.normal.z.ToString());
                             obj.Write("\n");
 
