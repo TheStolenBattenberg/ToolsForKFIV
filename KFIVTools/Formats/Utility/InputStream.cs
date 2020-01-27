@@ -43,21 +43,32 @@ namespace KFIV.Utility.IO
         {
             return base.BaseStream.Position;
         }
-    
-        //Extension: Fixed Point
+
+        //Extension: PS2 Types
         public float ReadFixed16()
         {
             return base.ReadInt16() / 4096f;
         }
-
-        //Extension: GIFPacket
         public GIFPacket ReadGIFPacket()
         {
-            GIFPacket packet = new GIFPacket();
-            packet.data = base.ReadBytes(8);
-            packet.tag = base.ReadInt64();
+            GIFPacket gif = new GIFPacket();
+            gif.data = base.ReadBytes(8);
+            gif.tag = base.ReadInt64();
 
-            return packet;
+            return gif;
+        }
+        public DMAHeader ReadDMAHeader()
+        {
+            DMAHeader dma = new DMAHeader();
+
+            base.ReadBytes(12);
+
+            dma.ukn0C = base.ReadByte();
+            dma.ukn0D = base.ReadByte();
+            dma.size = base.ReadByte();
+            dma.ukn0F = base.ReadByte();
+
+            return dma;
         }
 
         //Extension: Vector

@@ -43,9 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MAP.cs" />
+    <Compile Include="OM2.cs" />
     <Compile Include="OMD.cs" />
     <Compile Include="DAT1.cs" />
-    <Compile Include="OM2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TX2.cs" />
     <Compile Include="Utility\Type.cs" />

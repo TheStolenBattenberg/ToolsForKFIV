@@ -35,10 +35,8 @@ class Program
         }
 
         //Save Models
-        Console.WriteLine("Writing Models...");
-        for (uint i = 0; i < om2.Count; ++i)
-            om2[i].Save(writePath + writeName + "_" + i.ToString() + ".obj");
-
+        Console.WriteLine("Writing Model...");
+        om2.Save(writePath + writeName + ".obj");
 
         //Finished
         Console.WriteLine("Press any key to exit...");

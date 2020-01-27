@@ -1,318 +1,274 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Collections.Generic;
+using System;
+
+using KFIV.Utility.IO;
+using KFIV.Utility.Type;
 
 namespace KFIV.Format.OM2
 {
     public class OM2
     {
         #region Format Types
-        public struct GIFPacket //PS2 Gif Packet for DMA
-        {
-            public byte[] data { private set; get; }
-            public long tag { private set; get; }
-
-            public GIFPacket(BinaryReader bin)
-            {
-                data = bin.ReadBytes(8);
-                tag = bin.ReadInt64();
-            }
-        }
-        public struct Vector4s  //float (single) component vector
-        {
-            public float x { private set; get; }
-            public float y { private set; get; }
-            public float z { private set; get; }
-            public float w { private set; get; }
-
-            public Vector4s(BinaryReader bin)
-            {
-                x = bin.ReadSingle();
-                y = bin.ReadSingle();
-                z = bin.ReadSingle();
-                w = bin.ReadSingle();
-            }
-        }
-
         public struct Header
-        { 
-            public uint fileLength    { private set; get; }
-            public ushort numMesh     { private set; get; }
-            public ushort numTriStrip { private set; get; }
-            public ushort numUkn08    { private set; get; }
-            public ushort numVertex   { private set; get; }
+        {
+            public uint length { private set; get; }        //Total length of OM2
+            public ushort numMesh { private set; get; }     //Total number of meshes
+            public ushort numTristrip { private set; get; } //Total number of tristrips
+            public ushort numTriangle { private set; get; } //Total number of triangles
+            public ushort numVertex { private set; get; }   //Total number of vertices
 
-            public Header(BinaryReader bin)
+            public void Read(InputStream ins)
             {
-                fileLength = bin.ReadUInt32();
-                numMesh = bin.ReadUInt16();
-                numTriStrip = bin.ReadUInt16();
-                numUkn08 = bin.ReadUInt16();
-                numVertex = bin.ReadUInt16();
-
-                bin.ReadBytes(4);   //Padding
+                length = ins.ReadUInt32();
+                numMesh = ins.ReadUInt16();
+                numTristrip = ins.ReadUInt16();
+                numTriangle = ins.ReadUInt16();
+                numVertex = ins.ReadUInt16();
+                ins.ReadBytes(4);
             }
         }
         public struct Struct1
-        {
+        { 
             public float ukn00 { private set; get; }
             public float ukn04 { private set; get; }
             public float ukn08 { private set; get; }
-            public uint set    { private set; get; }
+            public byte  ukn0C { private set; get; }
 
-            public Struct1(BinaryReader bin)
+            public void Read(InputStream ins)
             {
-                ukn00 = bin.ReadSingle();
-                ukn04 = bin.ReadSingle();
-                ukn08 = bin.ReadSingle();
-                set = bin.ReadUInt32();
-            }
-
-        }
-        public struct Mesh
-        {
-            public uint offTriStrips  { private set; get; }
-            public ushort numTriStrip { private set; get; }
-            public ushort ukn06       { private set; get; }
-
-            public List<TriStrip> triStrips;
-
-            public Mesh(BinaryReader bin)
-            {
-                offTriStrips = bin.ReadUInt32();
-                numTriStrip = bin.ReadUInt16();
-                ukn06 = bin.ReadUInt16();
-
-                bin.ReadBytes(8);   //Padding
-
-                //seek to meshes
-                long oldPos = bin.BaseStream.Position;
-                bin.BaseStream.Seek(offTriStrips, SeekOrigin.Begin);
-
-                //read meshes
-                triStrips = new List<TriStrip>(numTriStrip);
-
-                for (uint i = 0; i < numTriStrip; ++i)
-                    triStrips.Add(new TriStrip(bin));
-
-                //seek to previous position
-                bin.BaseStream.Seek(oldPos, SeekOrigin.Begin);
-            }
-            public void Save(string path)
-            {
-                using (StreamWriter obj = new StreamWriter(File.Open(path, FileMode.Create)))
-                {
-                    obj.WriteLine("# OM2toOBJ Conversion\n");
-
-                    uint num;
-                    uint ind;
-
-                    //Write Vertices
-                    num = 0;
-                    foreach(TriStrip m in triStrips)
-                    {
-                        foreach (Vertex v in m.vertices)
-                        {
-                            obj.Write("v");
-                            obj.Write(" " + (-v.position.x).ToString());
-                            obj.Write(" " + (-v.position.y).ToString());
-                            obj.Write(" " + v.position.z.ToString());
-                            obj.Write("\n");
-
-                            num++;
-                        }
-                    }
-                    obj.WriteLine("# Number of Vertices " + num.ToString());
-                    obj.WriteLine("");
-
-                    //Write Normals
-                    num = 0;
-                    foreach (TriStrip m in triStrips)
-                    {
-                        foreach (Vertex v in m.vertices)
-                        {
-                            obj.Write("vn");
-                            obj.Write(" " + (-v.normal.x).ToString());
-                            obj.Write(" " + (-v.normal.y).ToString());
-                            obj.Write(" " + v.normal.z.ToString());
-                            obj.Write("\n");
-
-                            num++;
-                        }
-                    }
-                    obj.WriteLine("# Number of Normals " + num.ToString());
-                    obj.WriteLine("");
-
-                    //Write texcoords
-                    num = 0;
-                    foreach (TriStrip m in triStrips)
-                    {
-                        foreach (Vertex v in m.vertices)
-                        {
-                            obj.Write("vt");
-                            obj.Write(" " + v.texcoord.x.ToString());
-                            obj.Write(" " + v.texcoord.y.ToString());
-                            obj.Write("\n");
-
-                            num++;
-                        }
-                    }
-                    obj.WriteLine("# Number of Texcoords " + num.ToString());
-                    obj.WriteLine("");
-
-                    //Write groups
-                    num = 0;
-                    ind = 0;
-                    foreach (TriStrip m in triStrips)
-                    {
-                        for(uint i = 0; i < (m.numVertex / 3); ++i)
-                        {
-                            obj.Write("f");
-                            obj.Write(" " + (1 + (3 * ind) + 0).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 0).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 0).ToString());
-
-                            obj.Write(" " + (1 + (3 * ind) + 1).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 1).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 1).ToString());
-
-                            obj.Write(" " + (1 + (3 * ind) + 2).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 2).ToString());
-                            obj.Write("/" + (1 + (3 * ind) + 2).ToString());
-                            obj.Write("\n");
-
-                            ind++;
-                        }
-                        num++;
-                    }
-                }
+                ukn00 = ins.ReadSingle();
+                ukn04 = ins.ReadSingle();
+                ukn08 = ins.ReadSingle();
+                ukn0C = ins.ReadByte();
+                ins.ReadBytes(3);
             }
         }
         public struct Vertex
         {
-            public Vector4s position { private set; get; }
-            public Vector4s normal { private set; get; }
-            public Vector4s texcoord { private set; get; }
-            public Vector4s colour { private set; get; }
+            public Vector4 Position { private set; get; }
+            public Vector4 Normal { private set; get; }
+            public Vector4 Texcoord { private set; get; }
+            public Vector4 Colour { private set; get; }
 
-            public Vertex(BinaryReader bin)
+            public void Read(InputStream ins)
             {
-                position = new Vector4s(bin);
-                normal = new Vector4s(bin);
-                texcoord = new Vector4s(bin);
-                colour = new Vector4s(bin);
+                Position = ins.ReadVector4s();
+                Normal = ins.ReadVector4s();
+                Texcoord = ins.ReadVector4s();
+                Colour = ins.ReadVector4s();
             }
         }
-        public struct TriStrip
+        public struct Triangle
+        {
+            public uint A { private set; get; }
+            public uint B { private set; get; }
+            public uint C { private set; get; }
+
+            public Triangle(uint a, uint b, uint c)
+            {
+                A = a;
+                B = b;
+                C = c;
+            }
+        }
+        public struct Tristrip
         { 
-            public byte[] ukn00    { private set; get; }
+            public byte[]    ukn00 { private set; get; }
+
+            public DMAHeader ukn10 { private set; get; }
             public GIFPacket ukn20 { private set; get; }
             public GIFPacket ukn30 { private set; get; }
             public GIFPacket ukn40 { private set; get; }
-            public byte[] ukn50    { private set; get; }
-            public byte[] ukn90    { private set; get; }
+            public byte[]    ukn50 { private set; get; }
 
-            public uint numVertex  { private set; get; }
-            public byte[] uknA1    { private set; get; }
+            public DMAHeader dmaVertex { private set; get; }
+            public byte numVertex { private set; get; }
+            public byte[] ukn91 { private set; get; }
 
-            public List<Vertex> vertices { private set; get; }
+            //Data
+            public List<Vertex>   vertices { private set; get; }
+            public List<Triangle> triangles { private set; get; }
 
-            public TriStrip(BinaryReader bin)
+            public void Read(InputStream ins)
             {
-                ukn00 = bin.ReadBytes(32);
-                ukn20 = new GIFPacket(bin);
-                ukn30 = new GIFPacket(bin);
-                ukn40 = new GIFPacket(bin);
-                ukn50 = bin.ReadBytes(64);
-                ukn90 = bin.ReadBytes(16);
-                numVertex = bin.ReadByte();
-                uknA1 = bin.ReadBytes(15);
+                ukn00 = ins.ReadBytes(16);
+                ukn10 = ins.ReadDMAHeader();
+                ukn20 = ins.ReadGIFPacket();
+                ukn30 = ins.ReadGIFPacket();
+                ukn40 = ins.ReadGIFPacket();
+                ukn50 = ins.ReadBytes(48);
+
+                dmaVertex = ins.ReadDMAHeader();
+                numVertex = ins.ReadByte();
+                ukn91 = ins.ReadBytes(31);
 
                 //Read Vertices
-                List<Vertex> tmpVertex = new List<Vertex>();
-                for (uint i = 0; i < numVertex; ++i)
-                    tmpVertex.Add(new Vertex(bin));
-
-                //Unstrip vertices
-                vertices = new List<Vertex>();
-
-                for(int i = 0; i < tmpVertex.Count - 2; ++i)
+                vertices = new List<Vertex>(numVertex);
+                for (int i = 0; i < numVertex; ++i)
                 {
-                    if ((i % 2) == 0)
-                    {
-                        vertices.Add(tmpVertex[i + 1]);
-                        vertices.Add(tmpVertex[i]);
-                        vertices.Add(tmpVertex[i + 2]);
-                    }
+                    Vertex v = new Vertex();
+                    v.Read(ins);
+
+                    vertices.Add(v);
+                }
+
+                triangles = new List<Triangle>();
+                for (uint i = 0; i < numVertex - 2; ++i)
+                {
+                    if ((i % 2) == 1)
+                        triangles.Add(new Triangle(i + 1, i, i + 2));
                     else
+                        triangles.Add(new Triangle(i, i + 1, i + 2));
+                }
+
+                ins.ReadBytes(16);
+            }
+        }
+        public struct Mesh
+        {
+            public uint offTristrips { private set; get; }
+            public ushort numTristrips { private set; get; }
+            public byte ukn06 { private set; get; }
+            public byte ukn07 { private set; get; }
+
+            //Data
+            public List<Tristrip> tristrips { private set; get; }
+
+            public void Read(InputStream ins)
+            {
+                offTristrips = ins.ReadUInt32();
+                numTristrips = ins.ReadUInt16();
+                ukn06 = ins.ReadByte();
+                ukn07 = ins.ReadByte();
+                ins.ReadBytes(8);
+
+                ins.Jump(offTristrips);
+                {
+                    tristrips = new List<Tristrip>();
+                    for(int i = 0; i < numTristrips; ++i)
                     {
-                        vertices.Add(tmpVertex[i]);
-                        vertices.Add(tmpVertex[i + 1]);
-                        vertices.Add(tmpVertex[i + 2]);
+                        Tristrip ts = new Tristrip();
+                        ts.Read(ins);
+
+                        tristrips.Add(ts);
                     }
                 }
-                numVertex = (uint) vertices.Count;
-
-                //Clear temporary vertices
-                tmpVertex.Clear();
-
-                //Padding?
-                bin.ReadBytes(16);  //no idea whatsoever
+                ins.Return();
             }
         }
 
         #endregion
-        #region Data
-        private Header header;
-        private List<Struct1> struct1s;
-        private List<Mesh>   models;
-        
-        #endregion
+
+        public Header header;
+        public List<Struct1> struct1s;
+        public List<Mesh> meshes;
 
         public static OM2 FromFile(string path)
         {
-            //Open File
-            BinaryReader bin;
-            try
-            {
-                bin = new BinaryReader(File.Open(path, FileMode.Open));
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
+            //Open Stream
+            InputStream ins = new InputStream(path);
 
+            //Read OM2
             OM2 om2 = new OM2();
+            om2.header = new Header();
+            om2.header.Read(ins);
 
-            //Read OM2 Header
-            om2.header = new Header(bin);
-
-            //Read OM2 struct1s
             om2.struct1s = new List<Struct1>(32);
+            for(int i = 0; i < 32; ++i)
+            {
+                Struct1 s1 = new Struct1();
+                s1.Read(ins);
 
-            for (uint i = 0; i < 32; ++i)
-                om2.struct1s.Add(new Struct1(bin));
+                om2.struct1s.Add(s1);
+            }
 
-            //Read OM2 Models
-            om2.models = new List<Mesh>(om2.header.numMesh);
+            om2.meshes = new List<Mesh>();
+            for(int i = 0; i < om2.header.numMesh; ++i)
+            {
+                Mesh m = new Mesh();
+                m.Read(ins);
 
-            for (uint i = 0; i < om2.header.numMesh; ++i)
-                om2.models.Add(new Mesh(bin));
-
-            //Finish
-            bin.Close();
+                om2.meshes.Add(m);
+            }
 
             return om2;
         }
+     
+        public void Save(string path)
+        {
+            using (StreamWriter sw = new StreamWriter(File.Open(path, FileMode.Create)))
+            {
+                //Title Comment
+                sw.WriteLine("# Converted by OM2toOBJ");
+                sw.WriteLine("# https://github.com/TheStolenBattenberg/ToolsForKFIV");
+                sw.WriteLine();
 
-        public uint Count
-        {
-            get { return header.numMesh; }
-        }
-        public Mesh this[uint i]
-        {
-            get { return models[(int)i]; }
+                //Data
+                uint offIndex = 1;
+                uint tspIndex = 0;
+                uint grpIndex = 0;
+
+                foreach(Mesh m in meshes)
+                {
+                    //Write Vertices
+                    foreach(Tristrip ts in m.tristrips)
+                    {
+                        sw.WriteLine("# Mesh " + grpIndex.ToString() + "/"+"Tristrip "+ tspIndex.ToString()+". vertices (num = "+ts.numVertex.ToString()+")");
+
+                        foreach(Vertex v in ts.vertices)
+                        {
+                            //Write Position
+                            sw.Write("v ");
+                            sw.Write(" " + (-v.Position.x).ToString());
+                            sw.Write(" " + (-v.Position.y).ToString());
+                            sw.Write(" " + v.Position.z.ToString());
+                            sw.WriteLine();
+
+                            //Write Normal
+                            sw.Write("vn ");
+                            sw.Write(" " + (-v.Normal.x).ToString());
+                            sw.Write(" " + (-v.Normal.y).ToString());
+                            sw.Write(" " + v.Normal.z.ToString());
+                            sw.WriteLine();
+
+                            //Write Texcoord
+                            sw.Write("vt ");
+                            sw.Write(" " + v.Texcoord.x.ToString());
+                            sw.Write(" " + (1f - v.Texcoord.y).ToString());
+                            sw.WriteLine();
+                        }
+                        sw.WriteLine();
+
+                        tspIndex++;
+                    }
+                    tspIndex = 0;
+
+                    //Write Triangles
+                    sw.WriteLine("g Mesh" + grpIndex.ToString());
+                    foreach(Tristrip ts in m.tristrips)
+                    {
+                        foreach(Triangle t in ts.triangles)
+                        {
+                            sw.Write("f");
+                            sw.Write(" " + (offIndex + t.A).ToString());
+                            sw.Write("/" + (offIndex + t.A).ToString());
+                            sw.Write("/" + (offIndex + t.A).ToString());
+                            sw.Write(" " + (offIndex + t.B).ToString());
+                            sw.Write("/" + (offIndex + t.B).ToString());
+                            sw.Write("/" + (offIndex + t.B).ToString());
+                            sw.Write(" " + (offIndex + t.C).ToString());
+                            sw.Write("/" + (offIndex + t.C).ToString());
+                            sw.Write("/" + (offIndex + t.C).ToString());
+                            sw.WriteLine();
+                        }
+                        offIndex += ts.numVertex;
+                    }
+                    sw.WriteLine();
+
+                    grpIndex++;
+                }
+            }
         }
     }
 }
