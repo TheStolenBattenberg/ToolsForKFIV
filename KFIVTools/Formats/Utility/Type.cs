@@ -1,4 +1,6 @@
-﻿namespace KFIV.Utility.Type
+﻿using KFIV.Utility.Math;
+
+namespace KFIV.Utility.Type
 {
     public struct GIFPacket
     {
@@ -19,5 +21,13 @@
         public float y { set; get; }
         public float z { set; get; }
         public float w { set; get; }
+
+        public Vector3 AsVec3
+        {
+            get
+            {
+                return new Vector3(x, y, z);
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using System;
 
 using KFIV.Utility.IO;
 using KFIV.Utility.Type;
+using KFIV.Utility.Math;
 
 namespace KFIV.Format.OM2
 {
@@ -250,16 +251,45 @@ namespace KFIV.Format.OM2
                     {
                         foreach(Triangle t in ts.triangles)
                         {
-                            sw.Write("f");
-                            sw.Write(" " + (offIndex + t.A).ToString());
-                            sw.Write("/" + (offIndex + t.A).ToString());
-                            sw.Write("/" + (offIndex + t.A).ToString());
-                            sw.Write(" " + (offIndex + t.B).ToString());
-                            sw.Write("/" + (offIndex + t.B).ToString());
-                            sw.Write("/" + (offIndex + t.B).ToString());
-                            sw.Write(" " + (offIndex + t.C).ToString());
-                            sw.Write("/" + (offIndex + t.C).ToString());
-                            sw.Write("/" + (offIndex + t.C).ToString());
+                            //Calculate Face Normal
+                            Vector3 fA = ts.vertices[(int) t.A].Position.AsVec3;
+                            Vector3 fB = ts.vertices[(int) t.B].Position.AsVec3;
+                            Vector3 fC = ts.vertices[(int) t.C].Position.AsVec3;
+
+                            Vector3 U = Vector3.Subtract(fB, fA);
+                            Vector3 V = Vector3.Subtract(fC, fA);
+                            Vector3 N = Vector3.Cross(U, V);
+
+                            //Good enough to just use the first vertices normal
+                            float d = Vector3.Dot(ts.vertices[(int)t.A].Normal.AsVec3, N);
+
+                            //Flip triangles by seeing if they're backwards using the dotproduct
+                            if (d > 0)
+                            {
+                                sw.Write("f");
+                                sw.Write(" " + (offIndex + t.A).ToString());
+                                sw.Write("/" + (offIndex + t.A).ToString());
+                                sw.Write("/" + (offIndex + t.A).ToString());
+                                sw.Write(" " + (offIndex + t.B).ToString());
+                                sw.Write("/" + (offIndex + t.B).ToString());
+                                sw.Write("/" + (offIndex + t.B).ToString());
+                                sw.Write(" " + (offIndex + t.C).ToString());
+                                sw.Write("/" + (offIndex + t.C).ToString());
+                                sw.Write("/" + (offIndex + t.C).ToString());
+                            }
+                            else
+                            {
+                                sw.Write("f");
+                                sw.Write(" " + (offIndex + t.C).ToString());
+                                sw.Write("/" + (offIndex + t.C).ToString());
+                                sw.Write("/" + (offIndex + t.C).ToString());
+                                sw.Write(" " + (offIndex + t.B).ToString());
+                                sw.Write("/" + (offIndex + t.B).ToString());
+                                sw.Write("/" + (offIndex + t.B).ToString());
+                                sw.Write(" " + (offIndex + t.A).ToString());
+                                sw.Write("/" + (offIndex + t.A).ToString());
+                                sw.Write("/" + (offIndex + t.A).ToString());
+                            }
                             sw.WriteLine();
                         }
                         offIndex += ts.numVertex;

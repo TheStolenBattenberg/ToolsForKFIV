@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MAP.cs" />
+    <Compile Include="Math\Vector3.cs" />
     <Compile Include="OM2.cs" />
     <Compile Include="OMD.cs" />
     <Compile Include="DAT1.cs" />
