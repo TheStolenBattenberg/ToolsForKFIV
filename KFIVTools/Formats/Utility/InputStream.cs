@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using KFIV.Utility.Type;
+using KFIV.Utility.Math;
 
 namespace KFIV.Utility.IO
 {
@@ -45,17 +46,9 @@ namespace KFIV.Utility.IO
         }
 
         //Extension: PS2 Types
-        public float ReadFixed16()
+        public float ReadFixed16(float div)
         {
-            return base.ReadInt16() / 4096f;
-        }
-        public GIFPacket ReadGIFPacket()
-        {
-            GIFPacket gif = new GIFPacket();
-            gif.data = base.ReadBytes(8);
-            gif.tag = base.ReadInt64();
-
-            return gif;
+            return base.ReadInt16() / div;
         }
         public DMAHeader ReadDMAHeader()
         {
@@ -70,11 +63,40 @@ namespace KFIV.Utility.IO
 
             return dma;
         }
+        public DMAPacket ReadDMAPacket()
+        {
+            DMAPacket gif = new DMAPacket();
+            gif.data = base.ReadBytes(8);
+            gif.tag = base.ReadInt64();
+
+            return gif;
+        }
 
         //Extension: Vector
+        public Vector3 ReadVector3s()
+        {
+            Vector3 vec = Vector3.Zero;
+
+            vec.x = base.ReadSingle();
+            vec.y = base.ReadSingle();
+            vec.z = base.ReadSingle();
+
+            return vec;
+        }
+        public Vector3 ReadVector3h(float div)
+        {
+            Vector3 vec = Vector3.Zero;
+
+            vec.x = ReadFixed16(div);
+            vec.y = ReadFixed16(div);
+            vec.z = ReadFixed16(div);
+
+            return vec;
+        }
         public Vector4 ReadVector4s()
         {
-            Vector4 vec = new Vector4();
+            Vector4 vec = Vector4.Zero;
+
             vec.x = base.ReadSingle();
             vec.y = base.ReadSingle();
             vec.z = base.ReadSingle();
@@ -82,15 +104,18 @@ namespace KFIV.Utility.IO
 
             return vec;
         }
-        public Vector4 ReadVector4f()
+        public Vector4 ReadVector4h(float div)
         {
-            Vector4 vec = new Vector4();
-            vec.x = ReadFixed16();
-            vec.y = ReadFixed16();
-            vec.z = ReadFixed16();
-            vec.w = ReadFixed16();
+            Vector4 vec = Vector4.Zero;
+
+            vec.x = ReadFixed16(div);
+            vec.y = ReadFixed16(div);
+            vec.z = ReadFixed16(div);
+            vec.w = ReadFixed16(div);
 
             return vec;
         }
+
+
     }
 }

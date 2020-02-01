@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OM2toOBJ", "OM2toOBJ\OM2toO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMDtoOBJ", "OMDtoOBJ\OMDtoOBJ.csproj", "{C9E7C7CD-CAF3-47E6-A707-CA0A9DD9F635}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CHRUnpack", "CHRUnpack\CHRUnpack.csproj", "{CEF77D6E-39BE-4B4F-AA50-24D40DE55410}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C9E7C7CD-CAF3-47E6-A707-CA0A9DD9F635}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9E7C7CD-CAF3-47E6-A707-CA0A9DD9F635}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9E7C7CD-CAF3-47E6-A707-CA0A9DD9F635}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEF77D6E-39BE-4B4F-AA50-24D40DE55410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEF77D6E-39BE-4B4F-AA50-24D40DE55410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEF77D6E-39BE-4B4F-AA50-24D40DE55410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEF77D6E-39BE-4B4F-AA50-24D40DE55410}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

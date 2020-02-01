@@ -136,9 +136,7 @@ namespace KFIV.Format.MAP
         public struct ChunkPage
         { }
         public struct ChunkSound
-        {
-
-        }
+        { }
 
         #endregion
         #region Data

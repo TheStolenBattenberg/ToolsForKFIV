@@ -4,6 +4,7 @@ using System.IO;
 
 using KFIV.Utility.IO;
 using KFIV.Utility.Type;
+using KFIV.Utility.Math;
 
 namespace KFIV.Format.OMD
 {
@@ -70,75 +71,99 @@ namespace KFIV.Format.OMD
         }
         public struct Vertex
         {
-            public Vector4 position { private set; get; }
-            public Vector4 normal { private set; get; }
-            public Vector4 texcoord { private set; get; }
-            public Vector4 colour { private set; get; }
+            public Vector4 Position { private set; get; }
+            public Vector4 Normal { private set; get; }
+            public Vector4 Texcoord { private set; get; }
+            public Vector4 Colour { private set; get; }
 
             public Vertex(InputStream bin)
             {
-                position = bin.ReadVector4f();
-                normal = bin.ReadVector4f();
-                texcoord = bin.ReadVector4f();
-                colour = bin.ReadVector4f();
+                Position = bin.ReadVector4h(256f);
+                Normal = bin.ReadVector4h(4096f);
+                Texcoord = bin.ReadVector4h(4096f);
+                Colour = bin.ReadVector4h(1f);
             }
         }
         public struct Triangle
         {
-            public uint ind1 { private set; get; }
-            public uint ind2 { private set; get; }
-            public uint ind3 { private set; get; }
+            public uint A { private set; get; }
+            public uint B { private set; get; }
+            public uint C { private set; get; }
 
-            public Triangle(uint x, uint y, uint z)
+            public Triangle(uint a, uint b, uint c)
             {
-                ind1 = x;
-                ind2 = y;
-                ind3 = z;
+                A = a;
+                B = b;
+                C = c;
             }
         }
         public struct Tristrip
         {
             public byte[] ukn00 { private set; get; }
-            public GIFPacket ukn20 { private set; get; }
-            public GIFPacket ukn30 { private set; get; }
-            public GIFPacket ukn40 { private set; get; }
-            public GIFPacket ukn50 { private set; get; }
-            public byte[] ukn60 { private set; get; }
+            public DMAHeader ukn10 { private set; get; }
+            public DMAPacket ukn20 { private set; get; }
+            public DMAPacket ukn30 { private set; get; }
+            public DMAPacket ukn40 { private set; get; }
+            public DMAPacket ukn50 { private set; get; }
+            public DMAHeader ukn60 { private set; get; }
             public uint numVertex { private set; get; }
             public byte[] ukn71 { private set; get; }
+            public DMAHeader ukn80 { private set; get; }
 
             public List<Vertex>   vertices;
             public List<Triangle> triangles;
 
             public Tristrip(InputStream bin)
             {
-                ukn00 = bin.ReadBytes(32);
-                ukn20 = bin.ReadGIFPacket();
-                ukn30 = bin.ReadGIFPacket();
-                ukn40 = bin.ReadGIFPacket();
-                ukn50 = bin.ReadGIFPacket();
-                ukn60 = bin.ReadBytes(16);
+                ukn00 = bin.ReadBytes(16);
+                ukn10 = bin.ReadDMAHeader();
+                ukn20 = bin.ReadDMAPacket();
+                ukn30 = bin.ReadDMAPacket();
+                ukn40 = bin.ReadDMAPacket();
+                ukn50 = bin.ReadDMAPacket();
+                ukn60 = bin.ReadDMAHeader();
                 numVertex = bin.ReadByte();
-                ukn71 = bin.ReadBytes(31);
+                ukn71 = bin.ReadBytes(15);
+                ukn80 = bin.ReadDMAHeader();
+
+                uint i = 0;
 
                 //Read vertices for this tristrip
                 vertices = new List<Vertex>();
 
-                for(uint i = 0; i < numVertex; ++i)
-                    vertices.Add(new Vertex(bin));
+                List<uint> breaks = new List<uint>();
+
+                for(i = 0; i < numVertex; ++i)
+                {
+                    Vertex v = new Vertex(bin);
+
+                    //Need to make sure we haven't already added this break by checking
+                    //the last position too
+                    if (v.Normal.w <= -7.9999f && !breaks.Contains(i-1))
+                        breaks.Add(i);
+
+                    vertices.Add(v);
+                }
 
                 //Skip 16 unknown bytes
                 bin.ReadBytes(16);
 
+
                 //Deconstruct Tristrip to triangles
                 triangles = new List<Triangle>();
 
-                for (int i = 0; i < numVertex - 2; i++)
+                i = 0;
+                while (i < (numVertex - 2))
                 {
                     if ((i % 2) == 1)
-                        triangles.Add(new Triangle((uint)i + 1, (uint)i, (uint)i + 2));
+                        triangles.Add(new Triangle(i + 1, i, i + 2));
                     else
-                        triangles.Add(new Triangle((uint)i, (uint)i + 1, (uint)i + 2));
+                        triangles.Add(new Triangle(i, i + 1, i + 2));
+
+                    //Special condition to split tristrip on break
+                    i++;
+                    if (breaks.Contains(i+2))
+                        i += 2;
                 }
             }
         }
@@ -187,9 +212,9 @@ namespace KFIV.Format.OMD
                         foreach(Vertex v in ts.vertices)
                         {
                             obj.Write("v");
-                            obj.Write(" " + v.position.z.ToString());
-                            obj.Write(" " + (-v.position.y).ToString());
-                            obj.Write(" " + v.position.x.ToString());
+                            obj.Write(" " + (-v.Position.x).ToString());
+                            obj.Write(" " + (-v.Position.y).ToString());
+                            obj.Write(" " + v.Position.z.ToString());
                             obj.WriteLine();
 
                             num++;
@@ -201,20 +226,25 @@ namespace KFIV.Format.OMD
                 num = 0;
 
                 //Write normals
+                uint tsNum = 0;
                 foreach(Mesh m in meshes)
                 {
                     foreach(Tristrip ts in m.tristrips)
                     {
+                        obj.WriteLine("# OF TRISTRIP " + tsNum.ToString());
                         foreach(Vertex v in ts.vertices)
                         {
                             obj.Write("vn");
-                            obj.Write(" " + v.normal.x.ToString());
-                            obj.Write(" " + (-v.normal.y).ToString());
-                            obj.Write(" " + v.normal.z.ToString());
+                            obj.Write(" " + (-v.Normal.x).ToString());
+                            obj.Write(" " + (-v.Normal.y).ToString());
+                            obj.Write(" " + v.Normal.z.ToString());
+                            obj.Write(" " + v.Normal.w.ToString());
                             obj.WriteLine();
 
                             num++;
                         }
+
+                        tsNum++;
                     }
                 }
                 obj.WriteLine("# Normal count " + num.ToString());
@@ -229,8 +259,8 @@ namespace KFIV.Format.OMD
                         foreach(Vertex v in ts.vertices)
                         {
                             obj.Write("vt");
-                            obj.Write(" " + v.texcoord.x.ToString());
-                            obj.Write(" " + (-v.texcoord.y).ToString());
+                            obj.Write(" " + v.Texcoord.x.ToString());
+                            obj.Write(" " + (-v.Texcoord.y).ToString());
                             obj.WriteLine();
 
                             num++;
@@ -244,24 +274,53 @@ namespace KFIV.Format.OMD
                 //Write Meshes
                 uint ind = 1;
                 foreach(Mesh m in meshes)
-                {
+                {        
                     obj.WriteLine("g Mesh" + num.ToString());
-
                     foreach (Tristrip ts in m.tristrips)
                     {
                         foreach (Triangle t in ts.triangles)
                         {
-                            obj.Write("f");
-                            obj.Write(" " + (ind + t.ind1).ToString());
-                            obj.Write("/" + (ind + t.ind1).ToString());
-                            obj.Write("/" + (ind + t.ind1).ToString());
-                            obj.Write(" " + (ind + t.ind2).ToString());
-                            obj.Write("/" + (ind + t.ind2).ToString());
-                            obj.Write("/" + (ind + t.ind2).ToString());
-                            obj.Write(" " + (ind + t.ind3).ToString());
-                            obj.Write("/" + (ind + t.ind3).ToString());
-                            obj.Write("/" + (ind + t.ind3).ToString());
-                            obj.WriteLine();
+                            //Calculate Face Normal
+                            Vector3 fA = ts.vertices[(int)t.A].Position.AsVec3;
+                            Vector3 fB = ts.vertices[(int)t.B].Position.AsVec3;
+                            Vector3 fC = ts.vertices[(int)t.C].Position.AsVec3;
+
+                            Vector3 U = Vector3.Subtract(fB, fA);
+                            Vector3 V = Vector3.Subtract(fC, fA);
+                            Vector3 N = Vector3.Cross(U, V);
+
+                            //Good enough to just use the first vertices normal
+                            float d = Vector3.Dot(ts.vertices[(int)t.A].Normal.AsVec3, N);
+
+                            //Flip triangles by seeing if they're backwards using the dotproduct
+                            if (d > 0f)
+                            {
+                                obj.Write("f");
+                                obj.Write(" " + (ind + t.A).ToString());
+                                obj.Write("/" + (ind + t.A).ToString());
+                                obj.Write("/" + (ind + t.A).ToString());
+                                obj.Write(" " + (ind + t.B).ToString());
+                                obj.Write("/" + (ind + t.B).ToString());
+                                obj.Write("/" + (ind + t.B).ToString());
+                                obj.Write(" " + (ind + t.C).ToString());
+                                obj.Write("/" + (ind + t.C).ToString());
+                                obj.Write("/" + (ind + t.C).ToString());
+                                obj.WriteLine();
+                            }
+                            else
+                            {
+                                obj.Write("f");
+                                obj.Write(" " + (ind + t.C).ToString());
+                                obj.Write("/" + (ind + t.C).ToString());
+                                obj.Write("/" + (ind + t.C).ToString());
+                                obj.Write(" " + (ind + t.B).ToString());
+                                obj.Write("/" + (ind + t.B).ToString());
+                                obj.Write("/" + (ind + t.B).ToString());
+                                obj.Write(" " + (ind + t.A).ToString());
+                                obj.Write("/" + (ind + t.A).ToString());
+                                obj.Write("/" + (ind + t.A).ToString());
+                                obj.WriteLine();
+                            }
                         }
                         ind += ts.numVertex;
 
@@ -271,7 +330,6 @@ namespace KFIV.Format.OMD
                     num++;
                 }
             }
-
         }
     }
 }

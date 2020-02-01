@@ -78,9 +78,9 @@ namespace KFIV.Format.OM2
             public byte[]    ukn00 { private set; get; }
 
             public DMAHeader ukn10 { private set; get; }
-            public GIFPacket ukn20 { private set; get; }
-            public GIFPacket ukn30 { private set; get; }
-            public GIFPacket ukn40 { private set; get; }
+            public DMAPacket ukn20 { private set; get; }
+            public DMAPacket ukn30 { private set; get; }
+            public DMAPacket ukn40 { private set; get; }
             public byte[]    ukn50 { private set; get; }
 
             public DMAHeader dmaVertex { private set; get; }
@@ -95,9 +95,9 @@ namespace KFIV.Format.OM2
             {
                 ukn00 = ins.ReadBytes(16);
                 ukn10 = ins.ReadDMAHeader();
-                ukn20 = ins.ReadGIFPacket();
-                ukn30 = ins.ReadGIFPacket();
-                ukn40 = ins.ReadGIFPacket();
+                ukn20 = ins.ReadDMAPacket();
+                ukn30 = ins.ReadDMAPacket();
+                ukn40 = ins.ReadDMAPacket();
                 ukn50 = ins.ReadBytes(48);
 
                 dmaVertex = ins.ReadDMAHeader();
