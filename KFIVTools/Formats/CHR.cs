@@ -92,7 +92,6 @@ namespace KFIV.Format.CHR
 
             return chr;
         }
-
         public void Save(string path)
         {
             OutputStream.WriteFile(path + ".om2", OM2);

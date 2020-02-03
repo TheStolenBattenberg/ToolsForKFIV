@@ -29,14 +29,10 @@ namespace KFIV.Format.OMD
             }
         }
         public struct Mesh
-        { 
-            public byte[] ukn00 { private set; get; }
-            public uint   ukn0C { private set; get; }
-            public float  ukn10 { private set; get; }
-            public float  ukn14 { private set; get; }
-            public float  ukn18 { private set; get; }
-            public float  ukn1C { private set; get; }
-            public float  ukn20 { private set; get; }
+        {
+            public Vector3 translation { private set; get; }
+            public Vector3 rotation { private set; get; }
+            public Vector3 scale { private set; get; }
             public uint offTristrips { private set; get; }
             public uint numTristrips { private set; get; }
             public uint ukn2C { private set; get; }
@@ -45,13 +41,9 @@ namespace KFIV.Format.OMD
 
             public Mesh(InputStream bin)
             {
-                ukn00 = bin.ReadBytes(12);
-                ukn0C = bin.ReadUInt32();
-                ukn10 = bin.ReadSingle();
-                ukn14 = bin.ReadSingle();
-                ukn18 = bin.ReadSingle();
-                ukn1C = bin.ReadSingle();
-                ukn20 = bin.ReadSingle();
+                translation = bin.ReadVector3s();
+                rotation = bin.ReadVector3s();
+                scale = bin.ReadVector3s();
                 offTristrips = bin.ReadUInt32();
                 numTristrips = bin.ReadUInt32();
                 ukn2C = bin.ReadUInt32();
@@ -226,25 +218,20 @@ namespace KFIV.Format.OMD
                 num = 0;
 
                 //Write normals
-                uint tsNum = 0;
                 foreach(Mesh m in meshes)
                 {
                     foreach(Tristrip ts in m.tristrips)
                     {
-                        obj.WriteLine("# OF TRISTRIP " + tsNum.ToString());
                         foreach(Vertex v in ts.vertices)
                         {
                             obj.Write("vn");
                             obj.Write(" " + (-v.Normal.x).ToString());
                             obj.Write(" " + (-v.Normal.y).ToString());
                             obj.Write(" " + v.Normal.z.ToString());
-                            obj.Write(" " + v.Normal.w.ToString());
                             obj.WriteLine();
 
                             num++;
                         }
-
-                        tsNum++;
                     }
                 }
                 obj.WriteLine("# Normal count " + num.ToString());
