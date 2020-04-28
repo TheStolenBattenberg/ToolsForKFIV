@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using KFIV.Utility.Math;
+
 namespace KFIV.Utility.IO
 {
     public class OutputStream : BinaryWriter
@@ -13,6 +15,14 @@ namespace KFIV.Utility.IO
             {
                 os.Write(bytes);
             }
+        }
+
+        public void WriteVector4(Vector4 vec4)
+        {
+            base.Write(vec4.x);
+            base.Write(vec4.y);
+            base.Write(vec4.z);
+            base.Write(vec4.w);
         }
     }
 }
