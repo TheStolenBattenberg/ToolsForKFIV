@@ -37,11 +37,11 @@ namespace KFIV.Format.MAP
             public ushort numUnused { private set; get; }          //Unused
             public ushort numItem { private set; get; }            //Number of items in item chunk
 
-            public ushort numStructPiece { private set; get; } //Count of structs defining map layout
-            public ushort numStructUknC { private set; get; }  //Count of structs defining ???
-            public ushort numStructUknD { private set; get; }  //^^
-            public ushort numStructUknE { private set; get; }  //^^
-            public ushort numStructItem { private set; get; }  //Count of structs defining item locations
+            public ushort numStructPiece { private set; get; }     //Count of structs defining map layout
+            public ushort numStructUknC { private set; get; }      //Count of structs defining ???
+            public ushort numStructObject { private set; get; }    //Count of structs defining objects
+            public ushort numStructCreature { private set; get; }  //Count of structs defining ceatures / npcs
+            public ushort numStructItem { private set; get; }      //Count of structs defining items
 
             public byte[] ukn46 { private set; get; } //0x3A unknown bytes
 
@@ -68,8 +68,8 @@ namespace KFIV.Format.MAP
                 numItem = ins.ReadUInt16();
                 numStructPiece = ins.ReadUInt16();
                 numStructUknC = ins.ReadUInt16();
-                numStructUknD = ins.ReadUInt16();
-                numStructUknE = ins.ReadUInt16();
+                numStructObject = ins.ReadUInt16();
+                numStructCreature = ins.ReadUInt16();
                 numStructItem = ins.ReadUInt16();
 
                 ukn46 = ins.ReadBytes(0x3A);
@@ -122,8 +122,12 @@ namespace KFIV.Format.MAP
             public Vector4 Position { private set; get; }             //Position of the transformed mesh
             public Vector4 Rotation { private set; get; }             //Rotation of the transformed mesh
             public Vector4 Scale { private set; get; }                //Scale of the transformed mesh
-            public byte[] mesh { private set; get; }                  //Mesh used for rendering
-            public byte[] collsionMesh { private set; get; }          //Mesh used for collsions
+
+            public ushort mIndex { private set; get; }                //Render Mesh Index
+            public ushort cIndex { private set; get; }                //Collision Mesh Index
+
+            public byte[] ukn34 { private set; get; }                 //12 Unidentified bytes
+
             public Vector4 meshAABBMin { private set; get; }          //Minimum point of a bounding box for the mesh
             public Vector4 meshAABBMax { private set; get; }          //Maximum point of a bounding box for the mesh
             public Vector4 collisionMeshAABBMin { private set; get; } //Minimum point of a bounding box for the collision mesh
@@ -134,8 +138,11 @@ namespace KFIV.Format.MAP
                 Position = ins.ReadVector4s();
                 Rotation = ins.ReadVector4s();
                 Scale = ins.ReadVector4s();
-                mesh = ins.ReadBytes(8);
-                collsionMesh = ins.ReadBytes(8);
+
+                mIndex = ins.ReadUInt16();
+                cIndex = ins.ReadUInt16();
+
+                ukn34 = ins.ReadBytes(12);
 
                 meshAABBMin = ins.ReadVector4s();
                 meshAABBMax = ins.ReadVector4s();
@@ -148,8 +155,9 @@ namespace KFIV.Format.MAP
                 ous.WriteVector4(Position);
                 ous.WriteVector4(Rotation);
                 ous.WriteVector4(Scale);
-                ous.Write(mesh);
-                ous.Write(collsionMesh);
+                ous.Write(mIndex);
+                ous.Write(cIndex);
+                ous.Write(ukn34);
                 ous.WriteVector4(meshAABBMin);
                 ous.WriteVector4(meshAABBMax);
                 ous.WriteVector4(collisionMeshAABBMin);
@@ -174,7 +182,7 @@ namespace KFIV.Format.MAP
                 ukn = ins.ReadBytes(0x200);
             }
         }
-        public struct StructD
+        public struct Object
         {
             public Vector4 Position { private set; get; }
             public Vector4 Rotation { private set; get; }
@@ -182,7 +190,7 @@ namespace KFIV.Format.MAP
 
             public byte[] ukn { private set; get; }
 
-            public StructD(InputStream ins)
+            public Object(InputStream ins)
             {
                 Position = ins.ReadVector4s();
                 Rotation = ins.ReadVector4s();
@@ -200,7 +208,7 @@ namespace KFIV.Format.MAP
                 ous.Write(ukn);
             }
         }
-        public struct StructE
+        public struct Creature
         {
             public Vector4 Position { private set; get; }
             public Vector4 Rotation { private set; get; }
@@ -208,7 +216,7 @@ namespace KFIV.Format.MAP
 
             public byte[] ukn { private set; get; }
 
-            public StructE(InputStream ins)
+            public Creature(InputStream ins)
             {
                 Position = ins.ReadVector4s();
                 Rotation = ins.ReadVector4s();
@@ -395,8 +403,8 @@ namespace KFIV.Format.MAP
         private List<Piece> pieceDat;
         private List<StructC> structCs;
         private DataB dataB;
-        private List<StructD> structDs;
-        private List<StructE> structEs;
+        private List<Object> objectDat;
+        private List<Creature> creatureDat;
         private List<Item> itemDat;
 
         private List<PartPiece> chunkPiece;
@@ -452,17 +460,17 @@ namespace KFIV.Format.MAP
                 //Read DataB
                 map.dataB = new DataB(ins);
 
-                //Read Struct Ds
-                map.structDs = new List<StructD>();
+                //Read Object structures
+                map.objectDat = new List<Object>();
 
-                for (uint i = 0; i < map.header.numStructUknD; ++i)
-                    map.structDs.Add(new StructD(ins));
+                for (uint i = 0; i < map.header.numStructObject; ++i)
+                    map.objectDat.Add(new Object(ins));
 
-                //Read Struct Es
-                map.structEs = new List<StructE>();
+                //Read NPC Spawn
+                map.creatureDat = new List<Creature>();
 
-                for (uint i = 0; i < map.header.numStructUknE; ++i)
-                    map.structEs.Add(new StructE(ins));
+                for (uint i = 0; i < map.header.numStructCreature; ++i)
+                    map.creatureDat.Add(new Creature(ins));
 
                 //Read item layout
                 map.itemDat = new List<Item>();
@@ -597,17 +605,17 @@ namespace KFIV.Format.MAP
                 }
             }
 
-            using(OutputStream ous = new OutputStream(path + "structd.dat"))
+            using(OutputStream ous = new OutputStream(path + "object.dat"))
             {
-                foreach(StructD obj in structDs)
+                foreach(Object obj in objectDat)
                 {
                     obj.Write(ous);
                 }
             }
 
-            using(OutputStream ous = new OutputStream(path + "structe.dat"))
+            using(OutputStream ous = new OutputStream(path + "creature.dat"))
             {
-                foreach(StructE obj in structEs)
+                foreach(Creature obj in creatureDat)
                 {
                     obj.Write(ous);
                 }
