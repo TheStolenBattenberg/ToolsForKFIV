@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using KFIV.Utility.IO;
 using KFIV.Utility.Type;
 using KFIV.Utility.Math;
+using KFIV.Format.TX2;
+
 
 namespace KFIV.Format.MAP
 {
@@ -576,12 +578,16 @@ namespace KFIV.Format.MAP
                 OutputStream.WriteFile(path + "item\\texture_" + i.ToString("D4") + ".tx2", chunkItem[i].tx2);
             }
 
-            OutputStream.WriteFile(path + "texture.tx2", mapTexture.tx2);
             OutputStream.WriteFile(path + "sfx.bh", mapSound.bh);
             OutputStream.WriteFile(path + "sfx.bd", mapSound.bd);
 
+            //Convert texture and save to PNG
+            MapTX2 mapTex = MapTX2.FromStream(mapTexture.tx2);
+            mapTex.Save(path);
+            //OutputStream.WriteFile(path + "texture.tx2", mapTexture.tx2);
+
             //Save DATs
-            using(OutputStream ous = new OutputStream(path + "structa.dat"))
+            using (OutputStream ous = new OutputStream(path + "structa.dat"))
             {
                 foreach(StructA obj in structAs)
                 {

@@ -46,6 +46,7 @@
     <Compile Include="CHR.cs" />
     <Compile Include="MAP.cs" />
     <Compile Include="MAPOld.cs" />
+    <Compile Include="MapTX2.cs" />
     <Compile Include="Math\Vector3.cs" />
     <Compile Include="Math\Vector4.cs" />
     <Compile Include="OM2.cs" />

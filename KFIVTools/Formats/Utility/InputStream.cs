@@ -44,6 +44,10 @@ namespace KFIV.Utility.IO
         {
             return base.BaseStream.Position;
         }
+        public long Size()
+        {
+            return base.BaseStream.Length;
+        }
 
         //Extension: PS2 Types
         public float ReadFixed16(float div)
