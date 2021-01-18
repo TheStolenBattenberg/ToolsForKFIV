@@ -3,6 +3,8 @@ These tools will let you extract and convert files from the PS2 FromSoftware gam
 
 Confirmed to work with European (SLES-50920), US (SLUS-20318, SLUS-20353) and Japanese (SLPS-25057) release. Unknown if they work on the version included with the Dark Side Box collection.
 
+Also included is a single (very, very experimental) tool for the STZ archive on the Shadow Tower Abyss disc.
+
 ### Compiling
 The project files are for MSVS 2019, NET Framework 4.7.2. Load 'em into Visual Studio and away you go.
 
