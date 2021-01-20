@@ -67,8 +67,9 @@ namespace KFIV.Format.TX2
             {
                 int imageSize = (int) (pixh.width * pixh.height) * 4;
 
-                pixels = SwizzleFilter(ins.ReadBytes(imageSize), pixh.width, pixh.height);
-                //pixels = ins.ReadBytes(imageSize);
+                pixels = ins.ReadBytes(imageSize);
+                //YCbCr2RGB(ref pixels);
+                //SwizzleFilter(pixels, pixh.width, pixh.height);
 
                 width = pixh.width;
                 height = pixh.height;
@@ -149,25 +150,50 @@ namespace KFIV.Format.TX2
             }
         }
 
+        //YCbCr to RGB
+        private static void YCbCr2RGB(ref byte[] pixels)
+        {
+            double Y, Cb, Cr;
+            int r, g, b;
+
+            for(int i = 0; i < pixels.Length; ++i)
+            {
+                //Conversion routine
+                Y = pixels[i + 0];
+                Cb = pixels[i + 1];
+                Cr = pixels[i + 2];
+
+                r = (int)(Y + 1.40200 * (Cr - 0x80));
+                g = (int)(Y - 0.34414 * (Cb - 0x80) - 0.71414 * (Cr - 0x80));
+                b = (int)(Y + 1.77200 * (Cb - 0x80));
+
+                //Place RGB value back into pixel array
+                pixels[i + 0] = (byte) Math.Min(Math.Max(0, r), 255);
+                pixels[i + 1] = (byte) Math.Min(Math.Max(0, g), 255);
+                pixels[i + 2] = (byte) Math.Min(Math.Max(0, b), 255);
+
+                i += 3;
+            }
+        }
+
         //DeSwizzle. Based on work here: https://github.com/marco-calautti/Rainbow/     
         private static byte[] SwizzleFilter(byte[] img, uint width, uint height)
         {
-            //Width 16
-            //Height 8
-            //BitDepth = 32
-
             //Buffer
+            int tileWidth = 4;
+            int tileHeight = 2;
+
             byte[] buffer = new byte[width * height * 4];
             int w = (int) (width * 32) / 8;
-            int lineSize = (16 * 32) / 8;
+            int lineSize = (tileWidth * 32) / 8;
 
             int i = 0;
 
-            for (int y = 0; y < height; y += 8)
+            for (int y = 0; y < height; y += tileHeight)
             {
                 for (int x = 0; x < w; x += lineSize)
                 {
-                    for (int tileY = y; tileY < y + 8; tileY++)
+                    for (int tileY = y; tileY < y + tileHeight; tileY++)
                     {
                         for (int tileX = x; tileX < x + lineSize; tileX++)
                         {

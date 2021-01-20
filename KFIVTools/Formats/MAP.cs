@@ -584,7 +584,8 @@ namespace KFIV.Format.MAP
             //Convert texture and save to PNG
             MapTX2 mapTex = MapTX2.FromStream(mapTexture.tx2);
             mapTex.Save(path);
-            //OutputStream.WriteFile(path + "texture.tx2", mapTexture.tx2);
+
+            OutputStream.WriteFile(path + "texture.tx2", mapTexture.tx2);
 
             //Save DATs
             using (OutputStream ous = new OutputStream(path + "structa.dat"))
