@@ -8,11 +8,13 @@ Also included is a (very experimental) tool for the STZ archive from Shadow Towe
 ### GhidraProject Directory
 This directory contains a Ghidra project with some reverse engineering efforts for KFIV. It also contains files using the PS2 SDK 2.2.4 (the version of the SDK used for KFIV) used to generate an FIDB.
 
+You can open this locally despite it not being on a server thanks to a small hack to 'project.prp' where I've removed the username. However... Forced sourcecontrol like this with Ghidra doesn't allow the merging of branches since the Ghidra databases are binary files... Please, do not push *Any* changes to the ghidra project back to this branch.
+
 ### Format Definitions
 [On the wiki](https://github.com/TheStolenBattenberg/ToolsForKFIV/wiki).
 
 You'll find detailed descriptions and C style documentation for the file formats on the wiki section of the repository, that can be used to implement these file formats in your own projects. The documentation is updated a lot more frequently than the code is as I'm constantly putting new findings down there.
 
 ### Acknowledgments
-* JKAnderson/TKGP and his work @ [SoulsFormats](https://github.com/JKAnderson/SoulsFormats "SoulsFormats repository on GitHub"), of which some of this project is based/inspired by (comments pending)
+* Inspired by JKAnderson/TKGP and his work @ [SoulsFormats](https://github.com/JKAnderson/SoulsFormats "SoulsFormats repository on GitHub") (code comments pending)
 * FromSoftware making damn good games
