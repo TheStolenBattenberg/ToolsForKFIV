@@ -13,7 +13,7 @@ You can open this locally despite it not being on a server thanks to a small hac
 ### Format Definitions
 [On the wiki](https://github.com/TheStolenBattenberg/ToolsForKFIV/wiki).
 
-You'll find detailed descriptions and C style documentation for the file formats on the wiki section of the repository, that can be used to implement these file formats in your own projects. The documentation is updated a lot more frequently than the code is as I'm constantly putting new findings down there.
+You'll find detailed descriptions and C style documentation for the file formats on the wiki section of the repository, that can be used to implement these file formats in your own projects.
 
 ### Acknowledgments
 * Inspired by JKAnderson/TKGP and his work @ [SoulsFormats](https://github.com/JKAnderson/SoulsFormats "SoulsFormats repository on GitHub") (code comments pending)
