@@ -14,7 +14,7 @@ namespace KFIV.Format.TX2
         #region Format Types
         public struct PixelHeader
         {
-            public byte[] DMA   { private set; get; }
+            public byte[] DMA   { private set; get; }	//why did I call this DMA?..
 
             public byte[] ukn20 { private set; get; }
             public ulong ukn28 { private set; get; }    //Always '00 00 00 00 00 00 00 E0'

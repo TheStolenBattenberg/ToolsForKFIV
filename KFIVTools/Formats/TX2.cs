@@ -222,6 +222,22 @@ namespace KFIV.Format.TX2
                     case 0x00: fmt = PixelFormat.Format32bppArgb;     break; 
                 }
 
+                // Cheap hacks to fix Endian Artifacts
+                switch(pixelBuffer.bpp)
+                {
+                    case 0x14:
+                        int oldPix;
+                        int newPix;
+                        for(uint i = 0; i < pixelBuffer.pixels.Length; ++i)
+                        {
+                            oldPix = pixelBuffer.pixels[i];
+
+                            newPix = ((oldPix >> 4) & 0xF) | ((oldPix & 0xF) << 4);
+                            pixelBuffer.pixels[i] = (byte)(newPix & 0xFF);
+                        }
+                        break;
+                }
+
                 using (Bitmap bm = new Bitmap((int)pixelBuffer.width, (int)pixelBuffer.height, fmt))
                 {
                     //Copy CLUT
