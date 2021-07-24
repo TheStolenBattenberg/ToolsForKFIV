@@ -10,6 +10,9 @@ This directory contains a Ghidra project with some reverse engineering efforts f
 
 You can open this locally despite it not being on a server thanks to a small hack to 'project.prp' where I've removed the username. However... Forced sourcecontrol like this with Ghidra doesn't allow the merging of branches since the Ghidra databases are binary files... Please, do not push *Any* changes to the ghidra project back to this branch.
 
+### Scripts4Unity Directory
+With these you can import KFIV maps into Unity Game Engine directly.
+
 ### Format Definitions
 [On the wiki](https://github.com/TheStolenBattenberg/ToolsForKFIV/wiki).
 
