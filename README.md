@@ -21,3 +21,7 @@ You'll find detailed descriptions and C style documentation for the file formats
 ### Acknowledgments
 * Inspired by JKAnderson/TKGP and his work @ [SoulsFormats](https://github.com/JKAnderson/SoulsFormats "SoulsFormats repository on GitHub") (code comments pending)
 * FromSoftware making damn good games
+
+### Contributors
+* [IvanDSM] (https://github.com/IvanDSM "IvanDSM's GitHub")
+* TheStolenBattenberg
