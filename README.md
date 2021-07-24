@@ -23,5 +23,5 @@ You'll find detailed descriptions and C style documentation for the file formats
 * FromSoftware making damn good games
 
 ### Contributors
-* [IvanDSM] (https://github.com/IvanDSM "IvanDSM's GitHub")
+* [IvanDSM](https://github.com/IvanDSM "IvanDSM's GitHub")
 * TheStolenBattenberg
