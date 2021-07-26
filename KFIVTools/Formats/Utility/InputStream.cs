@@ -50,6 +50,15 @@ namespace KFIV.Utility.IO
         }
 
         //Extension: PS2 Types
+        public byte[] ReadBytesBetter(uint numByte)
+        {
+            byte[] buffer = new byte[numByte];
+
+            for(uint i = 0; i < numByte; ++i)
+                buffer[i] = base.ReadByte();
+
+            return buffer;
+        }
         public float ReadFixed16(float div)
         {
             return base.ReadInt16() / div;

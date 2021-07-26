@@ -300,8 +300,6 @@ namespace KFIV.Format.MOD
                     break;
             }
 
-            Console.WriteLine("Clut Alpha: " + tm2.header.texClutAlpha);
-
             using (Bitmap bm = new Bitmap((int)tm2.header.texWidth, (int)tm2.header.texHeight, pFmt))
             {
                 //When image is indexed, copy the clut first.
