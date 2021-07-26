@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.IO;
 
+using KFIV.Utility.Math;
+
 namespace KFIV.Format.OBJ
 {
     public class OBJ
@@ -12,6 +14,14 @@ namespace KFIV.Format.OBJ
         List<string> texcoord;
         Dictionary<string, List<string>> groups;
 
+        public uint NormalCount
+        {
+            get { return (uint)normal.Count; }
+        }
+        public uint TexcoordCount
+        {
+            get { return (uint)texcoord.Count; }
+        }
         #endregion
 
         NumberFormatInfo nfi;
@@ -106,6 +116,15 @@ namespace KFIV.Format.OBJ
                     f.WriteLine();
                 }
             }
+        }
+
+
+        // Triangle Utilities
+        public static Vector3 GenerateFaceNormal(Vector3 v1, Vector3 v2, Vector3 v3)
+        {
+            Vector3 U = Vector3.Subtract(v2, v1);
+            Vector3 V = Vector3.Subtract(v3, v1);
+            return Vector3.Cross(U, V);
         }
     }
 }

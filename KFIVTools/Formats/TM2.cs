@@ -43,6 +43,13 @@ namespace KFIV.Format.TM2
                     return (int)Math.Pow(2, (gsTexReg >> 30) & 0xF);  //Texture height is stored as log2. We can restore with 2^width
                 }
             }
+            public int texClutAlpha
+            {
+                get
+                {
+                    return (int)(gsTexReg >> 34) & 0x1;
+                }
+            }
             public int texPixelSize
             {
                 get
@@ -129,14 +136,20 @@ namespace KFIV.Format.TM2
                 byte R = pixels[i + 0];
                 pixels[i + 0] = pixels[i + 2];
                 pixels[i + 2] = R;
-                pixels[i + 3] = 255; // (byte)Math.Min(pixels[i+3] * 2, 255);
+                pixels[i + 3] = (byte)Math.Min(pixels[i+3] * 2, 255);
             }
         }
 
-        public static void CLUT8BPPFix(ref byte[] pixels, uint length)
+        public static void CLUT8BPPFix(ref byte[] pixels, uint length, bool fixAlpha)
         {
             //First pass changes colours from BGR to RGB
-            BGRtoRGB32(ref pixels, length);
+            for (int i = 0; i < length; i += 4)
+            {
+                byte R = pixels[i + 0];
+                pixels[i + 0] = pixels[i + 2];
+                pixels[i + 2] = R;
+                pixels[i + 3] = (byte) (fixAlpha == false ? 255 : (byte)Math.Min(pixels[i+3] * 2, 255));
+            }
 
             //Second pass fixes wierd ordering issues (Is this swizzling?)
             byte tempBuffer;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System;
 
 using KFIV.Utility.IO;
 using KFIV.Utility.Math;
@@ -47,8 +48,8 @@ namespace KFIV.Format.MOD
             public uint offTriPacket;
             public uint numVertex;
             public uint offVertex;
-            public uint numStructA;
-            public uint offStructA;
+            public uint numNormal;
+            public uint offNormal;
             public uint reserved1;
             public uint reserved2;
 
@@ -67,8 +68,8 @@ namespace KFIV.Format.MOD
                 offTriPacket = ins.ReadUInt32();
                 numVertex = ins.ReadUInt32();
                 offVertex = ins.ReadUInt32();
-                numStructA = ins.ReadUInt32();
-                offStructA = ins.ReadUInt32();
+                numNormal = ins.ReadUInt32();
+                offNormal = ins.ReadUInt32();
                 reserved1 = ins.ReadUInt32();
                 reserved2 = ins.ReadUInt32();
             }
@@ -87,6 +88,8 @@ namespace KFIV.Format.MOD
             public ulong unknown0x10;   //Always '00 00 00 00 00 00 00 00'
             public ulong unknown0x18;   //Always '60 00 00 00 00 00 00 00'
 
+            public List<MODModelTristrip> tristrips;
+
             public MODModelTriPacket(InputStream ins)
             {
                 numTri = ins.ReadUInt16();
@@ -99,44 +102,50 @@ namespace KFIV.Format.MOD
                 unknown0x0e = ins.ReadUInt16();
                 unknown0x10 = ins.ReadUInt64();
                 unknown0x18 = ins.ReadUInt64();
+
+                tristrips = new List<MODModelTristrip>();
             }
         };
         public struct MODModelTristrip
         {
             public ushort vertexInd;
-            public ushort structInd;
+            public ushort normalInd;
+            public ushort tcoordInd;
             public ushort unknown0x04;
             public ushort unknown0x06;
             public float texU;
             public float texV;
 
-            public Vector4 normalXYZp;
+            public Vector4 unknownXYZp;
 
             public MODModelTristrip(InputStream ins)
             {
                 vertexInd = ins.ReadUInt16();
-                structInd = ins.ReadUInt16();
+                normalInd = ins.ReadUInt16();
+
+                tcoordInd = 1;
+
                 unknown0x04 = ins.ReadUInt16();
                 unknown0x06 = ins.ReadUInt16();
                 texU = ins.ReadSingle();
                 texV = ins.ReadSingle();
-                normalXYZp = ins.ReadVector4s();
+                unknownXYZp = ins.ReadVector4s();
             }
         };
 
         #endregion
 
         List<Vector4> MODVertex;
-        List<Vector4> MODStructA;
-        List<MODModelTristrip> MODTristrip;
+        List<Vector4> MODNormal;
+        List<MODModelTriPacket> MODTriPacket;
         TM2.TM2 tm2;
 
         public static MOD FromFile(string path)
         {
             MOD mod = new MOD();
             mod.MODVertex = new List<Vector4>();
-            mod.MODStructA = new List<Vector4>();
-            mod.MODTristrip = new List<MODModelTristrip>();
+            mod.MODNormal = new List<Vector4>();
+            mod.MODTriPacket = new List<MODModelTriPacket>();
 
             using (InputStream ins = new InputStream(path))
             {
@@ -160,10 +169,10 @@ namespace KFIV.Format.MOD
                 ins.Return();
 
                 //Read StructA
-                ins.Jump(header.modelOffset + modelHeader.offStructA);
+                ins.Jump(header.modelOffset + modelHeader.offNormal);
 
-                for (int i = 0; i < modelHeader.numStructA; ++i)
-                    mod.MODStructA.Add(ins.ReadVector4s());
+                for (int i = 0; i < modelHeader.numNormal; ++i)
+                    mod.MODNormal.Add(ins.ReadVector4s());
 
                 ins.Return();
 
@@ -176,8 +185,10 @@ namespace KFIV.Format.MOD
 
                     for(int j = 0; j < mtp.numTri; ++j)
                     {
-                        mod.MODTristrip.Add(new MODModelTristrip(ins));
+                        mtp.tristrips.Add(new MODModelTristrip(ins));
                     }
+
+                    mod.MODTriPacket.Add(mtp);
                 }
                     
 
@@ -198,30 +209,66 @@ namespace KFIV.Format.MOD
 
             //Write all vertices
             foreach(Vector4 vert in MODVertex)
-                obj.AddVertex(vert.x, vert.y, vert.z);
+                obj.AddVertex(-vert.x, -vert.y, vert.z);
 
-            //Write all normals
-            foreach (MODModelTristrip mts in MODTristrip)
-                obj.AddNormal(mts.normalXYZp.x, mts.normalXYZp.y, mts.normalXYZp.z);
+            foreach(Vector4 norm in MODNormal)
+                obj.AddNormal(-norm.x, -norm.y, norm.z);
+
 
             //Write all texcoords
-            foreach (MODModelTristrip mts in MODTristrip)
-                obj.AddTexcoord(mts.texU, mts.texV);
+            foreach (MODModelTriPacket mtp in MODTriPacket)
+            {
+                // Fuck you C#, this could be foreach but you playin'
+                for (int i = 0; i < mtp.numTri; ++i)
+                {
+                    MODModelTristrip mts = mtp.tristrips[i];
+
+                    obj.AddTexcoord(mts.texU, 1.0f - mts.texV);
+                    mts.tcoordInd = (ushort)obj.TexcoordCount;
+                    mtp.tristrips[i] = mts;
+                }
+            }
 
             //Write all groups
-            int nuvInd = 1;
+            int groupNumber = 1;
+            string groupName = "";
 
-            string groupName = "Mesh_0001";
-            obj.AddGroup(groupName);
-
-            for(int i = 0; i < MODTristrip.Count-2; ++i)
+            foreach(MODModelTriPacket mtp in MODTriPacket)
             {
-                obj.AddFace(groupName,
-                    1 + MODTristrip[i].vertexInd, 1 + MODTristrip[i + 1].vertexInd, 1 + MODTristrip[i + 2].vertexInd,
-                    nuvInd, nuvInd + 1, nuvInd + 2, nuvInd, nuvInd + 1, nuvInd + 2);
+                groupName = "Mesh_" + groupNumber.ToString("D4");
+                obj.AddGroup(groupName);
 
-                nuvInd++;
+                for (int i = 0; i < mtp.numTri - 2; ++i)
+                {
+                    MODModelTristrip v1 = mtp.tristrips[i + 1];
+                    MODModelTristrip v2 = mtp.tristrips[i + 2];
+                    MODModelTristrip v3 = mtp.tristrips[i + 0];
+
+                    // Because tristrips fucking suck, we need to use a dotproduct between
+                    // each normal and the calculated face normal.
+                    // It is good enough to just use the first normal, but an average might be better.
+                    Vector3 FN = OBJ.OBJ.GenerateFaceNormal(MODVertex[v1.vertexInd].AsVec3, MODVertex[v2.vertexInd].AsVec3, MODVertex[v3.vertexInd].AsVec3);
+                    float d = Vector3.Dot(MODNormal[v1.normalInd].AsVec3, FN);
+
+                    if(d < 0)
+                    {
+                        obj.AddFace(groupName,
+                            1 + v2.vertexInd, 1 + v1.vertexInd, 1 + v3.vertexInd,
+                            v2.normalInd, v1.normalInd, v3.normalInd,
+                            v2.tcoordInd, v1.tcoordInd, v3.tcoordInd);
+                    }
+                    else
+                    {
+                        obj.AddFace(groupName,
+                            1 + v3.vertexInd, 1 + v1.vertexInd, 1 + v2.vertexInd,
+                            v3.normalInd, v1.normalInd, v2.normalInd,
+                            v3.tcoordInd, v1.tcoordInd, v2.tcoordInd);
+                    }
+                }
+
+                groupNumber++;
             }
+
 
             //Save obj to disc
             obj.Save(path + ".obj");
@@ -246,12 +293,14 @@ namespace KFIV.Format.MOD
                     break;
                 case 19: 
                     pFmt = PixelFormat.Format8bppIndexed;
-                    TM2.TM2.CLUT8BPPFix(ref tm2.clutData, (uint)tm2.header.texClutSize);
+                    TM2.TM2.CLUT8BPPFix(ref tm2.clutData, (uint)tm2.header.texClutSize, tm2.header.texClutAlpha == 1);
                     break;
                 case 20: 
                     pFmt = PixelFormat.Format4bppIndexed;
                     break;
             }
+
+            Console.WriteLine("Clut Alpha: " + tm2.header.texClutAlpha);
 
             using (Bitmap bm = new Bitmap((int)tm2.header.texWidth, (int)tm2.header.texHeight, pFmt))
             {
