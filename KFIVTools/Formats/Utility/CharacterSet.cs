@@ -44,10 +44,167 @@ namespace KFIV.Utility.Charset
             //This... Is fucking horrible.
             switch(data)
             {
-                //Japanese Kanji/Kana
+				// Fullwidth numbers
+                case 0x0000: return "０";
+                case 0x0001: return "１";
+                case 0x0002: return "２";
+                case 0x0003: return "３";
+                case 0x0004: return "４";
+                case 0x0005: return "５";
+                case 0x0006: return "６";
+                case 0x0007: return "７";
+                case 0x0008: return "８";
+                case 0x0009: return "９";
+                
+                // Fullwidth grammar
+                case 0x000A: return "（";
+                case 0x000B: return "）";
+                case 0x000C: return "，";
+                case 0x000D: return "．";
+                case 0x000E: return "：";
+                case 0x000F: return "＜";
+                case 0x0010: return "＞";
+                case 0x0011: return "＊";
+                case 0x0012: return "－";
+                case 0x0013: return "＋";
+                
+                // Fullwidth alphabet
+                case 0x0014: return "ａ";
+                case 0x0015: return "ｂ";
+                case 0x0016: return "ｃ";
+                case 0x0017: return "ｄ";
+                case 0x0018: return "ｅ";
+                case 0x0019: return "ｆ";
+                case 0x001A: return "ｇ";
+                case 0x001B: return "ｈ";
+                case 0x001C: return "ｉ";
+                case 0x001D: return "ｊ";
+                case 0x001E: return "ｋ";
+                case 0x001F: return "ｌ";
+                case 0x0020: return "ｍ";
+                case 0x0021: return "ｎ";
+                case 0x0022: return "ｏ";
+                case 0x0023: return "ｐ";
+                case 0x0024: return "ｑ";
+                case 0x0025: return "ｒ";
+                case 0x0026: return "ｓ";
+                case 0x0027: return "ｔ";
+                case 0x0028: return "ｕ";
+                case 0x0029: return "ｖ";
+                case 0x002A: return "ｗ";
+                case 0x002B: return "ｘ";
+                case 0x002C: return "ｙ";
+                case 0x002D: return "ｚ";
+                case 0x002E: return "Ａ";
+                case 0x002F: return "Ｂ";
+                case 0x0030: return "Ｃ";
+                case 0x0031: return "Ｄ";
+                case 0x0032: return "Ｅ";
+                case 0x0033: return "Ｆ";
+                case 0x0034: return "Ｇ";
+                case 0x0035: return "Ｈ";
+                case 0x0036: return "Ｉ";
+                case 0x0037: return "Ｊ";
+                case 0x0038: return "Ｋ";
+                case 0x0039: return "Ｌ";
+                case 0x003A: return "Ｍ";
+                case 0x003B: return "Ｎ";
+                case 0x003C: return "Ｏ";
+                case 0x003D: return "Ｐ";
+                case 0x003E: return "Ｑ";
+                case 0x003F: return "Ｒ";
+                case 0x0040: return "Ｓ";
+                case 0x0041: return "Ｔ";
+                case 0x0042: return "Ｕ";
+                case 0x0043: return "Ｖ";
+                case 0x0044: return "Ｗ";
+                case 0x0045: return "Ｘ";
+                case 0x0046: return "Ｙ";
+                case 0x0047: return "Ｚ";
+                
+                // Hiragana
+                case 0x004B: return "あ";
+                case 0x004C: return "い";
+                case 0x004D: return "う";
+                case 0x004E: return "え";
+                case 0x004F: return "お";
+                case 0x0050: return "か";
+                case 0x0051: return "き";
+                case 0x0052: return "く";
+                case 0x0053: return "け";
+                case 0x0054: return "こ";
+                case 0x0055: return "さ";
                 case 0x0056: return "し";
+                case 0x0057: return "す";
+                case 0x0058: return "せ";
+                case 0x0059: return "そ";
+                case 0x005A: return "た";
+                case 0x005B: return "ち";
+                case 0x005C: return "つ";
+                case 0x005D: return "て";
+                case 0x005E: return "と";
+                case 0x005F: return "な";
+                case 0x0060: return "に";
+                case 0x0061: return "ぬ";
+                case 0x0062: return "ね";
                 case 0x0063: return "の";
+                case 0x0064: return "は";
+                case 0x0065: return "ひ";
+                case 0x0066: return "ふ";
+                case 0x0067: return "へ";
+                case 0x0068: return "ほ";
+                case 0x0069: return "ま";
+                case 0x006A: return "み";
+                case 0x006B: return "む";
+                case 0x006C: return "め";
+                case 0x006D: return "も";
+                case 0x006E: return "や";
+                case 0x006F: return "ゆ";
+                case 0x0070: return "よ";
+                case 0x0071: return "ら";
+                case 0x0072: return "り";
+                case 0x0073: return "る";
+                case 0x0074: return "れ";
+                case 0x0075: return "ろ";
+                case 0x0076: return "わ";
+                case 0x0077: return "を";
+                case 0x0078: return "ん";
+                case 0x0079: return "が";
+                case 0x007A: return "ぎ";
+                case 0x007B: return "ぐ";
+                case 0x007C: return "げ";
+                case 0x007D: return "ご";
+                case 0x007E: return "ざ";
+                case 0x007F: return "じ";
+                case 0x0080: return "ず";
+                case 0x0081: return "ぜ";
+                case 0x0082: return "ぞ";
+                case 0x0083: return "だ";
+                case 0x0084: return "ぢ";
+                case 0x0085: return "づ";
+                case 0x0086: return "で";
+                case 0x0087: return "ど";
+                case 0x0088: return "ば";
                 case 0x0089: return "び";
+                case 0x008A: return "ぶ";
+                case 0x008B: return "べ";
+                case 0x008C: return "ぼ";
+                case 0x008D: return "ぱ";
+                case 0x008E: return "ぴ";
+                case 0x008F: return "ぷ";
+                case 0x0090: return "ぺ";
+                case 0x0091: return "ぽ";
+                case 0x0092: return "ぁ";
+                case 0x0093: return "ぃ";
+                case 0x0094: return "ぅ";
+                case 0x0095: return "ぇ";
+                case 0x0096: return "ぉ";
+                case 0x0097: return "ゃ";
+                case 0x0098: return "ゅ";
+                case 0x0099: return "ょ";
+                case 0x009A: return "っ";
+                
+                // Katakana
                 case 0x009B: return "ア";
                 case 0x009C: return "イ";
                 case 0x00A6: return "ッ";    //Could also be "ツ"?..
@@ -60,7 +217,8 @@ namespace KFIV.Utility.Charset
                 case 0x00E3: return "ァ";
                 case 0x00EA: return "ョ";
                 case 0x00F4: return "ー";
-
+                
+                // Kanji
                 case 0x0100: return "魔";
                 case 0x0104: return "法";
                 case 0x0112: return "回";
