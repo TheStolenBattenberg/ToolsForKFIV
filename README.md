@@ -3,7 +3,8 @@ These tools will let you extract and convert files from the PS2 FromSoftware gam
 
 Confirmed to work with European (SLES-50920), US (SLUS-20318, SLUS-20353) and Japanese (SLPS-25057) release. Unknown if they work on the version included with the Dark Side Box collection.
 
-Also included is a (very experimental) tool for the STZ archive from Shadow Tower Abyss.
+The text extractor (TXCDump) is the exception, does not work with japanese releases for now though should be possible as the character encoding used in KFIV
+supports multiple languages.
 
 ### GhidraProject Directory
 This directory contains a Ghidra project with some reverse engineering efforts for KFIV. It also contains files using the PS2 SDK 2.2.4 (the version of the SDK used for KFIV) used to generate an FIDB.

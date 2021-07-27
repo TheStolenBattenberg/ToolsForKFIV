@@ -186,6 +186,7 @@ namespace KFIV.Format.TM2
             return tm2;
         }
 
+
         public static void BGRtoRGB32(ref byte[] pixels, uint length)
         {
             //First pass converts BGR to RGB and also fixes wierd PS2 half alpha (1.0 = 0x80)
@@ -207,7 +208,6 @@ namespace KFIV.Format.TM2
                 pixels[i + 2] = R;
             }
         }
-
         public static void PIXL4BPPFix(ref byte[] pixels, uint length)
         {
             for(int i = 0; i < length; ++i)

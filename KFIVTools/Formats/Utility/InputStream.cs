@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 using KFIV.Utility.Type;
 using KFIV.Utility.Math;
+using KFIV.Utility.Charset;
 
 namespace KFIV.Utility.IO
 {
@@ -47,6 +49,39 @@ namespace KFIV.Utility.IO
         public long Size()
         {
             return base.BaseStream.Length;
+        }
+
+        //Extension: King's Field String
+        public string ReadKFStringLength(int length)
+        {
+            //Use a string builder purely 'cause the code looks cleaner
+            StringBuilder kfString = new StringBuilder();
+
+            //Loop until length
+            for (int i = 0; i < length; ++i)
+                kfString.Append(CharacterSet.ConvertCharacter(base.ReadUInt16()));
+
+            return kfString.ToString();
+        }
+        public string ReadKFStringTerminated()
+        {
+            StringBuilder kfString = new StringBuilder();
+            ushort currentChar = 0x0000;
+            int i = 0;
+
+            while (currentChar != 0xFFFF)
+            {
+                //Some logic for line termination
+                currentChar = base.ReadUInt16();
+                if (currentChar == 0xFFFF)
+                    break;
+
+                kfString.Append(CharacterSet.ConvertCharacter(currentChar));
+
+                i++;
+            }
+
+            return kfString.ToString();
         }
 
         //Extension: PS2 Types

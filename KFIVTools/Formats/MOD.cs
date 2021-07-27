@@ -245,7 +245,7 @@ namespace KFIV.Format.MOD
                     MODModelTristrip v3 = mtp.tristrips[i + 0];
 
                     // Because tristrips fucking suck, we need to use a dotproduct between
-                    // each normal and the calculated face normal.
+                    // each normal and the calculated face normal in order to face the tris the right way
                     // It is good enough to just use the first normal, but an average might be better.
                     Vector3 FN = OBJ.OBJ.GenerateFaceNormal(MODVertex[v1.vertexInd].AsVec3, MODVertex[v2.vertexInd].AsVec3, MODVertex[v3.vertexInd].AsVec3);
                     float d = Vector3.Dot(MODNormal[v1.normalInd].AsVec3, FN);
