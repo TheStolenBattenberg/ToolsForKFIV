@@ -23,6 +23,9 @@ You'll find detailed descriptions and C style documentation for the file formats
 * Inspired by JKAnderson/TKGP and his work @ [SoulsFormats](https://github.com/JKAnderson/SoulsFormats "SoulsFormats repository on GitHub") (code comments pending)
 * FromSoftware making damn good games
 
+### Discord
+A Discord Server is avaliable for all those interested in modding King's Field, or other From Software games: https://discord.gg/mzPPVvezSH
+
 ### Contributors
 * [IvanDSM](https://github.com/IvanDSM "IvanDSM's GitHub")
 * TheStolenBattenberg
