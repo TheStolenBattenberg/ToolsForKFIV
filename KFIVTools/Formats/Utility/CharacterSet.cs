@@ -44,6 +44,46 @@ namespace KFIV.Utility.Charset
             //This... Is fucking horrible.
             switch(data)
             {
+                //Japanese Kanji/Kana
+                case 0x0056: return "し";
+                case 0x0063: return "の";
+                case 0x0089: return "び";
+                case 0x009B: return "ア";
+                case 0x009C: return "イ";
+                case 0x00A6: return "ッ";    //Could also be "ツ"?..
+                case 0x00A9: return "ン";
+                case 0x00AE: return "ト";
+                case 0x00B6: return "フ";
+                case 0x00C3: return "ル";
+                case 0x00D8: return "ド";
+                case 0x00DD: return "ボ";
+                case 0x00E3: return "ァ";
+                case 0x00EA: return "ョ";
+                case 0x00F4: return "ー";
+
+                case 0x0100: return "魔";
+                case 0x0104: return "法";
+                case 0x0112: return "回";
+                case 0x0127: return "火";
+                case 0x012C: return "装";
+                case 0x012D: return "風";
+                case 0x014D: return "備";
+                case 0x014F: return "力";
+                case 0x016A: return "像";
+                case 0x016D: return "毒";
+                case 0x016E: return "石";
+                case 0x01AB: return "無";
+                case 0x01AE: return "草";
+                case 0x01B1: return "薬"; 
+                case 0x01BC: return "復";
+                case 0x01C5: return "消";
+
+                case 0x0256: return "棒";
+                case 0x0259: return "棍";
+
+                case 0x039B: return "滅";
+                case 0x03AA: return "糧";
+
                 //Grammar #1
                 case 0x0800: return " ";
                 case 0x0801: return "!";
