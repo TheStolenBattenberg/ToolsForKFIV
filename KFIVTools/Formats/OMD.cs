@@ -155,7 +155,7 @@ namespace KFIV.Format.OMD
 
             public OMDVertex(InputStream ins)
             {
-                PositionXYZp = ins.ReadVector4h(1024f);
+                PositionXYZp = ins.ReadVector4h(1f);
                 NormalXYZp = ins.ReadVector4h(4096f);
                 TexcoordUVpp = ins.ReadVector4h(4096f);
                 ColourRGBA = ins.ReadVector4h(1f);
@@ -335,7 +335,7 @@ namespace KFIV.Format.OMD
                     // Copy Vertices, Normal, Texcoords
                     foreach(OMDVertex vertex in tristrip.vertices)
                     {
-                        obj.AddVertex(-vertex.PositionXYZp.x, -vertex.PositionXYZp.y, vertex.PositionXYZp.z);
+                        obj.AddVertex(-mesh.translationXYZ.x + -vertex.PositionXYZp.x, -mesh.translationXYZ.y + -vertex.PositionXYZp.y, mesh.translationXYZ.z + vertex.PositionXYZp.z);
                         obj.AddNormal(-vertex.NormalXYZp.x, -vertex.NormalXYZp.y, vertex.NormalXYZp.z);
                         obj.AddTexcoord(vertex.TexcoordUVpp.x, 1.0f - vertex.TexcoordUVpp.y);
                     }

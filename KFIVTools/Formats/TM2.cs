@@ -139,9 +139,15 @@ namespace KFIV.Format.TM2
                 {
                     ColorPalette pal = bm.Palette;
 
+                    Console.WriteLine("Clut Size: " + header.texClutSize.ToString() + "/" + clutData.Length.ToString());
+                    Console.WriteLine("Palette Length: " + pal.Entries.Length.ToString());
+
                     int palOffset = 0;
                     for (uint i = 0; i < (header.texClutSize / 4); ++i)
                     {
+                        if (i >= pal.Entries.Length)
+                            break;
+
                         pal.Entries[i] = Color.FromArgb(clutData[palOffset + 3], clutData[palOffset + 2], clutData[palOffset + 1], clutData[palOffset + 0]);
                         palOffset += 4;
                     }
