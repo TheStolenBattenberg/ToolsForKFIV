@@ -20,7 +20,7 @@ namespace KFIV.Utility.IO
         }
 
         //Extension: Hierarchical reading
-        private Stack<long> offsetStack;
+        private readonly Stack<long> offsetStack;
         public void Jump(long offset)
         {
             //Add BaseStream position to stack
@@ -113,9 +113,11 @@ namespace KFIV.Utility.IO
         }
         public DMAPacket ReadDMAPacket()
         {
-            DMAPacket gif = new DMAPacket();
-            gif.data = base.ReadBytes(8);
-            gif.tag = base.ReadInt64();
+            DMAPacket gif = new DMAPacket
+            {
+                data = base.ReadBytes(8),
+                tag = base.ReadInt64()
+            };
 
             return gif;
         }

@@ -279,11 +279,11 @@ namespace KFIV.Format.MOD
 
             //Calculate pixel format, apply fixes
             PixelFormat pFmt = PixelFormat.Format32bppArgb;
-            switch (tm2.header.texPSM)
+            switch (tm2.header.TexPSM)
             {
                 case 0: 
                     pFmt = PixelFormat.Format32bppArgb;
-                    TM2.TM2.BGRtoRGB32(ref tm2.pixelData, (uint)tm2.header.texPixelSize);
+                    TM2.TM2.BGRtoRGB32(ref tm2.pixelData, (uint)tm2.header.TexPixelSize);
                     break;
                 case 1: 
                     pFmt = PixelFormat.Format24bppRgb;
@@ -293,14 +293,14 @@ namespace KFIV.Format.MOD
                     break;
                 case 19: 
                     pFmt = PixelFormat.Format8bppIndexed;
-                    TM2.TM2.CLUT8BPPFix(ref tm2.clutData, (uint)tm2.header.texClutSize, tm2.header.texClutAlpha == 1);
+                    TM2.TM2.CLUT8BPPFix(ref tm2.clutData, (uint)tm2.header.TexClutSize, tm2.header.TexClutAlpha == 1);
                     break;
                 case 20: 
                     pFmt = PixelFormat.Format4bppIndexed;
                     break;
             }
 
-            using (Bitmap bm = new Bitmap((int)tm2.header.texWidth, (int)tm2.header.texHeight, pFmt))
+            using (Bitmap bm = new Bitmap((int)tm2.header.TexWidth, (int)tm2.header.TexHeight, pFmt))
             {
                 //When image is indexed, copy the clut first.
                 if (tm2.header.clutOffset != 0)
@@ -308,7 +308,7 @@ namespace KFIV.Format.MOD
                     ColorPalette pal = bm.Palette;
 
                     int palOffset = 0;
-                    for (uint i = 0; i < (tm2.header.texClutSize / 4); ++i)
+                    for (uint i = 0; i < (tm2.header.TexClutSize / 4); ++i)
                     {
                         pal.Entries[i] = Color.FromArgb(tm2.clutData[palOffset + 3], tm2.clutData[palOffset + 2], tm2.clutData[palOffset + 1], tm2.clutData[palOffset + 0]);
                         palOffset += 4;
@@ -319,7 +319,7 @@ namespace KFIV.Format.MOD
 
                 //Copy Image
                 BitmapData bmd = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.WriteOnly, pFmt);
-                Marshal.Copy(tm2.pixelData, 0, bmd.Scan0, tm2.header.texPixelSize);
+                Marshal.Copy(tm2.pixelData, 0, bmd.Scan0, tm2.header.TexPixelSize);
                 bm.UnlockBits(bmd);
 
                 bm.Save(path + ".png", ImageFormat.Png);

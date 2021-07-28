@@ -265,18 +265,16 @@ namespace KFIV.Format.OMD
 
         private static OMD ReadOMDData(InputStream ins)
         {
-            OMD omd = new OMD();
-            omd.meshes = new List<OMDMesh>();
-
-            //
-            // Read OMD Header
-            //
-            omd.header = new OMDHeader(ins);
+            OMD omd = new OMD
+            {
+                meshes = new List<OMDMesh>(),
+                header = new OMDHeader(ins)
+            };
 
             //
             // Read OMD StructA
             //
-            if(omd.header.offStructA == 0)
+            if (omd.header.offStructA == 0)
                 Console.WriteLine("StructA not present");
             else
                 Console.WriteLine("StructA is present");
@@ -319,9 +317,9 @@ namespace KFIV.Format.OMD
             // Build faces
             //
             uint groupID = 1;
-            string groupName = "";
+            string groupName; ;
             int tInd = 1;
-            int oInd = 0; 
+            int oInd; 
 
             foreach(OMDMesh mesh in meshes)
             {

@@ -7,6 +7,7 @@ using System.IO;
 
 using KFIV.Utility.IO;
 using KFIV.Utility.Charset;
+using KFIV.Format.GLTF;
 
 namespace TXCDump
 {
@@ -54,6 +55,11 @@ namespace TXCDump
                     }
                 }
             }
+
+            //Throw some test code here because why the fuck not
+            //REMOE ME IF COMMIT PLEASE
+            GLTF gltf = new GLTF();
+            gltf.Save("whydidIaddthis");
 
 
             // Wait for program termination

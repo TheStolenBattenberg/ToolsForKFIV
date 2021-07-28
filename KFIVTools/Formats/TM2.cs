@@ -24,42 +24,42 @@ namespace KFIV.Format.TM2
             public ulong gsTexReg;
             public ulong unknown0x18;
 
-            public int texPSM
+            public int TexPSM
             {
                 get
                 {
                     return (int) (gsTexReg >> 20) & 0x3F;
                 }
             }
-            public int texWidth
+            public int TexWidth
             {
                 get
                 {
                     return (int) Math.Pow(2, (gsTexReg >> 26) & 0xF);  //Texture width is stored as log2. We can restore with 2^width
                 }
             }
-            public int texHeight
+            public int TexHeight
             {
                 get
                 {
                     return (int)Math.Pow(2, (gsTexReg >> 30) & 0xF);  //Texture height is stored as log2. We can restore with 2^width
                 }
             }
-            public int texClutAlpha
+            public int TexClutAlpha
             {
                 get
                 {
                     return (int)(gsTexReg >> 34) & 0x1;
                 }
             }
-            public int texPixelSize
+            public int TexPixelSize
             {
                 get
                 {
                     return (int) (clutOffset == 0 ? tm2Length - 0x20 : clutOffset);
                 }
             }
-            public int texClutSize
+            public int TexClutSize
             {
                 get
                 {
@@ -108,11 +108,11 @@ namespace KFIV.Format.TM2
         {
             //Calculate pixel format, apply fixes
             PixelFormat pFmt = PixelFormat.Format32bppArgb;
-            switch (header.texPSM)
+            switch (header.TexPSM)
             {
                 case 0:
                     pFmt = PixelFormat.Format32bppArgb;
-                    BGRtoRGB32(ref pixelData, (uint)header.texPixelSize);
+                    BGRtoRGB32(ref pixelData, (uint)header.TexPixelSize);
                     break;
                 case 1:
                     pFmt = PixelFormat.Format24bppRgb;
@@ -123,27 +123,27 @@ namespace KFIV.Format.TM2
                     break;
                 case 19:
                     pFmt = PixelFormat.Format8bppIndexed;
-                    CLUT8BPPFix(ref clutData, (uint)header.texClutSize, header.texClutAlpha == 1);
+                    CLUT8BPPFix(ref clutData, (uint)header.TexClutSize, header.TexClutAlpha == 1);
                     break;
                 case 20:
                     pFmt = PixelFormat.Format4bppIndexed;
-                    CLUT4BPPFix(ref clutData, (uint)header.texClutSize, header.texClutAlpha == 1);
-                    PIXL4BPPFix(ref pixelData, (uint)header.texPixelSize);
+                    CLUT4BPPFix(ref clutData, (uint)header.TexClutSize, header.TexClutAlpha == 1);
+                    PIXL4BPPFix(ref pixelData, (uint)header.TexPixelSize);
                     break;
             }
 
-            using (Bitmap bm = new Bitmap(header.texWidth, header.texHeight, pFmt))
+            using (Bitmap bm = new Bitmap(header.TexWidth, header.TexHeight, pFmt))
             {
                 //When image is indexed, copy the clut first.
                 if (header.clutOffset != 0)
                 {
                     ColorPalette pal = bm.Palette;
 
-                    Console.WriteLine("Clut Size: " + header.texClutSize.ToString() + "/" + clutData.Length.ToString());
+                    Console.WriteLine("Clut Size: " + header.TexClutSize.ToString() + "/" + clutData.Length.ToString());
                     Console.WriteLine("Palette Length: " + pal.Entries.Length.ToString());
 
                     int palOffset = 0;
-                    for (uint i = 0; i < (header.texClutSize / 4); ++i)
+                    for (uint i = 0; i < (header.TexClutSize / 4); ++i)
                     {
                         if (i >= pal.Entries.Length)
                             break;
@@ -157,12 +157,12 @@ namespace KFIV.Format.TM2
 
                 Console.WriteLine("Image Width: " + bm.Width.ToString());
                 Console.WriteLine("Image Height: " + bm.Height.ToString());
-                Console.WriteLine("Image PSM: " + header.texPSM.ToString());
-                Console.WriteLine("Image Buffer Size: " + pixelData.Length.ToString() + "/" + header.texPixelSize.ToString());
+                Console.WriteLine("Image PSM: " + header.TexPSM.ToString());
+                Console.WriteLine("Image Buffer Size: " + pixelData.Length.ToString() + "/" + header.TexPixelSize.ToString());
 
                 //Copy Image
                 BitmapData bmd = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.WriteOnly, pFmt);
-                Marshal.Copy(pixelData, 0, bmd.Scan0, header.texPixelSize);
+                Marshal.Copy(pixelData, 0, bmd.Scan0, header.TexPixelSize);
                 bm.UnlockBits(bmd);
 
                 bm.Save(path + ".png", ImageFormat.Png);
@@ -170,22 +170,20 @@ namespace KFIV.Format.TM2
         }
         private static TM2 ReadTM2Data(InputStream ins)
         {
-            TM2 tm2 = new TM2();
-
-            //
-            //Read Header
-            //
-            tm2.header = new TM2Header(ins);
+            TM2 tm2 = new TM2
+            {
+                header = new TM2Header(ins)
+            };
 
             //read pixels
             ins.Seek(0x20, SeekOrigin.Begin);
-            tm2.pixelData = ins.ReadBytes(tm2.header.texPixelSize);
+            tm2.pixelData = ins.ReadBytes(tm2.header.TexPixelSize);
 
             //read clut (if present)
-            if(tm2.header.texClutSize > 0)
+            if(tm2.header.TexClutSize > 0)
             {
                 ins.Jump(0x20 + tm2.header.clutOffset);
-                tm2.clutData = ins.ReadBytes(tm2.header.texClutSize);
+                tm2.clutData = ins.ReadBytes(tm2.header.TexClutSize);
                 ins.Return();
             }
 
