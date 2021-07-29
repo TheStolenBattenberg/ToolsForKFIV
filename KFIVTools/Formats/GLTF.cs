@@ -3,9 +3,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
-using KFIV.Utility.Math;
 using KFIV.Utility.IO;
+using KFIV.Utility.Maths;
 
 namespace KFIV.Format.GLTF
 {

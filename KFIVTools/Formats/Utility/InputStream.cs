@@ -3,8 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 
 using KFIV.Utility.Type;
-using KFIV.Utility.Math;
 using KFIV.Utility.Charset;
+using KFIV.Utility.Maths;
 
 namespace KFIV.Utility.IO
 {

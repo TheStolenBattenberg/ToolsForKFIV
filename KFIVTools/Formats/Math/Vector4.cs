@@ -1,4 +1,4 @@
-﻿namespace KFIV.Utility.Math
+﻿namespace KFIV.Utility.Maths
 {
     public class Vector4
     {
@@ -35,7 +35,7 @@
         }
         public static Vector4 Subtract(Vector4 a, Vector4 b)
         {
-            Vector4 c = Vector4.Zero;
+            Vector4 c = Zero;
 
             c.x = a.x - b.x;
             c.y = a.y - b.y;

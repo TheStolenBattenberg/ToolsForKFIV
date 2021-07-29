@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-
-using KFIV.Utility.Math;
+using KFIV.Utility.Maths;
 
 namespace KFIV.Format.OBJ
 {

@@ -4,7 +4,7 @@ using System;
 
 using KFIV.Utility.IO;
 using KFIV.Utility.Type;
-using KFIV.Utility.Math;
+using KFIV.Utility.Maths;
 
 namespace KFIV.Format.OM2
 {

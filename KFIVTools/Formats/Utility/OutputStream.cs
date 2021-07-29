@@ -1,6 +1,5 @@
 ﻿using System.IO;
-
-using KFIV.Utility.Math;
+using KFIV.Utility.Maths;
 
 namespace KFIV.Utility.IO
 {

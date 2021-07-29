@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 using System;
 
 using KFIV.Utility.IO;
-using KFIV.Utility.Math;
 using KFIV.Format.GLTF;
 using KFIV.Format.TM2;
+using KFIV.Utility.Maths;
 
 namespace KFIV.Format.MOD
 {

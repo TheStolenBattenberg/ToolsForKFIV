@@ -1,4 +1,4 @@
-﻿namespace KFIV.Utility.Math
+﻿namespace KFIV.Utility.Maths
 {
     public class Vector2
     {

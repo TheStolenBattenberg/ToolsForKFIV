@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 using KFIV.Utility.IO;
 using KFIV.Utility.Type;
-using KFIV.Utility.Math;
 using KFIV.Format.TX2;
-
+using KFIV.Utility.Maths;
 
 namespace KFIV.Format.MAP
 {

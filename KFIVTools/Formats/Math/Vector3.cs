@@ -1,5 +1,8 @@
-﻿namespace KFIV.Utility.Math
+﻿using System;
+
+namespace KFIV.Utility.Maths
 {
+
     public class Vector3
     {
         public float x;
@@ -21,6 +24,22 @@
             }
         }
 
+        public Vector4 AsQuaternion
+        {
+            get
+            {
+                double qx, qy, qz, qw;
+
+                qx = Math.Sin(z / 2) * Math.Cos(y / 2) * Math.Cos(x / 2) - Math.Cos(z / 2) * Math.Sin(y / 2) * Math.Sin(x / 2);
+                qy = Math.Cos(z / 2) * Math.Sin(y / 2) * Math.Cos(x / 2) + Math.Sin(z / 2) * Math.Cos(y / 2) * Math.Sin(x / 2);
+                qz = Math.Cos(z / 2) * Math.Cos(y / 2) * Math.Sin(x / 2) - Math.Sin(z / 2) * Math.Sin(y / 2) * Math.Cos(x / 2);
+                qw = Math.Cos(z / 2) * Math.Cos(y / 2) * Math.Cos(x / 2) + Math.Sin(z / 2) * Math.Sin(y / 2) * Math.Sin(x / 2);
+
+                return new Vector4((float)qx, (float)qy, (float)qz, (float)qw);
+            }
+        }
+
+
         public Vector3(float x, float y, float z)
         {
             this.x = x;
@@ -29,7 +48,7 @@
         }
         public static Vector3 Subtract(Vector3 a, Vector3 b)
         {
-            Vector3 vec = Vector3.Zero;
+            Vector3 vec = Zero;
 
             //Subtract B from A
             vec.x = a.x - b.x;
@@ -40,18 +59,18 @@
         }
         public static Vector3 Cross(Vector3 a, Vector3 b)
         {
-            Vector3 vec = Vector3.Zero;
+            Vector3 vec = Zero;
 
             //Cross Product Calculation
-            vec.x = (a.y * b.z) - (a.z * b.y);
-            vec.y = (a.z * b.x) - (a.x * b.z);
-            vec.z = (a.x * b.y) - (a.y * b.x);
+            vec.x = a.y * b.z - a.z * b.y;
+            vec.y = a.z * b.x - a.x * b.z;
+            vec.z = a.x * b.y - a.y * b.x;
 
             return vec;
         }
         public static float Dot(Vector3 a, Vector3 b)
         {
-            return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+            return a.x * b.x + a.y * b.y + a.z * b.z;
         }
     }
 }

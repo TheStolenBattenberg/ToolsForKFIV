@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using KFIV.Utility.IO;
-using KFIV.Utility.Math;
+using KFIV.Utility.Maths;
 
 namespace KFIV.Format.OMD
 {
@@ -333,7 +333,8 @@ namespace KFIV.Format.OMD
                     // Copy Vertices, Normal, Texcoords
                     foreach(OMDVertex vertex in tristrip.vertices)
                     {
-                        obj.AddVertex(-mesh.translationXYZ.x + -vertex.PositionXYZp.x, -mesh.translationXYZ.y + -vertex.PositionXYZp.y, mesh.translationXYZ.z + vertex.PositionXYZp.z);
+                        //obj.AddVertex(-mesh.translationXYZ.x + -vertex.PositionXYZp.x, -mesh.translationXYZ.y + -vertex.PositionXYZp.y, mesh.translationXYZ.z + vertex.PositionXYZp.z);
+                        obj.AddVertex(-vertex.PositionXYZp.x, -vertex.PositionXYZp.y, vertex.PositionXYZp.z);
                         obj.AddNormal(-vertex.NormalXYZp.x, -vertex.NormalXYZp.y, vertex.NormalXYZp.z);
                         obj.AddTexcoord(vertex.TexcoordUVpp.x, 1.0f - vertex.TexcoordUVpp.y);
                     }
