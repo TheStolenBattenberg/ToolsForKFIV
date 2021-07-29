@@ -75,6 +75,7 @@
     <Compile Include="GLTF.cs" />
     <Compile Include="MAP.cs" />
     <Compile Include="MapTX2.cs" />
+    <Compile Include="Math\Vector2.cs" />
     <Compile Include="Math\Vector3.cs" />
     <Compile Include="Math\Vector4.cs" />
     <Compile Include="MOD.cs" />

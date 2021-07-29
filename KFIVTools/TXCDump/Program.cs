@@ -56,12 +56,6 @@ namespace TXCDump
                 }
             }
 
-            //Throw some test code here because why the fuck not
-            //REMOE ME IF COMMIT PLEASE
-            GLTF gltf = new GLTF();
-            gltf.Save("whydidIaddthis");
-
-
             // Wait for program termination
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();

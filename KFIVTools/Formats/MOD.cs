@@ -7,6 +7,7 @@ using System;
 
 using KFIV.Utility.IO;
 using KFIV.Utility.Math;
+using KFIV.Format.GLTF;
 using KFIV.Format.TM2;
 
 namespace KFIV.Format.MOD
@@ -205,17 +206,10 @@ namespace KFIV.Format.MOD
 
         public void Save(string path)
         {
-            OBJ.OBJ obj = new OBJ.OBJ();
+            //Create new GLTF
+            GLTF.GLTF glTF = new GLTF.GLTF();
 
-            //Write all vertices
-            foreach(Vector4 vert in MODVertex)
-                obj.AddVertex(-vert.x, -vert.y, vert.z);
-
-            foreach(Vector4 norm in MODNormal)
-                obj.AddNormal(-norm.x, -norm.y, norm.z);
-
-
-            //Write all texcoords
+            //Write component data (vertex, normal, texcoord)
             foreach (MODModelTriPacket mtp in MODTriPacket)
             {
                 // Fuck you C#, this could be foreach but you playin'
@@ -223,8 +217,20 @@ namespace KFIV.Format.MOD
                 {
                     MODModelTristrip mts = mtp.tristrips[i];
 
-                    obj.AddTexcoord(mts.texU, 1.0f - mts.texV);
-                    mts.tcoordInd = (ushort)obj.TexcoordCount;
+                    //Write Vertex
+                    Vector4 vert = MODVertex[mts.vertexInd];
+                    glTF.AddVertex(-vert.x, -vert.y, vert.z);
+                    mts.vertexInd = (ushort)(glTF.VertexCount-1);
+
+                    //Write Normal
+                    Vector4 norm = MODNormal[mts.normalInd];
+                    glTF.AddNormal(-norm.x, -norm.y, norm.z);
+                    mts.normalInd = (ushort)(glTF.NormalCount-1);
+
+                    //Write Texcoord
+                    glTF.AddTexcoord(mts.texU, 1.0f - mts.texV);
+                    mts.tcoordInd = (ushort)(glTF.TexcoordCount-1);
+
                     mtp.tristrips[i] = mts;
                 }
             }
@@ -236,7 +242,7 @@ namespace KFIV.Format.MOD
             foreach(MODModelTriPacket mtp in MODTriPacket)
             {
                 groupName = "Mesh_" + groupNumber.ToString("D4");
-                obj.AddGroup(groupName);
+                glTF.GroupCreate(groupName);
 
                 for (int i = 0; i < mtp.numTri - 2; ++i)
                 {
@@ -247,31 +253,31 @@ namespace KFIV.Format.MOD
                     // Because tristrips fucking suck, we need to use a dotproduct between
                     // each normal and the calculated face normal in order to face the tris the right way
                     // It is good enough to just use the first normal, but an average might be better.
-                    Vector3 FN = OBJ.OBJ.GenerateFaceNormal(MODVertex[v1.vertexInd].AsVec3, MODVertex[v2.vertexInd].AsVec3, MODVertex[v3.vertexInd].AsVec3);
-                    float d = Vector3.Dot(MODNormal[v1.normalInd].AsVec3, FN);
+                    Vector3 FN = glTF.GenerateFaceNormal(v1.vertexInd, v2.vertexInd, v3.vertexInd);
+                    float d = Vector3.Dot(glTF.FetchNormal(v1.normalInd), FN);
 
                     if(d < 0)
-                    {
-                        obj.AddFace(groupName,
-                            1 + v2.vertexInd, 1 + v1.vertexInd, 1 + v3.vertexInd,
-                            v2.normalInd, v1.normalInd, v3.normalInd,
-                            v2.tcoordInd, v1.tcoordInd, v3.tcoordInd);
-                    }
+                        glTF.AddFace(groupName, v2.vertexInd, v1.vertexInd, v3.vertexInd);
                     else
-                    {
-                        obj.AddFace(groupName,
-                            1 + v3.vertexInd, 1 + v1.vertexInd, 1 + v2.vertexInd,
-                            v3.normalInd, v1.normalInd, v2.normalInd,
-                            v3.tcoordInd, v1.tcoordInd, v2.tcoordInd);
-                    }
+                        glTF.AddFace(groupName, v3.vertexInd, v1.vertexInd, v2.vertexInd);
+
                 }
+
+                glTF.GroupSetTranslation(groupName, default);
+                glTF.GroupSetRotation(groupName, default);
+                glTF.GroupSetScale(groupName, default);
 
                 groupNumber++;
             }
 
 
             //Save obj to disc
-            obj.Save(path + ".obj");
+            string filename = Path.GetFileName(path);
+            string filepath = path.Replace(filename, "");
+
+            glTF.Save(filepath, filename);
+
+            Console.WriteLine(filepath + filename);
 
             //
             // Save png to disc
