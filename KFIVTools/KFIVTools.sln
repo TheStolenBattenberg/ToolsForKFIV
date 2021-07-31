@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TM2toPNG", "TM2toPNG\TM2toP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TXCDump", "TXCDump\TXCDump.csproj", "{A6CCC782-C630-4213-AC93-36BF83B91B29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMXConv", "TMXConv\TMXConv.csproj", "{445B84EC-0616-4C4D-A59E-3D2F23943E3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{A6CCC782-C630-4213-AC93-36BF83B91B29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6CCC782-C630-4213-AC93-36BF83B91B29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6CCC782-C630-4213-AC93-36BF83B91B29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{445B84EC-0616-4C4D-A59E-3D2F23943E3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{445B84EC-0616-4C4D-A59E-3D2F23943E3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{445B84EC-0616-4C4D-A59E-3D2F23943E3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{445B84EC-0616-4C4D-A59E-3D2F23943E3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
