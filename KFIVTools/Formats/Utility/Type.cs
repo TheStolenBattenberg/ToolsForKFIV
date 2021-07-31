@@ -1,4 +1,4 @@
-﻿using KFIV.Utility.Math;
+﻿using KFIV.Utility.Maths;
 
 namespace KFIV.Utility.Type
 {
