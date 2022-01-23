@@ -3,8 +3,8 @@
     <PROJECT_DATA_XML_NAME NAME="DISPLAY_DATA">
         <SAVE_STATE>
             <ARRAY NAME="EXPANDED_PATHS" TYPE="string">
-                <A VALUE="KFIV:PS2SDK224 FIDB Sources:" />
                 <A VALUE="KFIV:" />
+                <A VALUE="KFIV:PS2SDK224 FIDB Sources:" />
             </ARRAY>
             <STATE NAME="SHOW_TABLE" TYPE="boolean" VALUE="false" />
         </SAVE_STATE>
