@@ -1,0 +1,10 @@
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\bin\Debug\netcoreapp3.1\FormatKFIV.deps.json
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\bin\Debug\netcoreapp3.1\FormatKFIV.dll
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\bin\Debug\netcoreapp3.1\FormatKFIV.pdb
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\obj\Debug\netcoreapp3.1\FormatKFIV.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\obj\Debug\netcoreapp3.1\FormatKFIV.AssemblyInfoInputs.cache
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\obj\Debug\netcoreapp3.1\FormatKFIV.AssemblyInfo.cs
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\obj\Debug\netcoreapp3.1\FormatKFIV.csproj.CoreCompileInputs.cache
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\obj\Debug\netcoreapp3.1\FormatKFIV.dll
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\obj\Debug\netcoreapp3.1\FormatKFIV.pdb
+C:\Users\lXDayDreamXl\Documents\GitHub\ToolsForKFIV\FormatKFIV\obj\Debug\netcoreapp3.1\FormatKFIV.csproj.AssemblyReference.cache

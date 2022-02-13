@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Update="UI\Control\FileTree.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\Control\PictureBoxUnfiltered.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UI\Control\ToolFFImage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\Control\ToolFFini.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\Control\ToolFFModel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\Control\ToolFFParam.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\Control\ToolFFScene.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UI\MainWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UI\WinSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
