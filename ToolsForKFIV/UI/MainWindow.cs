@@ -21,7 +21,7 @@ namespace ToolsForKFIV
     {
         #region Tool Controls
         private ToolFFini controltool_FileINI = null;
-        private ToolFFParam controltool_FilePRM = null;
+        private ToolFFParam controltool_FileParam = null;
         private ToolFFImage controltool_FileImage = null;
         private ToolFFModel controltool_FileModel = null;
         private ToolFFScene controltool_Scene = null;
@@ -39,9 +39,9 @@ namespace ToolsForKFIV
             controltool_FileINI.Margin = Padding.Empty;
 
             //PRM Tool
-            controltool_FilePRM = new ToolFFParam();
-            controltool_FilePRM.Dock = DockStyle.Fill;
-            controltool_FilePRM.Margin = Padding.Empty;
+            controltool_FileParam = new ToolFFParam();
+            controltool_FileParam.Dock = DockStyle.Fill;
+            controltool_FileParam.Margin = Padding.Empty;
 
             //Generic Image Tool
             controltool_FileImage = new ToolFFImage();
@@ -200,9 +200,24 @@ namespace ToolsForKFIV
                         if (ResultingScene != null)
                         {
                             controltool_Scene.SetSceneData(ResultingScene);
-                        }
+                        }                        
+                        break;
 
-                        
+                    case FEType.Param:
+                        Logger.LogInfo("Casting To Generic Param Handler...");
+                        FIFormat<Param> paramHandler = (FIFormat<Param>)formatHandler;
+
+                        Logger.LogInfo("Doing Scene Import...");
+                        Param ResultingParam;
+                        ResultingParam = paramHandler.LoadFromMemory(ResourceManager.KFIVDAT[(int)fileNode.Tag].buffer, out _, out _, out _);
+
+                        Logger.LogInfo("Bringing in the UI");
+                        mwSplit.Panel2.Controls.Add(controltool_FileParam);
+
+                        if (ResultingParam != null)
+                        {
+                            controltool_FileParam.SetParamData(ResultingParam);
+                        }
                         break;
                 }
 

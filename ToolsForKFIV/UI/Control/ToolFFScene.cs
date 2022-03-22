@@ -35,23 +35,19 @@ namespace ToolsForKFIV.UI.Control
 
         public void SetSceneData(Scene newScene)
         {
-            if(currentScene != null)
+            if (currentGLScene != null)
             {
-                currentScene = null;
+                currentGLScene.Destroy();
+                currentGLScene = null;
             }
+            currentScene = null;
 
-            if(currentGLScene == null)
-            {
-                currentGLScene = new GLScene();
-            }
-            else
-            if(currentGLScene != null)
-            {
-                currentGLScene.Destroy();    
-            }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             GC.Collect();
 
             currentScene = newScene;
+            currentGLScene = new GLScene();
             currentGLScene.BuildScene(currentScene);
         }
 
@@ -121,10 +117,10 @@ namespace ToolsForKFIV.UI.Control
                 //Build chunk transformation
                 Matrix4 MAT_TRANS = Matrix4.CreateTranslation(chunk.Position.X / 256f, -chunk.Position.Y / 256f, -chunk.Position.Z / 256f);
                 Matrix4 MAT_SCALE = Matrix4.CreateScale(chunk.Scale.X, chunk.Scale.Y, chunk.Scale.Z);
-                Matrix4 MAT_ROTTX = Matrix4.CreateRotationX(chunk.Rotation.X);
-                Matrix4 MAT_ROTTY = Matrix4.CreateRotationY(chunk.Rotation.Y);
-                Matrix4 MAT_ROTTZ = Matrix4.CreateRotationZ(chunk.Rotation.Z);
-                matModel = (MAT_ROTTX * MAT_ROTTY * MAT_ROTTZ) * MAT_SCALE * MAT_TRANS;
+                Matrix4 MAT_ROTTX = Matrix4.CreateRotationX((MathF.PI * 2) - chunk.Rotation.X);
+                Matrix4 MAT_ROTTY = Matrix4.CreateRotationY((MathF.PI * 2) - chunk.Rotation.Y);
+                Matrix4 MAT_ROTTZ = Matrix4.CreateRotationZ((MathF.PI * 2) - chunk.Rotation.Z);
+                matModel = (MAT_ROTTY * MAT_ROTTX * MAT_ROTTZ) * MAT_SCALE * MAT_TRANS;
 
                 glShaders[1].SetUniformMat4("uMVPMatrix", matModel * mVP, false);
 
@@ -143,11 +139,11 @@ namespace ToolsForKFIV.UI.Control
                 //Build Transform
                 Matrix4 MAT_TRANS = Matrix4.CreateTranslation(obj.Position.X / 256f, -obj.Position.Y / 256f, -obj.Position.Z / 256f);
                 Matrix4 MAT_SCALE = Matrix4.CreateScale(obj.Scale.X, obj.Scale.Y, obj.Scale.Z);
-                Matrix4 MAT_ROTTX = Matrix4.CreateRotationX(obj.Rotation.X);
-                Matrix4 MAT_ROTTY = Matrix4.CreateRotationY(obj.Rotation.Y);
-                Matrix4 MAT_ROTTZ = Matrix4.CreateRotationZ(obj.Rotation.Z);
+                Matrix4 MAT_ROTTX = Matrix4.CreateRotationX((MathF.PI * 2) - obj.Rotation.X);
+                Matrix4 MAT_ROTTY = Matrix4.CreateRotationY((MathF.PI * 2) - obj.Rotation.Y);
+                Matrix4 MAT_ROTTZ = Matrix4.CreateRotationZ((MathF.PI * 2) - obj.Rotation.Z);
 
-                matModel = (MAT_ROTTX * MAT_ROTTZ * MAT_ROTTY) * MAT_SCALE * MAT_TRANS;
+                matModel = (MAT_ROTTY * MAT_ROTTZ * MAT_ROTTX ) * MAT_SCALE * MAT_TRANS;
 
                 //Do Object Draw
                 switch (obj.ClassId)
@@ -191,7 +187,6 @@ namespace ToolsForKFIV.UI.Control
             GL.UseProgram(0);
             stPreviewGL.SwapBuffers();
         }
-
 
         //GLControl Input
         private void timer1_Tick(object sender, EventArgs e)

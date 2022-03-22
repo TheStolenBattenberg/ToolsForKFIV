@@ -45,6 +45,7 @@ namespace FormatKFIV.Asset
         }
         public struct ParamPage
         {
+            public string pageName;
             public List<ParamRow> pageRows;
 
             public void AddRow(ParamRow row)
@@ -85,6 +86,12 @@ namespace FormatKFIV.Asset
         public void SetLayout(ParamLayout layout)
         {
             _layout = layout;
+
+        }
+
+        public ParamPage GetPage(int index)
+        {
+            return _data[index];
         }
     }
 }

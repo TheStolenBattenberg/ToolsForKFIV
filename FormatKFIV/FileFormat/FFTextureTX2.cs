@@ -250,7 +250,7 @@ namespace FormatKFIV.FileFormat
                     //Fix 4BPP endianness
                     if (imgBuffer.Format == Texture.ColourMode.M4)
                     {
-                        Texture.Fix4BPPIndicesEndianness(ref imgBuffer.data);
+                        //Texture.Fix4BPPIndicesEndianness(ref imgBuffer.data);
                     }
 
                     //Load CLUT data (if applicable)

@@ -9,10 +9,11 @@ namespace ToolsForKFIV
     /// <summary>Static storage location for all currently loaded/allocated data.</summary>
     public static class ResourceManager
     {
-        /// <summary>Store Model Format Loader/Saver</summary>
+        /// <summary>Store Format Handelers</summary>
         private static List<FIFormat<Model>> formatsModel;
         private static List<FIFormat<Texture>> formatsTexture;
         private static List<FIFormat<Scene>> formatsScene;
+        private static List<FIFormat<Param>> formatsParam;
 
         /// <summary>Stores content of the main KFIV.DAT</summary>
         public static FFResourceDAT KFIVDAT = null;
@@ -60,6 +61,11 @@ namespace ToolsForKFIV
             //Initialize Scene Handlers
             formatsScene = new List<FIFormat<Scene>>();
             formatsScene.Add(new FFSceneMAP());
+
+            //Initialize Param Handlers
+            formatsParam = new List<FIFormat<Param>>();
+            formatsParam.Add(new FFParamReverb());
+            formatsParam.Add(new FFParamItemName());
         }
 
         /// <summary>Scan through each registered format to see if a particular one is supported</summary>
@@ -131,7 +137,7 @@ namespace ToolsForKFIV
                 }
             }
 
-            //Scan each texture format
+            //Scan each scene format
             foreach (FIFormat<Scene> fmt in formatsScene)
             {
                 //Check all extensions this particular format supports...
@@ -155,6 +161,35 @@ namespace ToolsForKFIV
 
                     formatHandler = fmt;
                     formatType = FEType.Scene;
+
+                    goto FoundFormatHandler;
+                }
+            }
+
+            //Scan each param format
+            foreach (FIFormat<Param> fmt in formatsParam)
+            {
+                //Check all extensions this particular format supports...
+                string[] extensions = fmt.Parameters.Extensions;
+                for (int i = 0; i < extensions.Length; ++i)
+                {
+                    //First Check - Extension (both with string lower for sanity reasons)
+                    if (extensions[i].ToLower() != fileExt.ToLower())
+                    {
+                        continue;
+                    }
+
+                    //Second Check - Validator Delegate call
+                    if (!fmt.Parameters.Validator(fileBuffer))
+                    {
+                        continue;
+                    }
+
+                    Logger.LogInfo("Found handler for: " + fileExt);
+                    Logger.LogInfo("Handler Class Name: " + fmt.GetType().Name);
+
+                    formatHandler = fmt;
+                    formatType = FEType.Param;
 
                     goto FoundFormatHandler;
                 }

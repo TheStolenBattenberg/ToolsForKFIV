@@ -4,8 +4,13 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon />
-    <StartupObject />
+    <ApplicationIcon>t4kfivicon.ico</ApplicationIcon>
+    <StartupObject>ToolsForKFIV.Program</StartupObject>
+    <Authors>TSBattenberg</Authors>
+    <PackageIcon>t4kfivicon.png</PackageIcon>
+    <PackageIconUrl />
+    <Company>FromSoft Modding Committee</Company>
+    <Description>https://discord.gg/PRR46bd9jj</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +43,13 @@
     <EmbeddedResource Update="UI\Control\ToolFFParamEditor - Copy.resx">
       <DependentUpon>ToolFFParamEditor.resx</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resource\t4kfivicon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

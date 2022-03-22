@@ -82,7 +82,7 @@ namespace ToolsForKFIV.Utility
         public void Destroy()
         {
             GL.UseProgram(0);
-            GL.DeleteShader(_ProgramHandle);
+            GL.DeleteProgram(_ProgramHandle);
         }
         public void Bind()
         {

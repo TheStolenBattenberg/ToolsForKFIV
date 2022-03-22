@@ -2,70 +2,167 @@
 using System.Collections.Generic;
 
 using FormatKFIV.Utility;
+using FormatKFIV.Asset;
 
 namespace FormatKFIV.FileFormat
 {
     /// <summary>Provides storage and utility for reading/writing a rev_para.dat file</summary>
-    public class FFParamReverb
+    public class FFParamReverb : FIFormat<Param>
     {
-        #region Format Structures
-        /// <summary>A single entry in reverb parameter data.</summary>
-        public struct RevParaEntry {
-            /// <summary>Base Reverb Mode. Studio1, Studio2, Studio3, Pipe ETC...</summary>
-            public uint ReverbMode;
-            /// <summary>Depth of Reverb (left channel)</summary>
-            public ushort DepthL;
-            /// <summary>Depth of Reverb (right channel)</summary>
-            public ushort DepthR;
-            /// <summary>Delay of Reverb</summary>
-            public ushort Delay;
-            /// <summary>Feedback of Reverb</summary>
-            public ushort Feedback;
-            /// <summary>Volume of Reverb (left channel)</summary>
-            public ushort VolumeL;
-            /// <summary>Volume of Reverb (right channel)</summary>
-            public ushort VolumeR;
+        #region Format Parameters
+        /// <summary>Returns FF parameters for import/export</summary>
+        public FIParameters Parameters { get { return _parameters; } }
+
+        /// <summary>The defined file format parameters.</summary>
+        private FIParameters _parameters = new FIParameters
+        {
+            Extensions = new string[]
+            {
+                ".dat",
+            },
+            Type = FEType.Param,
+            AllowExport = false,
+            Validator = FFParamReverb.FileIsValid
+        };
+
+        /// <summary>Validates a file to see if it is PS2 ICO Format</summary>
+        private static bool FileIsValid(byte[] buffer)
+        {
+            bool validFile = true;
+            using (InputStream ins = new InputStream(buffer))
+            {
+                try
+                {
+                    //Check Reverb Param by checking reverb modes.
+                    validFile = (ins.ReadUInt32() == 5);
+                    ins.Seek(0xC, System.IO.SeekOrigin.Current);
+                    validFile = validFile & (ins.ReadUInt32() == 5);
+                    ins.Seek(0xC, System.IO.SeekOrigin.Current);
+                    validFile = validFile & (ins.ReadUInt32() == 6);
+                }
+                catch (Exception Ex)
+                {
+                    Console.WriteLine(Ex.Message);
+                    Console.WriteLine(Ex.StackTrace);
+                    return false;
+                }
+            }
+
+            return validFile;
         }
 
         #endregion
 
-        //Properties
-        public int ParamCount
+        public Param LoadFromMemory(byte[] buffer, out object ret2, out object ret3, out object ret4)
         {
-            get { return ParamSet.Count; }
-        }
+            ret2 = null;
+            ret3 = null;
+            ret4 = null;
 
-        //Members
-        private List<RevParaEntry> ParamSet = new List<RevParaEntry>();
-
-        public static FFParamReverb LoadFromBuffer(byte[] buffer)
-        {
-            FFParamReverb resultingParamFile = new FFParamReverb();
-
-            //Read from file
             using (InputStream ins = new InputStream(buffer))
             {
-                for(var i = 0; i < (ins.Length() / 16); ++i)
-                {
-                    resultingParamFile.ParamSet.Add(new RevParaEntry
-                    {
-                        ReverbMode = ins.ReadUInt32(),
-                        DepthL     = ins.ReadUInt16(),
-                        DepthR     = ins.ReadUInt16(),
-                        Delay      = ins.ReadUInt16(),
-                        Feedback   = ins.ReadUInt16(),
-                        VolumeL    = ins.ReadUInt16(),
-                        VolumeR    = ins.ReadUInt16()
-                    });
-                }
+                return LoadParamReverb(ins);
             }
+        }
+        public Param LoadFromFile(string filepath, out object ret2, out object ret3, out object ret4)
+        {
+            ret2 = null;
+            ret3 = null;
+            ret4 = null;
 
-            return resultingParamFile;
+            using (InputStream ins = new InputStream(filepath))
+            {
+                return LoadParamReverb(ins);
+            }
         }
 
-        public RevParaEntry this[int i]
+        public static Param LoadParamReverb(InputStream ins)
         {
-            get { return ParamSet[i]; }
+            Param paramOut = new Param();
+
+            //Create Param Layout
+            Param.ParamLayout layout = new Param.ParamLayout
+            {
+                Columns = new Param.ParamColumn[7],
+            };
+            layout.Columns[0] = new Param.ParamColumn
+            {
+                Name = "Reverb Mode",
+                DataType = Param.ParamColumnFormat.DTUInt32,
+            };
+            layout.Columns[1] = new Param.ParamColumn
+            {
+                Name = "Depth L",
+                DataType = Param.ParamColumnFormat.DTUInt16,
+            };
+            layout.Columns[2] = new Param.ParamColumn
+            {
+                Name = "Depth R",
+                DataType = Param.ParamColumnFormat.DTUInt16,
+            };
+            layout.Columns[3] = new Param.ParamColumn
+            {
+                Name = "Delay",
+                DataType = Param.ParamColumnFormat.DTUInt16,
+            };
+            layout.Columns[4] = new Param.ParamColumn
+            {
+                Name = "Feedback",
+                DataType = Param.ParamColumnFormat.DTUInt16,
+            };
+            layout.Columns[5] = new Param.ParamColumn
+            {
+                Name = "Volume L",
+                DataType = Param.ParamColumnFormat.DTUInt16,
+            };
+            layout.Columns[6] = new Param.ParamColumn
+            {
+                Name = "Volume R",
+                DataType = Param.ParamColumnFormat.DTUInt16,
+            };
+            paramOut.SetLayout(layout);
+
+            //Create Param Page
+            Param.ParamPage revPage = new Param.ParamPage
+            {
+                pageName = "Reverb Parameters",
+                pageRows = new List<Param.ParamRow>(),
+            };
+
+            //Load Reverb Data
+            try
+            {
+                do
+                {
+                    //Read a single row of data...
+                    uint vRevMode = ins.ReadUInt32();
+                    ushort vRevDepL = ins.ReadUInt16();
+                    ushort vRevDepR = ins.ReadUInt16();
+                    ushort vDelay = ins.ReadUInt16();
+                    ushort vFeedback = ins.ReadUInt16();
+                    ushort vVolL = ins.ReadUInt16();
+                    ushort vVolR = ins.ReadUInt16();
+
+                    //Add row to page
+                    revPage.AddRow(new Param.ParamRow(vRevMode, vRevDepL, vRevDepR, vDelay, vFeedback, vVolL, vVolR));
+
+                } while (!ins.IsEndOfStream());
+            }
+            catch (Exception Ex)
+            {
+                Console.WriteLine(Ex.Message);
+                Console.WriteLine(Ex.StackTrace);
+                return null;
+            }
+
+            paramOut.AddPage(revPage);
+
+            return paramOut;
+        }
+
+        public void SaveToFile(string filepath, Param data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

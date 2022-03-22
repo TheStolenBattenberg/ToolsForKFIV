@@ -316,6 +316,7 @@ namespace ToolsForKFIV.Utility
             }
 
             GLMeshes.Clear();
+            GLMeshes = null;
         }
     }
 }

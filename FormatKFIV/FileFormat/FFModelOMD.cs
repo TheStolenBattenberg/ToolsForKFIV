@@ -239,6 +239,11 @@ namespace FormatKFIV.FileFormat
                                 CA = ins.ReadUInt16(),
                             };
 
+                            if (V.NW != 0 && V.NW != -32768)
+                            {
+                                Console.WriteLine($"N Flag: {V.NW}");
+                            }
+
                             tristrip.vertices[k] = V;
                         }
 

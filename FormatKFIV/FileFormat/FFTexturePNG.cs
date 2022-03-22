@@ -119,7 +119,7 @@ namespace FormatKFIV.FileFormat
                         return;
                     }
 
-                    if (image.Format == Texture.ColourMode.M8)
+                    if (image.Format == Texture.ColourMode.M8 || image.Format == Texture.ColourMode.M4)
                     {
                         using (OutputStream ousClut = new OutputStream(path + ".clut"))
                         {
@@ -130,6 +130,9 @@ namespace FormatKFIV.FileFormat
                     //Copy CLUT
                     for (int i = 0; i < clut.Value.Length; i += 4)
                     {
+                        if (i == 64 && image.Format == Texture.ColourMode.M4)
+                            break;
+
                         //Make Colour from our CLUT
                         bmPalette.Entries[(i / 4)] = Color.FromArgb(clut.Value.data[i + 3], clut.Value.data[i + 2], clut.Value.data[i + 1], clut.Value.data[i + 0]);
                     }
@@ -137,7 +140,7 @@ namespace FormatKFIV.FileFormat
                     bm.Palette = bmPalette;
                 }
 
-                if (image.Format == Texture.ColourMode.M8)
+                if (image.Format == Texture.ColourMode.M8 || image.Format == Texture.ColourMode.M4)
                 {
                     using (OutputStream ousImg = new OutputStream(path + ".img"))
                     {

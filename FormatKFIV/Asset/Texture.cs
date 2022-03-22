@@ -424,7 +424,7 @@ namespace FormatKFIV.Asset
 
         private static void PS2Unswizzle8BPP(ref byte[] output, int width, int height)
         {
-            //Special thanks to Gh0stBlade for sharing the 8bpp unswizzling code from there TR projects,
+            //Special thanks to Gh0stBlade for sharing the 8bpp unswizzling code from their TR projects,
             //and Mumm-Ra for telling me 8bpp swizzled indices were actually a thing over on the Xentax discord server.
             //Also loginmen for the last loop bit, still not sure what it does.
 
@@ -455,55 +455,38 @@ namespace FormatKFIV.Asset
         {
             //https://gist.github.com/Fireboyd78/1546f5c86ebce52ce05e7837c697dc72
 
-            int[] Matrix = { 0, 1, -1, 0 };
-            int[] TileMatrix = { 4, -4 };
-
-            byte[] pixBuf = new byte[width * height];
+            byte[] bpp8Buffer = new byte[output.Length * 2];
+            int Dst, Src;
 
             //Turn 4BPP indices into 8bpp indices
-            int D = 0, S = 0;
-            for(int i = 0; i < ((width >> 1) * height); ++i)
+            Src = 0;
+            Dst = 0;
+            while (Src < output.Length)
             {
-                int pixel2 = output[S++];
+                int bpp4Pixel = output[Src];
 
-                pixBuf[D++] = (byte)((pixel2 >> 0) & 0xF);
-                pixBuf[D++] = (byte)((pixel2 >> 4) & 0xF);
+                bpp8Buffer[Dst + 0] = (byte)((bpp4Pixel >> 0) & 0xF);
+                bpp8Buffer[Dst + 1] = (byte)((bpp4Pixel >> 4) & 0xF);
+
+                Dst += 2;
+                Src++;
             }
 
-            byte[] pixOut = new byte[width * height];
+            //Do 8BPP Unswizzle on this data
+            PS2Unswizzle8BPP(ref bpp8Buffer, width, height);
 
-            for(int j = 0; j < height; ++j)
+            //Turn our unswizzled 8BPP indices back into 4bpp indices
+            Src = 0;
+            Dst = 0;
+            while (Dst < output.Length)
             {
-                for(int i = 0; i < width; ++i)
-                {
-                    bool isOddRow = ((j & 0x1)) != 0;
+                byte bpp8Pix1 = bpp8Buffer[Src + 0];
+                byte bpp8Pix2 = bpp8Buffer[Src + 1];
 
-                    byte num1 = (byte)((j / 4) & 0x1);
-                    byte num2 = (byte)((i / 4) & 0x1);
-                    int num3 = (int)(j % 4);
-                    int num4 = (int)((i / 4) % 4);
-                    int num5 = (int)((i * 4) % 16);
-                    int num6 = (int)((i / 16) * 32);
-                    int num7 = isOddRow ? ((j - 1) * width) : (j * width);
+                output[Dst] = (byte)(((bpp8Pix1 & 0xF) << 0) | ((bpp8Pix2 & 0xF) << 4));
 
-                    if (isOddRow)
-                        num4 += 4;
-
-                    int x = i + num1 * TileMatrix[num2];
-                    int y = j + Matrix[num3];
-                    int xx = bpp4UnswizzleMatrix[num4] + num5 + num6 + num7;
-                    int yy = y * width + x;
-
-                    pixOut[yy] = pixBuf[xx];
-                }
-            }
-
-            //Restore unswizzled 4bpp indices
-            D = 0;
-            S = 0;
-            for (int i = 0; i < ((width >> 1) * height); ++i)
-            {
-                output[D++] = (byte)((pixOut[S++] & 0xF) | (pixOut[S++] << 4));
+                Src += 2;
+                Dst++;
             }
         }
 

@@ -35,12 +35,22 @@ namespace ToolsForKFIV.Utility
             {
                 tex.Destroy();
             }
+            sceneSObjTexture.Clear();
+            sceneSObjTexture = null;
+            foreach(GLModel mdl in sceneSObjModel)
+            {
+                mdl.Destroy();
+            }
+            sceneSObjModel.Clear();
+            sceneSObjModel = null;
 
             //Destroy Map Piece
             foreach(GLModel mdl in scenePieceMdl)
             {
                 mdl.Destroy();
             }
+            scenePieceMdl.Clear();
+            scenePieceMdl = null;
         }
     }
 }

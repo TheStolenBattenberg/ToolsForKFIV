@@ -239,6 +239,7 @@ namespace ToolsForKFIV.UI.Control
             {
                 modelFile.Destroy();
                 modelFile = null;
+                model = null;
             }
 
             if (textureFile != null)
@@ -253,11 +254,10 @@ namespace ToolsForKFIV.UI.Control
             }
             else
             {
-                textureFile = GLTexture.Generate44White();  //Could Cache this.
+                textureFile = GLTexture.Generate44White();
             }
 
             modelFile = GLModel.GenerateFromAsset(mod);
-
             model = mod;
 
             SetViewModel(0);

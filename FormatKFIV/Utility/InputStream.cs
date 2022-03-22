@@ -183,5 +183,10 @@ namespace FormatKFIV.Utility
         {
             return BaseStream.Position;
         }
+
+        public bool IsEndOfStream()
+        {
+            return Position() >= Length();
+        }
     }
 }

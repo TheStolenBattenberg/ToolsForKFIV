@@ -31,6 +31,7 @@ namespace ToolsForKFIV.UI.Control
         {
             this.tpeTabView = new System.Windows.Forms.TabControl();
             this.tvPreview = new System.Windows.Forms.TabPage();
+            this.ptPageBox = new System.Windows.Forms.ComboBox();
             this.tpeDataGrid = new System.Windows.Forms.DataGridView();
             this.tvExport = new System.Windows.Forms.TabPage();
             this.tpeTabView.SuspendLayout();
@@ -52,6 +53,7 @@ namespace ToolsForKFIV.UI.Control
             // 
             // tvPreview
             // 
+            this.tvPreview.Controls.Add(this.ptPageBox);
             this.tvPreview.Controls.Add(this.tpeDataGrid);
             this.tvPreview.Location = new System.Drawing.Point(4, 27);
             this.tvPreview.Name = "tvPreview";
@@ -61,20 +63,32 @@ namespace ToolsForKFIV.UI.Control
             this.tvPreview.Text = "Preview";
             this.tvPreview.UseVisualStyleBackColor = true;
             // 
+            // ptPageBox
+            // 
+            this.ptPageBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ptPageBox.FormattingEnabled = true;
+            this.ptPageBox.Location = new System.Drawing.Point(3, 3);
+            this.ptPageBox.Name = "ptPageBox";
+            this.ptPageBox.Size = new System.Drawing.Size(242, 23);
+            this.ptPageBox.TabIndex = 1;
+            this.ptPageBox.SelectedIndexChanged += new System.EventHandler(this.ptPageBox_SelectedIndexChanged);
+            // 
             // tpeDataGrid
             // 
             this.tpeDataGrid.AllowUserToAddRows = false;
             this.tpeDataGrid.AllowUserToDeleteRows = false;
             this.tpeDataGrid.AllowUserToResizeColumns = false;
             this.tpeDataGrid.AllowUserToResizeRows = false;
+            this.tpeDataGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tpeDataGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.tpeDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.tpeDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tpeDataGrid.Location = new System.Drawing.Point(3, 3);
+            this.tpeDataGrid.Location = new System.Drawing.Point(3, 29);
             this.tpeDataGrid.Name = "tpeDataGrid";
-            this.tpeDataGrid.ReadOnly = true;
             this.tpeDataGrid.RowTemplate.Height = 25;
-            this.tpeDataGrid.Size = new System.Drawing.Size(242, 219);
+            this.tpeDataGrid.Size = new System.Drawing.Size(242, 193);
             this.tpeDataGrid.TabIndex = 0;
             // 
             // tvExport
@@ -87,13 +101,13 @@ namespace ToolsForKFIV.UI.Control
             this.tvExport.Text = "Export";
             this.tvExport.UseVisualStyleBackColor = true;
             // 
-            // ToolFFParamEditor
+            // ToolFFParam
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tpeTabView);
             this.Margin = new System.Windows.Forms.Padding(0);
-            this.Name = "ToolFFParamEditor";
+            this.Name = "ToolFFParam";
             this.Size = new System.Drawing.Size(256, 256);
             this.Resize += new System.EventHandler(this.ToolFFParamEditor_Resize);
             this.tpeTabView.ResumeLayout(false);
@@ -109,5 +123,6 @@ namespace ToolsForKFIV.UI.Control
         private System.Windows.Forms.TabPage tvPreview;
         private System.Windows.Forms.TabPage tvExport;
         private System.Windows.Forms.DataGridView tpeDataGrid;
+        private System.Windows.Forms.ComboBox ptPageBox;
     }
 }

@@ -357,12 +357,10 @@ namespace FormatKFIV.FileFormat
 
                 //Unpack textures
 
-                //Texture Writer
-                FFTexturePNG pngHandler = new FFTexturePNG();
-
                 //Save each texture as PNG.
+                FFTexturePNG pngHandler = new FFTexturePNG();
                 Texture texs = UnpackMAPTX2(ins, mapHeader, pieceOMDs);
-                pngHandler.SaveToFile("D:\\REEEE\\test\\tx2Out", texs);
+                pngHandler.SaveToFile("D:\\REEEE\\test\\tx2Out", texs); 
 
 
                 List<int> PieceDrawMdl = new List<int>();
@@ -376,11 +374,6 @@ namespace FormatKFIV.FileFormat
                 {
                     mapObjectOMD[i] = OMDLoader.ImportOMD(ins);
                     mapObjectTX2[i] = TX2Loader.ImportTX2(ins);
-
-                    if(mapObjectTX2[i] == null)
-                    {
-                        Console.WriteLine("wtf?");
-                    }
                 }
                 ins.Return();
 
@@ -447,6 +440,7 @@ namespace FormatKFIV.FileFormat
 
             //Byte array mimics PS2 VRAM
             byte[] vram = new byte[4194304];
+
             //Array of OMD models for texture restoration
             FFModelOMD.OMDModel[] models = omdModels;
 
@@ -456,8 +450,7 @@ namespace FormatKFIV.FileFormat
             long tx2ChunkSize = header.offSoundFX - header.offTexture;
             ins.Jump(header.offTexture);
 
-
-            int texID = 5;
+            int texID = 0;
             while ((ins.Position() - header.offTexture) < tx2ChunkSize)
             {
                 int tx2Length = (int)((ins.ReadUInt32() - 7) * 16);
@@ -473,20 +466,22 @@ namespace FormatKFIV.FileFormat
                 sceGsBitbltbuf bitbltbuf = ins.ReadPS28ByteRegister()._sceGsBitbltbuf;
                 ins.Seek(24, System.IO.SeekOrigin.Current);
                 sceGsTrxreg texreg = ins.ReadPS28ByteRegister()._sceGsTrxreg;
-                ins.Seek(40, System.IO.SeekOrigin.Current); //Skip 72 bytes we also really don't care about.
+                ins.Seek(40, System.IO.SeekOrigin.Current); //Skip 40 bytes we also really don't care about.
 
                 //Read data into buffer
                 byte[] tx2Buffer = ins.ReadBytes(tx2Length);
+
                 int vramDestination = (int)(bitbltbuf.DBP * 0x100);
 
                 //Copy buffer into vram
                 Array.Copy(tx2Buffer, 0, vram, vramDestination, tx2Length);
 
-                texID--;
-
-                if (-1 < texID)
-                    break;
-                Console.WriteLine($"Read TX2 Texture {5 - texID}");
+                texID++;
+                Console.WriteLine($"Read TX2 Texture {texID}");
+                Console.WriteLine($"DBP: {bitbltbuf.DBP.ToString("X8")}");
+                Console.WriteLine($"SBP: {bitbltbuf.SBP.ToString("X8")}");
+                Console.WriteLine($"Width: {texreg.RRW.ToString("D8")}");
+                Console.WriteLine($"Height: {texreg.RRH.ToString("D8")}");
             }
             ins.Return();
 
@@ -522,6 +517,10 @@ namespace FormatKFIV.FileFormat
 
                         //Console.WriteLine($"Clut Address: {(clutAddr / 0x100).ToString("X4")}");
                         Console.WriteLine($"Image Address: {(imgbAddr / 0x100).ToString("X4")}");
+                        Console.WriteLine($"Image BW: {omdTriS.tex0Data.TBW * 0x40}");
+                        Console.WriteLine($"Image W: {imgbW}");
+
+
 
                         //Extract a texture from our PS2 Vram
                         Texture.ImageBuffer imgdBuffer = new Texture.ImageBuffer
@@ -533,7 +532,6 @@ namespace FormatKFIV.FileFormat
                         };
 
                         int lineByteSize = 0;
-
                         switch(imgdBuffer.Format)
                         {
                             case Texture.ColourMode.M4:
@@ -541,6 +539,7 @@ namespace FormatKFIV.FileFormat
                                 imgdBuffer.ClutCount = 1;
                                 imgdBuffer.ClutIDs = new int[1];
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
+                                imgdBuffer.Name = "[TBP 0x"+omdTriS.tex0Data.TBP.ToString("X8")+"][CBP 0x"+omdTriS.tex0Data.CBP.ToString("X8") +"][BPP 4]";
 
                                 lineByteSize = (int)(imgdBuffer.Width >> 1);
                                 break;
@@ -550,6 +549,7 @@ namespace FormatKFIV.FileFormat
                                 imgdBuffer.ClutCount = 1;
                                 imgdBuffer.ClutIDs = new int[1];
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
+                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][CBP 0x" + omdTriS.tex0Data.CBP.ToString("X8") + "][BPP 8]";
 
                                 lineByteSize = (int)imgdBuffer.Width;
                                 break;
@@ -557,6 +557,7 @@ namespace FormatKFIV.FileFormat
                             case Texture.ColourMode.D16:
                                 imgdBuffer.Length = (imgdBuffer.Width * 2) * imgdBuffer.Height;
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
+                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][BPP 16]";
 
                                 lineByteSize = (int)imgdBuffer.Width * 2;
                                 break;
@@ -564,6 +565,7 @@ namespace FormatKFIV.FileFormat
                             case Texture.ColourMode.D24:
                                 imgdBuffer.Length = (imgdBuffer.Width * 3) * imgdBuffer.Height;
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
+                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][BPP 24]";
 
                                 lineByteSize = (int)imgdBuffer.Width * 3;
                                 break;
@@ -571,6 +573,7 @@ namespace FormatKFIV.FileFormat
                             case Texture.ColourMode.D32:
                                 imgdBuffer.Length = (imgdBuffer.Width * 4) * imgdBuffer.Height;
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
+                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][BPP 32]";
 
                                 lineByteSize = (int)imgdBuffer.Width * 4;
                                 break;
@@ -582,14 +585,15 @@ namespace FormatKFIV.FileFormat
                         for(int i = 0; i < imgdBuffer.Height; ++i)
                         {
                             Array.Copy(vram, imgReadOffset, imgdBuffer.data, imgWriteOffset, lineByteSize);
+                            imgReadOffset += 256;
                             imgWriteOffset += lineByteSize;
-                            imgReadOffset += lineByteSize;
                         }
 
                         if (imgdBuffer.Format == Texture.ColourMode.M4 || imgdBuffer.Format == Texture.ColourMode.M8)
                         {
                             Texture.PS2UnswizzleImageData(ref imgdBuffer.data, imgdBuffer.Format, (int)imgdBuffer.Width, (int)imgdBuffer.Height);
                         }
+
                         //Does texture have clut?
                         if(imgdBuffer.Format == Texture.ColourMode.M4 || imgdBuffer.Format == Texture.ColourMode.M8)
                         {
@@ -598,14 +602,26 @@ namespace FormatKFIV.FileFormat
                                 Format = Texture.PSMtoColourMode((uint)clutFrmt),
                             };
 
-                            switch(imgdBuffer.Format)
+                            int lineReadOffset = 0, lineWriteOffset = 0;
+
+                            switch (imgdBuffer.Format)
                             {
                                 case Texture.ColourMode.M4:
                                     clutBuffer.Width = 8;
                                     clutBuffer.Height = 2;
                                     clutBuffer.Length = (clutBuffer.Width * 4) * clutBuffer.Height;
                                     clutBuffer.data = new byte[clutBuffer.Length];
-                                    Array.Copy(vram, clutAddr, clutBuffer.data, 0, clutBuffer.Length);
+
+                                    //Read palette
+                                    lineReadOffset = clutAddr;
+                                    lineWriteOffset = 0;
+
+                                    for (int i = 0; i < clutBuffer.Height; ++i)
+                                    {
+                                        Array.Copy(vram, lineReadOffset, clutBuffer.data, lineWriteOffset, (clutBuffer.Width * 4));
+                                        lineReadOffset += 256;
+                                        lineWriteOffset += (int) (clutBuffer.Width * 4);
+                                    }
 
                                     Texture.ConvColourSpaceBGRAtoRGBA(ref clutBuffer.data, Texture.ColourMode.D32, true);
 
@@ -618,18 +634,17 @@ namespace FormatKFIV.FileFormat
                                     clutBuffer.data = new byte[clutBuffer.Length];
 
                                     //Read palette
-                                    int lineReadOffset = clutAddr + 2048;
-                                    int lineWriteOffset = 0;
-                                    int lineStride = 256;
+                                    lineReadOffset = clutAddr + 2048;
+                                    lineWriteOffset = 0;
 
-                                    for(int i = 0; i < 16; ++i)
+                                    for(int i = 0; i < clutBuffer.Height; ++i)
                                     {
-                                        Array.Copy(vram, lineReadOffset, clutBuffer.data, lineWriteOffset, 64);
-                                        lineReadOffset  += lineStride;
-                                        lineWriteOffset += 64;
+                                        Array.Copy(vram, lineReadOffset, clutBuffer.data, lineWriteOffset, (clutBuffer.Width * 4));
+                                        lineReadOffset  += 256;
+                                        lineWriteOffset += (int)( clutBuffer.Width * 4);
                                     }
 
-                                    Texture.ConvColourSpaceBGRAtoRGBA(ref clutBuffer.data, Texture.ColourMode.D32, true);
+                                   Texture.ConvColourSpaceBGRAtoRGBA(ref clutBuffer.data, Texture.ColourMode.D32, true);
                                     break;
                             }
 

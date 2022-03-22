@@ -227,6 +227,8 @@ namespace FormatKFIV.FileFormat
                             Unknown0x18 = ins.ReadUInt32(),
                             Unknown0x1C = ins.ReadUInt32()
                         };
+
+                        Console.WriteLine(modMesh.vertices[j].Unknown0x14);
                     }
 
                     meshes.Add(modMesh);

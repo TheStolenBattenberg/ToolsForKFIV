@@ -7,14 +7,71 @@ using System.Text;
 using System.Windows.Forms;
 
 using FormatKFIV.FileFormat;
+using FormatKFIV.Asset;
 
 namespace ToolsForKFIV.UI.Control
 {
     public partial class ToolFFParam : UserControl
     {
+        //Members
+        private Param paramData;
+        private int currentPage;
+
         public ToolFFParam()
         {
             InitializeComponent();
+        }
+
+
+        public void SetParamData(Param newParams)
+        {
+            paramData = newParams;
+
+            //Get Param Layout
+            Param.ParamLayout layout = paramData.Layout;
+
+            //Clear row data
+            tpeDataGrid.Columns.Clear();
+
+            //Fill Column data
+            foreach (Param.ParamColumn column in layout.Columns)
+            {
+                tpeDataGrid.Columns.Add(column.Name.Replace(" ", ""), column.Name);
+            }
+
+            //Fill Page Data
+            ptPageBox.Items.Clear();
+            for(int i = 0; i < paramData.PageCount; ++i)
+            {
+                Param.ParamPage page = paramData.GetPage(i);
+                ptPageBox.Items.Add($"Page #{i.ToString("D4")} - " + page.pageName);
+            }
+
+            //Set first page
+            ptPageBox.SelectedIndex = 0;
+            ptPageBox.SelectedItem = ptPageBox.Items[0];
+        }
+        private void SetParamsPage(int index)
+        {
+            //Get param page.
+            Param.ParamPage page = paramData.GetPage(index);
+            Console.WriteLine("Page Name: " + page.pageName);
+
+            //Clear row data
+            tpeDataGrid.Rows.Clear();
+
+            //Fill Row Data
+            foreach (Param.ParamRow row in page.pageRows)
+            {
+                int newRowID = tpeDataGrid.Rows.Add();
+                DataGridViewRow newRow = tpeDataGrid.Rows[newRowID];
+
+                //For each column...
+                for (int i = 0; i < paramData.ColumnCount; ++i)
+                {
+                    newRow.Cells[i].Value = row.values[i];
+                }
+            }
         }
 
         #region Data Grid Events
@@ -25,37 +82,12 @@ namespace ToolsForKFIV.UI.Control
 
         #endregion
 
-        #region Editor Modes
-        public void SetModeReverbParam(FFParamReverb paramReverb)
+        private void ptPageBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //Clear Previous Defined Data
-            tpeDataGrid.Columns.Clear();
-            tpeDataGrid.Rows.Clear();
-
-            //Create Columns
-            tpeDataGrid.Columns.Add("revType", "Reverb Type");
-            tpeDataGrid.Columns.Add("depthL",  "Depth L");
-            tpeDataGrid.Columns.Add("depthR",  "Depth R");
-            tpeDataGrid.Columns.Add("delay",   "Delay");
-            tpeDataGrid.Columns.Add("feedbak", "Feedback");
-            tpeDataGrid.Columns.Add("volL",    "Volume L");
-            tpeDataGrid.Columns.Add("volR",    "Volume R");
-            tpeDataGrid.Columns.Add("entID",   "ID");
-
-            //Fill in rows...
-            for(int i = 0; i < paramReverb.ParamCount; ++i)
+            if(ptPageBox.SelectedIndex >= 0 && ptPageBox.SelectedIndex < paramData.PageCount)
             {
-                tpeDataGrid.Rows.Add(paramReverb[i].ReverbMode, 
-                    paramReverb[i].DepthL,
-                    paramReverb[i].DepthR,
-                    paramReverb[i].Delay,
-                    paramReverb[i].Feedback,
-                    paramReverb[i].VolumeL,
-                    paramReverb[i].VolumeR,
-                    i);
+                SetParamsPage(ptPageBox.SelectedIndex);
             }
         }
-
-        #endregion
     }
 }
