@@ -45,6 +45,8 @@ namespace FormatKFIV.Asset
         public List<Chunk> sceneChunk = new List<Chunk>();
         public List<Object> sceneObject = new List<Object>();
 
+        public List<Model> scenePieceCSK = new List<Model>();
+
         public int AddModel(Model mdl)
         {
             sceneModel.Add(mdl);

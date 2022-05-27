@@ -355,13 +355,14 @@ namespace FormatKFIV.FileFormat
                 }
                 ins.Return();
 
-                //Unpack textures
-
-                //Save each texture as PNG.
-                FFTexturePNG pngHandler = new FFTexturePNG();
-                Texture texs = UnpackMAPTX2(ins, mapHeader, pieceOMDs);
-                pngHandler.SaveToFile("D:\\REEEE\\test\\tx2Out", texs); 
-
+                //Read CSK Models
+                FFModelCSK.CSKModel[] pieceCSKs = new FFModelCSK.CSKModel[mapHeader.numPieceCSK];
+                ins.Jump(mapHeader.offPieceCSK);
+                for(int i = 0; i < mapHeader.numPieceCSK; ++i)
+                {
+                    pieceCSKs[i] = FFModelCSK.ImportCSK(ins);
+                }
+                ins.Return();
 
                 List<int> PieceDrawMdl = new List<int>();
 
@@ -381,6 +382,13 @@ namespace FormatKFIV.FileFormat
                 //
                 // Scene Building
                 //
+
+                //Add Map CSKs
+                foreach(FFModelCSK.CSKModel CSKmdl in pieceCSKs)
+                {
+                    OUT.scenePieceCSK.Add(FFModelCSK.CSKToModel(CSKmdl));
+                }
+
                 //Read MAP Peice OMDs
                 ins.Jump(mapHeader.offPieceOMD);
                 for (int i = 0; i < mapHeader.numPieceOMD; ++i)
@@ -416,7 +424,7 @@ namespace FormatKFIV.FileFormat
                         TextureId = -1
                     };
 
-                    if(obj.RenderMeshId != -1)
+                    if(obj.RenderMeshId != -1 && mapObjectOMD.Length > obj.RenderMeshId)
                     {
                         sObj.MeshId = OUT.AddModel(mapObjectOMD[obj.RenderMeshId]);
                         sObj.TextureId = OUT.AddTexture(mapObjectTX2[obj.RenderMeshId]);
@@ -519,8 +527,6 @@ namespace FormatKFIV.FileFormat
                         Console.WriteLine($"Image Address: {(imgbAddr / 0x100).ToString("X4")}");
                         Console.WriteLine($"Image BW: {omdTriS.tex0Data.TBW * 0x40}");
                         Console.WriteLine($"Image W: {imgbW}");
-
-
 
                         //Extract a texture from our PS2 Vram
                         Texture.ImageBuffer imgdBuffer = new Texture.ImageBuffer

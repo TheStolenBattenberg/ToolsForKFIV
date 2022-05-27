@@ -214,27 +214,19 @@ namespace ToolsForKFIV.Utility
 
                 foreach (Model.Triangle tri in mesh.triangles)
                 {
-                    for(int j = 0; j < 3; ++j)
+                    for (int j = 0; j < 3; ++j)
                     {
                         Model.Vertex V = m.GetVertex(tri.vIndices[j]);
-                        VertexDataList.Add(V.X);
-                        VertexDataList.Add(V.Y);
-                        VertexDataList.Add(V.Z);
+                        VertexDataList.AddRange(new float[] { V.X, V.Y, V.Z });
 
                         Model.Normal N = m.GetNormal(tri.nIndices[j]);
-                        VertexDataList.Add(N.X);
-                        VertexDataList.Add(N.Y);
-                        VertexDataList.Add(N.Z);
+                        VertexDataList.AddRange(new float[] { N.X, N.Y, N.Z });
 
                         Model.Texcoord T = m.GetTexcoord(tri.tIndices[j]);
-                        VertexDataList.Add(T.U);
-                        VertexDataList.Add(T.V);
+                        VertexDataList.AddRange(new float[] { T.U, T.V});
 
                         Model.Colour C = m.GetColour(tri.cIndices[j]);
-                        VertexDataList.Add(C.R);
-                        VertexDataList.Add(C.G);
-                        VertexDataList.Add(C.B);
-                        VertexDataList.Add(C.A);
+                        VertexDataList.AddRange(new float[] { C.R, C.G, C.B, C.A });
                     }
                 }
 
@@ -262,7 +254,6 @@ namespace ToolsForKFIV.Utility
 
                 GL.BindVertexArray(0);
 
-                ModelVertexData = null;
                 VertexDataList.Clear();
 
                 dataModel.GLMeshes.Add(glMesh);

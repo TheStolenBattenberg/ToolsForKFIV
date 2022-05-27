@@ -37,11 +37,12 @@ namespace ToolsForKFIV.UI.Control
             this.stToolStrip = new System.Windows.Forms.ToolStrip();
             this.stEnableStuffBtLst = new System.Windows.Forms.ToolStripSplitButton();
             this.stTSEnableObj = new System.Windows.Forms.ToolStripMenuItem();
+            this.stTSEnableLight = new System.Windows.Forms.ToolStripMenuItem();
             this.stPreviewGL = new OpenTK.WinForms.GLControl();
             this.stPropertiesTab = new System.Windows.Forms.TabPage();
             this.stExportTab = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.stTSEnableLight = new System.Windows.Forms.ToolStripMenuItem();
+            this.stTSEnableCollision = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.stPreviewTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.stPreviewSplit1)).BeginInit();
@@ -106,7 +107,8 @@ namespace ToolsForKFIV.UI.Control
             this.stEnableStuffBtLst.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.stEnableStuffBtLst.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.stTSEnableObj,
-            this.stTSEnableLight});
+            this.stTSEnableLight,
+            this.stTSEnableCollision});
             this.stEnableStuffBtLst.Image = ((System.Drawing.Image)(resources.GetObject("stEnableStuffBtLst.Image")));
             this.stEnableStuffBtLst.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stEnableStuffBtLst.Name = "stEnableStuffBtLst";
@@ -121,6 +123,15 @@ namespace ToolsForKFIV.UI.Control
             this.stTSEnableObj.Name = "stTSEnableObj";
             this.stTSEnableObj.Size = new System.Drawing.Size(180, 22);
             this.stTSEnableObj.Text = "Enable Objects";
+            // 
+            // stTSEnableLight
+            // 
+            this.stTSEnableLight.Checked = true;
+            this.stTSEnableLight.CheckOnClick = true;
+            this.stTSEnableLight.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.stTSEnableLight.Name = "stTSEnableLight";
+            this.stTSEnableLight.Size = new System.Drawing.Size(180, 22);
+            this.stTSEnableLight.Text = "Enable Lights";
             // 
             // stPreviewGL
             // 
@@ -168,14 +179,14 @@ namespace ToolsForKFIV.UI.Control
             this.timer1.Interval = 10;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // stTSEnableLight
+            // stTSEnableCollision
             // 
-            this.stTSEnableLight.Checked = true;
-            this.stTSEnableLight.CheckOnClick = true;
-            this.stTSEnableLight.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.stTSEnableLight.Name = "stTSEnableLight";
-            this.stTSEnableLight.Size = new System.Drawing.Size(180, 22);
-            this.stTSEnableLight.Text = "Enable Lights";
+            this.stTSEnableCollision.Checked = true;
+            this.stTSEnableCollision.CheckOnClick = true;
+            this.stTSEnableCollision.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.stTSEnableCollision.Name = "stTSEnableCollision";
+            this.stTSEnableCollision.Size = new System.Drawing.Size(180, 22);
+            this.stTSEnableCollision.Text = "Enable Collision";
             // 
             // ToolFFScene
             // 
@@ -209,5 +220,6 @@ namespace ToolsForKFIV.UI.Control
         private System.Windows.Forms.ToolStripSplitButton stEnableStuffBtLst;
         private System.Windows.Forms.ToolStripMenuItem stTSEnableObj;
         private System.Windows.Forms.ToolStripMenuItem stTSEnableLight;
+        private System.Windows.Forms.ToolStripMenuItem stTSEnableCollision;
     }
 }

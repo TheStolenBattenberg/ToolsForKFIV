@@ -111,7 +111,14 @@ namespace FormatKFIV.TypePlayStation
             get { return (uint)((data0_8 >> 60) & 0xF); }
         }
     }
+    public struct sceDmaTag
+    {
+        public ulong data0_8;
+        public ulong data8_8;
 
+        public uint QWC { get { return (uint)(data0_8 >> 0) & 0xFFFF; } }
+
+    }
     [StructLayout(LayoutKind.Explicit)]
     public struct sceRegister16Byte
     {
@@ -124,6 +131,8 @@ namespace FormatKFIV.TypePlayStation
         //Bitfields
         [FieldOffset(0)]
         public sceGifTag _sceGifTag;
+        [FieldOffset(0)]
+        public sceDmaTag _sceDmaTag;
     }
     
 

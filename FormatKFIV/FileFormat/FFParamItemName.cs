@@ -93,7 +93,7 @@ namespace FormatKFIV.FileFormat
             };
             layout.Columns[1] = new Param.ParamColumn
             {
-                Name = "Internal ID",
+                Name = "Icon ID",
                 DataType = Param.ParamColumnFormat.DTInt16,
             };
             layout.Columns[2] = new Param.ParamColumn
@@ -118,7 +118,7 @@ namespace FormatKFIV.FileFormat
             };
             layout.Columns[6] = new Param.ParamColumn
             {
-                Name = "Unknown0x3C",
+                Name = "Durability",
                 DataType = Param.ParamColumnFormat.DTInt32
             };
             paramOut.SetLayout(layout);
@@ -144,8 +144,7 @@ namespace FormatKFIV.FileFormat
                 do
                 {
                     //Read a row of data
-                    string vItemName = ins.ReadFixedKFIVString(23);
-                    ins.ReadInt16();
+                    string vItemName = ins.ReadFixedKFIVString(24);
                     short vItemID = ins.ReadInt16();
                     short vItemUkn0x32 = ins.ReadInt16();
                     short vItemUkn0x34 = ins.ReadInt16();

@@ -9,6 +9,7 @@ namespace ToolsForKFIV.Utility
     public class GLScene
     {
         public List<GLModel>   scenePieceMdl    = new List<GLModel>();
+        public List<GLModel> scenePieceCSK      = new List<GLModel>();
 
         //Objects
         public List<GLTexture> sceneSObjTexture = new List<GLTexture>();
@@ -22,9 +23,15 @@ namespace ToolsForKFIV.Utility
                 sceneSObjTexture.Add(GLTexture.GenerateFromAsset(tex));
             }
 
+            //Build Scene
             for (int i = 0; i < scene.ModelCount; ++i)
             {
                 scenePieceMdl.Add(GLModel.GenerateFromAsset(scene.GetModel(i)));
+            }
+       
+            foreach(Model cskm in scene.scenePieceCSK)
+            {
+                scenePieceCSK.Add(GLModel.GenerateFromAsset(cskm));
             }
         }
 
@@ -51,6 +58,12 @@ namespace ToolsForKFIV.Utility
             }
             scenePieceMdl.Clear();
             scenePieceMdl = null;
+            foreach (GLModel mdl in scenePieceCSK)
+            {
+                mdl.Destroy();
+            }
+            scenePieceCSK.Clear();
+            scenePieceCSK = null;
         }
     }
 }

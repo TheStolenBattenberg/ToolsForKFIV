@@ -129,6 +129,13 @@ namespace ToolsForKFIV.UI.Control
                 {
                     currentGLScene.scenePieceMdl[chunk.drawModelID].DrawTriangles();
                 }
+
+                if(chunk.hitcModelID != -1 && stTSEnableCollision.Checked)
+                {
+                    GL.Disable(EnableCap.CullFace);
+                    currentGLScene.scenePieceCSK[chunk.hitcModelID].DrawTriangles();
+                    GL.Enable(EnableCap.CullFace);
+                }
             }
 
             //

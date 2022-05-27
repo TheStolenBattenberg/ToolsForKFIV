@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+
 using FormatKFIV.Asset;
 using FormatKFIV.TypePlayStation;
 using FormatKFIV.Utility;
@@ -313,9 +313,9 @@ namespace FormatKFIV.FileFormat
                             tri.tIndices[0] = (ushort)ResultingModel.AddTexcoord(V1.TU / 4096f, V1.TV / 4096f);
                             tri.tIndices[1] = (ushort)ResultingModel.AddTexcoord(V2.TU / 4096f, V2.TV / 4096f);
                             tri.tIndices[2] = (ushort)ResultingModel.AddTexcoord(V3.TU / 4096f, V3.TV / 4096f);
-                            tri.cIndices[0] = (ushort)ResultingModel.AddColour(V1.CR / 255f, V1.CB / 255f, V1.CG / 255f, 1f);
-                            tri.cIndices[1] = (ushort)ResultingModel.AddColour(V2.CR / 255f, V2.CB / 255f, V2.CG / 255f, 1f);
-                            tri.cIndices[2] = (ushort)ResultingModel.AddColour(V3.CR / 255f, V3.CB / 255f, V3.CG / 255f, 1f);
+                            tri.cIndices[0] = (ushort)ResultingModel.AddColour(V1.CR / 255f, V1.CG / 255f, V1.CB / 255f, 1f);
+                            tri.cIndices[1] = (ushort)ResultingModel.AddColour(V2.CR / 255f, V2.CG / 255f, V2.CB / 255f, 1f);
+                            tri.cIndices[2] = (ushort)ResultingModel.AddColour(V3.CR / 255f, V3.CG / 255f, V3.CB / 255f, 1f);
 
                             //
                             // An annoying aspect to these models that still hasn't got a proper solution
