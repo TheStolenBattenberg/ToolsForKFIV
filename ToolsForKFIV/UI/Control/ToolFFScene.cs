@@ -18,7 +18,7 @@ namespace ToolsForKFIV.UI.Control
         private GLModel[]  glSceneModels;
         private GLTexture[] glSceneTextures;
 
-        private Vector3 cameraTo = new Vector3(0, 0, 0), cameraFrom = new Vector3(8, 4, 0), lastCameraTo, lastCameraFrom;
+        private Vector3 cameraTo = new Vector3(0, 0, 0), cameraFrom = new Vector3(8, 4, 0);
         private float   camLookX = 0, camLookY = 0;
         private float lastMouseX, lastMouseY;
 

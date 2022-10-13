@@ -15,9 +15,6 @@ namespace ToolsForKFIV
             if (keyIndex < 0 || keyIndex > 255)
                 return;
 
-            Keys keys;
-
-
             bool keyState = e.State == KeyStates.Down ? true : false;
 
             keyboardStateCurrent[keyIndex] = keyState;

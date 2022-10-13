@@ -25,7 +25,7 @@ namespace FormatKFIV.FileFormat
             Validator = FFParamReverb.FileIsValid
         };
 
-        /// <summary>Validates a file to see if it is PS2 ICO Format</summary>
+        /// <summary>Validates a file to see if it is valid</summary>
         private static bool FileIsValid(byte[] buffer)
         {
             bool validFile = true;
@@ -80,56 +80,28 @@ namespace FormatKFIV.FileFormat
         {
             Param paramOut = new Param();
 
-            //Create Param Layout
-            Param.ParamLayout layout = new Param.ParamLayout
+            //Define Reverb Param Layout
+            Param.ParamLayout paramLayout = new Param.ParamLayout
             {
-                Columns = new Param.ParamColumn[7],
-            };
-            layout.Columns[0] = new Param.ParamColumn
-            {
-                Name = "Reverb Mode",
-                DataType = Param.ParamColumnFormat.DTUInt32,
-            };
-            layout.Columns[1] = new Param.ParamColumn
-            {
-                Name = "Depth L",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[2] = new Param.ParamColumn
-            {
-                Name = "Depth R",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[3] = new Param.ParamColumn
-            {
-                Name = "Delay",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[4] = new Param.ParamColumn
-            {
-                Name = "Feedback",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[5] = new Param.ParamColumn
-            {
-                Name = "Volume L",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[6] = new Param.ParamColumn
-            {
-                Name = "Volume R",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            paramOut.SetLayout(layout);
-
-            //Create Param Page
-            Param.ParamPage revPage = new Param.ParamPage
-            {
-                pageName = "Reverb Parameters",
-                pageRows = new List<Param.ParamRow>(),
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Mode", DataType = Param.ParamColumnFormat.DTUInt32 },
+                    new Param.ParamColumn { Name = "Depth (L)", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Depth (R)", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Delay", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Feedback", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Volume (L)", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Volume (R)", DataType = Param.ParamColumnFormat.DTUInt16 },
+                },
             };
 
-            //Load Reverb Data
+            //Define Reverb Param Pages
+            paramOut.Pages = new List<Param.ParamPage>()
+            {
+                new Param.ParamPage { name = "Settings", rows = new List<Param.ParamRow>(), layout = paramLayout }
+            };
+
+            //Read Reverb Parameter Data
             try
             {
                 do
@@ -144,7 +116,7 @@ namespace FormatKFIV.FileFormat
                     ushort vVolR = ins.ReadUInt16();
 
                     //Add row to page
-                    revPage.AddRow(new Param.ParamRow(vRevMode, vRevDepL, vRevDepR, vDelay, vFeedback, vVolL, vVolR));
+                    paramOut.Pages[0].AddRow(new Param.ParamRow(vRevMode, vRevDepL, vRevDepR, vDelay, vFeedback, vVolL, vVolR));
 
                 } while (!ins.IsEndOfStream());
             }
@@ -154,8 +126,6 @@ namespace FormatKFIV.FileFormat
                 Console.WriteLine(Ex.StackTrace);
                 return null;
             }
-
-            paramOut.AddPage(revPage);
 
             return paramOut;
         }

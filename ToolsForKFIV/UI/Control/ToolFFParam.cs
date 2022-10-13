@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 using FormatKFIV.FileFormat;
@@ -15,62 +10,68 @@ namespace ToolsForKFIV.UI.Control
     {
         //Members
         private Param paramData;
-        private int currentPage;
 
         public ToolFFParam()
         {
             InitializeComponent();
         }
 
-
         public void SetParamData(Param newParams)
         {
+            if(newParams == null)
+            {
+                Logger.LogWarn("Invalid parameter file.");
+                throw new Exception("Bad Parameter file.");
+            }
+
             paramData = newParams;
 
-            //Get Param Layout
-            Param.ParamLayout layout = paramData.Layout;
+            //Load Page Names
+            ptPageBox.Items.Clear();
 
-            //Clear row data
+            for(int i = 0; i < paramData.PageCount; ++i)
+            {
+                Param.ParamPage page = paramData.Pages[i];
+                ptPageBox.Items.Add($"Page #{i.ToString("D4")} - " + page.name);
+            }
+
+            //Load Page #0000
+            ptPageBox.SelectedIndex = 0;
+            ptPageBox.SelectedItem = ptPageBox.Items[0];
+            SetParamsPage(0);
+        }
+
+        private void SetParamsPage(int index)
+        {
+            if(index < 0 || index > paramData.PageCount)
+            {
+                Logger.LogWarn("Invalid page index: " + index.ToString());
+                return;
+            }
+
+            //Load Param Page
+            Param.ParamPage page = paramData.Pages[index];
+
+            //Columns
             tpeDataGrid.Columns.Clear();
-
-            //Fill Column data
-            foreach (Param.ParamColumn column in layout.Columns)
+            foreach(Param.ParamColumn column in page.layout.Columns)
             {
                 tpeDataGrid.Columns.Add(column.Name.Replace(" ", ""), column.Name);
             }
 
-            //Fill Page Data
-            ptPageBox.Items.Clear();
-            for(int i = 0; i < paramData.PageCount; ++i)
-            {
-                Param.ParamPage page = paramData.GetPage(i);
-                ptPageBox.Items.Add($"Page #{i.ToString("D4")} - " + page.pageName);
-            }
-
-            //Set first page
-            ptPageBox.SelectedIndex = 0;
-            ptPageBox.SelectedItem = ptPageBox.Items[0];
-        }
-        private void SetParamsPage(int index)
-        {
-            //Get param page.
-            Param.ParamPage page = paramData.GetPage(index);
-            Console.WriteLine("Page Name: " + page.pageName);
-
-            //Clear row data
+            //Rows
             tpeDataGrid.Rows.Clear();
-
-            //Fill Row Data
-            foreach (Param.ParamRow row in page.pageRows)
+            foreach(Param.ParamRow row in page.rows)
             {
-                int newRowID = tpeDataGrid.Rows.Add();
-                DataGridViewRow newRow = tpeDataGrid.Rows[newRowID];
+                int rowID = tpeDataGrid.Rows.Add();
+                DataGridViewRow rowData = tpeDataGrid.Rows[rowID];
 
-                //For each column...
-                for (int i = 0; i < paramData.ColumnCount; ++i)
+                for(int i = 0; i < page.layout.ColumnCount; ++i)
                 {
-                    newRow.Cells[i].Value = row.values[i];
+                    rowData.Cells[i].Value = row.values[i];
                 }
+
+                rowData.HeaderCell.Value = string.Format("{0}", rowID + 1);
             }
         }
 

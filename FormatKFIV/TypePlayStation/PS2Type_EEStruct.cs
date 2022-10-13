@@ -1,8 +1,20 @@
 ﻿using System.Runtime.InteropServices;
 
+/**
+ * To the curious:
+ *   The pragma for disabling a warning here is because the code analysis detects that
+ *   data0_8 etc values are unused, which is bullshit because I'm doing some sketchy
+ *   fake union stuff here in order to read these types without adding a load of 
+ *   crap methods inside the InputStream class.
+ *   
+ *   Do not re-enable that warning if you value your build output.
+ *   Do not remove those variables, as they are VERY crucial.
+**/
+
 namespace FormatKFIV.TypePlayStation
 {
     //16 BYTE REGISTER TYPES
+    #pragma warning disable CS0649
     public struct sceGifTag
     {
         public ulong data0_8;
@@ -119,6 +131,7 @@ namespace FormatKFIV.TypePlayStation
         public uint QWC { get { return (uint)(data0_8 >> 0) & 0xFFFF; } }
 
     }
+
     [StructLayout(LayoutKind.Explicit)]
     public struct sceRegister16Byte
     {
@@ -134,9 +147,11 @@ namespace FormatKFIV.TypePlayStation
         [FieldOffset(0)]
         public sceDmaTag _sceDmaTag;
     }
-    
+    #pragma warning restore CS0649
+
 
     //8 BYTE REGISTER TYPES
+    #pragma warning disable CS0649
     public struct sceGsTex0
     {
         private ulong data0_8;  //IGNORE THESE WARNINGS.
@@ -274,6 +289,14 @@ namespace FormatKFIV.TypePlayStation
     public struct sceGsTexflush
     {
         private ulong data0_8;
+
+        public ulong TexFlush
+        {
+            get
+            {
+                return data0_8;
+            }
+        }
     }
     public struct sceGsTrxpos
     {
@@ -356,7 +379,6 @@ namespace FormatKFIV.TypePlayStation
         [FieldOffset(0)]
         public ulong data0_8;
 
-        //Shittily simulated bitfields
         [FieldOffset(0)]
         public sceGsTex0 _sceGsTex0;
         [FieldOffset(0)]
@@ -375,4 +397,5 @@ namespace FormatKFIV.TypePlayStation
         [FieldOffset(0)]
         public sceGsTrxdir _sceGsTrxdir;
     }
+    #pragma warning restore CS0649
 }

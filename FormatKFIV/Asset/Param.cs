@@ -6,6 +6,7 @@ namespace FormatKFIV.Asset
 {
     public class Param
     {
+        //Types
         public enum ParamColumnFormat
         {
             DTString,
@@ -21,6 +22,7 @@ namespace FormatKFIV.Asset
             DTInt8,
         }
 
+        //Structures
         public struct ParamColumn
         {
             public string Name;
@@ -42,56 +44,38 @@ namespace FormatKFIV.Asset
         public struct ParamLayout
         {
             public ParamColumn[] Columns;
+
+            public uint ColumnCount
+            {
+                get { return (uint)Columns.Length; }
+            }
         }
         public struct ParamPage
         {
-            public string pageName;
-            public List<ParamRow> pageRows;
+            public string name;
+            public List<ParamRow> rows;
+            public ParamLayout layout;
 
             public void AddRow(ParamRow row)
             {
-                pageRows.Add(row);
+                rows.Add(row);
             }
             public ParamRow? GetRow(int index)
             {
-                if (index > pageRows.Count || index < 0)
+                if (index < 0 || index >= rows.Count)
                     return null;
 
-                return pageRows[index];
+                return rows[index];
             }
         }
 
-        //Properties
-        public ParamLayout Layout
-        {
-            get { return _layout; }
-        }
-        public int ColumnCount
-        {
-            get { return _layout.Columns.Length; }
-        }
-        public int PageCount
-        {
-            get { return _data.Count; }
-        }
+        //Data
+        public List<ParamPage> Pages;
 
-        //Members
-        private ParamLayout _layout;
-        private List<ParamPage> _data = new List<ParamPage>();
-
-        public void AddPage(ParamPage page)
+        //Accessors
+        public uint PageCount
         {
-            _data.Add(page);
-        }
-        public void SetLayout(ParamLayout layout)
-        {
-            _layout = layout;
-
-        }
-
-        public ParamPage GetPage(int index)
-        {
-            return _data[index];
+            get { return (uint) Pages.Count; }
         }
     }
 }

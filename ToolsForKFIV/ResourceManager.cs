@@ -67,6 +67,7 @@ namespace ToolsForKFIV
             formatsParam.Add(new FFParamReverb());
             formatsParam.Add(new FFParamItemName());
             formatsParam.Add(new FFParamWeapon());
+            formatsParam.Add(new FFParamMagic());
         }
 
         /// <summary>Scan through each registered format to see if a particular one is supported</summary>

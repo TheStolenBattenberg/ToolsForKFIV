@@ -24,7 +24,7 @@ namespace FormatKFIV.FileFormat
             Validator = FFParamItemName.FileIsValid
         };
 
-        /// <summary>Validates a file to see if it is PS2 ICO Format</summary>
+        /// <summary>Validates a file to see if it is this format</summary>
         private static bool FileIsValid(byte[] buffer)
         {
             bool validFile = true;
@@ -33,12 +33,9 @@ namespace FormatKFIV.FileFormat
                 try
                 {
                     ins.Seek(60, System.IO.SeekOrigin.Begin);
-                    int someVal = ins.ReadInt32();
+                    validFile = validFile & (ins.ReadUInt32() == 1);
                     ins.Seek(60, System.IO.SeekOrigin.Current);
-                    int someVal2 = ins.ReadInt32();
-
-                    validFile = (someVal == 1 && someVal2 == 100);
-
+                    validFile = validFile & (ins.ReadUInt32() == 100);
                 }
                 catch (Exception Ex)
                 {
@@ -81,95 +78,101 @@ namespace FormatKFIV.FileFormat
         {
             Param paramOut = new Param();
 
-            //Create Param Layout
-            Param.ParamLayout layout = new Param.ParamLayout
+            //Define Name Param Layout
+            Param.ParamLayout paramLayout = new Param.ParamLayout
             {
-                Columns = new Param.ParamColumn[7],
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Name", DataType = Param.ParamColumnFormat.DTString },
+                    new Param.ParamColumn { Name = "Unknown 0x2E", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Icon ID", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown 0x32", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown 0x34", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown 0x36", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown 0x38", DataType = Param.ParamColumnFormat.DTFloat },
+                    new Param.ParamColumn { Name = "Unknown 0x3C", DataType = Param.ParamColumnFormat.DTUInt32 }
+                }
             };
-            layout.Columns[0] = new Param.ParamColumn
-            {
-                Name = "Name",
-                DataType = Param.ParamColumnFormat.DTString,
-            };
-            layout.Columns[1] = new Param.ParamColumn
-            {
-                Name = "Icon ID",
-                DataType = Param.ParamColumnFormat.DTInt16,
-            };
-            layout.Columns[2] = new Param.ParamColumn
-            {
-                Name = "Unknown0x32",
-                DataType = Param.ParamColumnFormat.DTInt16,
-            };
-            layout.Columns[3] = new Param.ParamColumn
-            {
-                Name = "Unknown0x34",
-                DataType = Param.ParamColumnFormat.DTInt16,
-            };
-            layout.Columns[4] = new Param.ParamColumn
-            {
-                Name = "Unknown0x36",
-                DataType = Param.ParamColumnFormat.DTInt16,
-            };
-            layout.Columns[5] = new Param.ParamColumn
-            {
-                Name = "Unknown0x38",
-                DataType = Param.ParamColumnFormat.DTFloat,
-            };
-            layout.Columns[6] = new Param.ParamColumn
-            {
-                Name = "Durability",
-                DataType = Param.ParamColumnFormat.DTInt32
-            };
-            paramOut.SetLayout(layout);
 
+            //Define Name Parameter Pages
+            paramOut.Pages = new List<Param.ParamPage>()
+            {
+                new Param.ParamPage { name = "Items", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Weapons", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Shields", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Helmets", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Cuirass'", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Gauntlets", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Greaves", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Rings", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Bracelets", rows = new List<Param.ParamRow>(), layout = paramLayout },
+                new Param.ParamPage { name = "Amulets", rows = new List<Param.ParamRow>(), layout = paramLayout },
+            };
+
+            //Read Name Parameter Data
             try
             {
-                int count;
-
-                //Item Page
-                Param.ParamPage itemNameItems = new Param.ParamPage
+                //Item Names
+                for(int i = 0; i < 150; ++i)
                 {
-                    pageName = "Item Name",
-                    pageRows = new List<Param.ParamRow>(),
-                };
-                //Equipment Page
-                Param.ParamPage itemNameEquips = new Param.ParamPage
+                    paramOut.Pages[0].AddRow(ReadParamsRow(ins));
+                }
+
+                //Weapon Names
+                for(int i = 0; i < 70; ++i)
                 {
-                    pageName = "Equipment Name",
-                    pageRows = new List<Param.ParamRow>(),
-                };
+                    paramOut.Pages[1].AddRow(ReadParamsRow(ins));
+                }
 
-                count = 150;
-                do
+                //Shield Names
+                for (int i = 0; i < 30; ++i)
                 {
-                    //Read a row of data
-                    string vItemName = ins.ReadFixedKFIVString(24);
-                    short vItemID = ins.ReadInt16();
-                    short vItemUkn0x32 = ins.ReadInt16();
-                    short vItemUkn0x34 = ins.ReadInt16();
-                    short vItemUkn0x36 = ins.ReadInt16();
-                    float vItemUkn0x38 = ins.ReadSingle();
-                    int vItemUnk0x3c = ins.ReadInt32();
+                    paramOut.Pages[2].AddRow(ReadParamsRow(ins));
+                }
 
-                    if (count > 0)
-                    {
-                        itemNameItems.AddRow(
-                            new Param.ParamRow(vItemName, vItemID, vItemUkn0x32, vItemUkn0x34, vItemUkn0x36, vItemUkn0x38, vItemUnk0x3c));
+                //Helmet Names
+                for(int i = 0; i < 25; ++i)
+                {
+                    paramOut.Pages[3].AddRow(ReadParamsRow(ins));
+                }
 
-                        count--;
-                    }
-                    else
-                    {
-                        itemNameEquips.AddRow(
-                            new Param.ParamRow(vItemName, vItemID, vItemUkn0x32, vItemUkn0x34, vItemUkn0x36, vItemUkn0x38, vItemUnk0x3c));
-                    }
-                } while (!ins.IsEndOfStream());
+                //Cuirass Names
+                for (int i = 0; i < 25; ++i)
+                {
+                    paramOut.Pages[4].AddRow(ReadParamsRow(ins));
+                }
 
-                paramOut.AddPage(itemNameItems);
-                paramOut.AddPage(itemNameEquips);
+                //Gauntlet Names
+                for (int i = 0; i < 25; ++i)
+                {
+                    paramOut.Pages[5].AddRow(ReadParamsRow(ins));
+                }
 
-            } catch (Exception Ex)
+                //Greave Names
+                for (int i = 0; i < 25; ++i)
+                {
+                    paramOut.Pages[6].AddRow(ReadParamsRow(ins));
+                }
+
+                //Ring Names
+                for (int i = 0; i < 10; ++i)
+                {
+                    paramOut.Pages[7].AddRow(ReadParamsRow(ins));
+                }
+
+                //Bracelet Names
+                for (int i = 0; i < 10; ++i)
+                {
+                    paramOut.Pages[8].AddRow(ReadParamsRow(ins));
+                }
+                 
+                //Amulet Names
+                for (int i = 0; i < 10; ++i)
+                {
+                    paramOut.Pages[9].AddRow(ReadParamsRow(ins));
+                }
+            }
+            catch (Exception Ex)
             {
                 Console.WriteLine(Ex.Message);
                 Console.WriteLine(Ex.StackTrace);
@@ -182,6 +185,21 @@ namespace FormatKFIV.FileFormat
         public void SaveToFile(string filepath, Param data)
         {
             throw new NotImplementedException();
+        }
+
+
+        private static Param.ParamRow ReadParamsRow(InputStream ins)
+        {
+            string name        = ins.ReadFixedKFIVString(23);
+            ushort unknown0x2e = ins.ReadUInt16();
+            ushort iconID      = ins.ReadUInt16();
+            ushort unknown0x32 = ins.ReadUInt16();
+            ushort unknown0x34 = ins.ReadUInt16();
+            ushort unknown0x36 = ins.ReadUInt16();
+            float  unknown0x38 = ins.ReadSingle();
+            uint   unknown0x3c = ins.ReadUInt32();
+
+            return new Param.ParamRow(name, unknown0x2e, iconID, unknown0x32, unknown0x34, unknown0x36, unknown0x38, unknown0x3c);
         }
     }
 }

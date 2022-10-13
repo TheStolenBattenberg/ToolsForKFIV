@@ -24,7 +24,7 @@ namespace FormatKFIV.FileFormat
             Validator = FFParamWeapon.FileIsValid
         };
 
-        /// <summary>Validates a file to see if it is PS2 ICO Format</summary>
+        /// <summary>Validates a file to see if it of the correct type</summary>
         private static bool FileIsValid(byte[] buffer)
         {
             bool validFile = true;
@@ -82,76 +82,29 @@ namespace FormatKFIV.FileFormat
         {
             Param paramOut = new Param();
 
-            //Define Parameter Layout
-            Param.ParamLayout layout = new Param.ParamLayout
+            //Define Weapon Param Layout for stats
+            Param.ParamLayout paramLayoutStats = new Param.ParamLayout
             {
-                Columns = new Param.ParamColumn[9],
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Slash", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Hit", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Stab", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Fire", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Earth", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Wind", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Water", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Light", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Dark", DataType = Param.ParamColumnFormat.DTUInt16 }
+                }
             };
 
-            //Define Parameter Columns
-            layout.Columns[0] = new Param.ParamColumn
+            //Define Weapon Param Pages
+            paramOut.Pages = new List<Param.ParamPage>()
             {
-                Name = "Slash Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[1] = new Param.ParamColumn
-            {
-                Name = "Hit Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[2] = new Param.ParamColumn
-            {
-                Name = "Stab Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[3] = new Param.ParamColumn
-            {
-                Name = "Fire Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[4] = new Param.ParamColumn
-            {
-                Name = "Earth Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[5] = new Param.ParamColumn
-            {
-                Name = "Wind Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[6] = new Param.ParamColumn
-            {
-                Name = "Water Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[7] = new Param.ParamColumn
-            {
-                Name = "Light Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-            layout.Columns[8] = new Param.ParamColumn
-            {
-                Name = "Dark Damage",
-                DataType = Param.ParamColumnFormat.DTUInt16,
-            };
-
-            paramOut.SetLayout(layout);
-
-            //Define Parameter Pages
-            Param.ParamPage weaponLvl1 = new Param.ParamPage
-            {
-                pageName = "Weapon (Level 1)",
-                pageRows = new List<Param.ParamRow>(),
-            };
-            Param.ParamPage weaponLvl2 = new Param.ParamPage
-            {
-                pageName = "Weapon (Level 2)",
-                pageRows = new List<Param.ParamRow>(),
-            };
-            Param.ParamPage weaponLvl3 = new Param.ParamPage
-            {
-                pageName = "Weapon (Level 3)",
-                pageRows = new List<Param.ParamRow>(),
+                new Param.ParamPage { name = "Weapon Stats (Lvl 1)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
+                new Param.ParamPage { name = "Weapon Stats (Lvl 2)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
+                new Param.ParamPage { name = "Weapon Stats (Lvl 3)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
             };
 
             //Load Parameters
@@ -175,13 +128,13 @@ namespace FormatKFIV.FileFormat
                         switch (i)
                         {
                             case 0:
-                                weaponLvl1.AddRow(row);
+                                paramOut.Pages[0].AddRow(row);
                                 continue;
                             case 1:
-                                weaponLvl2.AddRow(row);
+                                paramOut.Pages[1].AddRow(row);
                                 continue;
                             case 2:
-                                weaponLvl3.AddRow(row);
+                                paramOut.Pages[2].AddRow(row);
                                 continue;
                         }
                     }
@@ -195,10 +148,6 @@ namespace FormatKFIV.FileFormat
                 Console.WriteLine(Ex.StackTrace);
                 return null;
             }
-
-            paramOut.AddPage(weaponLvl1);
-            paramOut.AddPage(weaponLvl2);
-            paramOut.AddPage(weaponLvl3);
 
             return paramOut;
         }
