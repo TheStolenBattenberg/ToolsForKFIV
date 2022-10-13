@@ -42,6 +42,7 @@ namespace ToolsForKFIV.UI.Control
         private int mouseLastX, mouseLastY;
 
         private Model model;
+        private Texture texture;
 
         private GLShader shader3DNormTexColour;
         private GLShader shader3DColour;
@@ -111,8 +112,17 @@ namespace ToolsForKFIV.UI.Control
         }
         private void tmBtExport_Click(object sender, EventArgs e)
         {
-            FIFormat<Model> fmt = ((ITComboboxItem)tmLbExpFormat.SelectedItem).Value;
-            fmt.SaveToFile(tmTbExpPath.Text, model);
+            if (model != null)
+            {
+                FIFormat<Model> mdlFmt = ((ITComboboxItem)tmLbExpFormat.SelectedItem).Value;
+                mdlFmt.SaveToFile(tmTbExpPath.Text, model);
+            }
+
+            if (texture != null)
+            {
+                FIFormat<Texture> texFmt = new FFTexturePNG();
+                texFmt.SaveToFile(tmTbExpPath.Text + ".png", texture);
+            }
         }
 
         #endregion
@@ -251,6 +261,7 @@ namespace ToolsForKFIV.UI.Control
             if (tex != null)
             {
                 textureFile = GLTexture.GenerateFromAsset(tex);
+                texture = tex;
             }
             else
             {

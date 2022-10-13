@@ -12,6 +12,8 @@ namespace ToolsForKFIV
 
         public static Color mtBgCC = Color.FromArgb(255, 40, 22, 46);
         public static Color mtXAxC = Color.FromArgb(255, 244, 67, 54); //X-Axis Colour
+        public static Color mtYAxC = Color.FromArgb(255, 3, 169, 244); //Y-Axis Colour
+        public static Color mtZAxC = Color.FromArgb(255, 76, 175, 80); //Y-Axis Colour
 
     }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 using FormatKFIV.Asset;
 using FormatKFIV.Utility;
@@ -65,6 +64,7 @@ namespace FormatKFIV.FileFormat
                 return LoadItemNameParam(ins);
             }
         }
+
         public Param LoadFromMemory(byte[] buffer, out object ret2, out object ret3, out object ret4)
         {
             ret2 = null;
