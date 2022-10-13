@@ -1,7 +1,7 @@
 # Tools For King's Field IV/TAC
 A GUI based toolset for exploring and extracting data files from King's Field IV / King's Field: The Ancient City.
 
-Includes an independant formats library, so you can import the file types into your own projects.
+![Image Tool Preview 1](/WikiData/ReadMe/tfkf4_preview.png)
 
 ### GhidraProject Directory
 This directory contains a Ghidra project with some reverse engineering efforts for KFIV. It also contains files using the PS2 SDK 2.2.4 (the version of the SDK used for KFIV) used to generate an FIDB.
