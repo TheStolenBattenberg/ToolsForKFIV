@@ -17,7 +17,7 @@ With these you can import KFIV maps into Unity Game Engine directly.
 You'll find detailed descriptions and C style documentation for the file formats on the wiki section of the repository, that can be used to implement these file formats in your own projects. Fair warning, wiki info tends to lag behind a lot and the latest findings will always be found in the source code only.
 
 ### Acknowledgments
-* Inspired by JKAnderson/TKGP and his work @ [SoulsFormats](https://github.com/JKAnderson/SoulsFormats "SoulsFormats repository on GitHub") (code comments pending)
+* Inspired by JKAnderson/TKGP and his work @ [SoulsFormats](https://github.com/JKAnderson/SoulsFormats "SoulsFormats repository on GitHub")
 * FromSoftware making damn good games
 
 ### Discord
