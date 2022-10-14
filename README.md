@@ -4,7 +4,10 @@ A GUI based toolset for exploring and extracting data files from King's Field IV
 ![Image Tool Preview 1](/WikiData/ReadMe/tfkf4_preview.png)
 
 ### Usage
-Usage instructions pending. 
+1. Download the latest release
+2. Fire up the executable
+
+Not working? You might need the [.NET Core Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/3.1 "Link to .NET Core Runtime on microsoft.com").
 
 Need more help? Try our [FSMC Discord](https://discord.gg/mzPPVvezSH "FSMC Server Invite") server.
 
