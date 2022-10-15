@@ -37,9 +37,12 @@ namespace ToolsForKFIV.UI.Control
             // 
             // ftTreeView
             // 
+            this.ftTreeView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ftTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ftTreeView.ImageIndex = 0;
             this.ftTreeView.ImageList = this.ftTreeViewIconSet;
+            this.ftTreeView.Indent = 24;
+            this.ftTreeView.ItemHeight = 20;
             this.ftTreeView.Location = new System.Drawing.Point(0, 0);
             this.ftTreeView.Margin = new System.Windows.Forms.Padding(0);
             this.ftTreeView.Name = "ftTreeView";

@@ -79,13 +79,18 @@ namespace FormatKFIV.FileFormat
         private static void SaveTGA(string path, Texture.ImageBuffer image, Texture.ClutBuffer? clut)
         {
             //Ensure the image has a CLUT if it is a mapped type.
-            if ((image.Format == Texture.ColourMode.M4 | image.Format == Texture.ColourMode.M8) && !clut.HasValue)
-            {
+            if ((image.Format == Texture.ColourMode.M4 && !clut.HasValue) || (image.Format == Texture.ColourMode.M8 && !clut.HasValue))
+            { 
                 Console.WriteLine("Attempted to write mapped image without a clut?..");
                 return;
             }
 
-            Texture.ClutBuffer clutBuffer = clut.Value;
+            //Get the CLUT if it exists
+            Texture.ClutBuffer clutBuffer;
+            if (clut.HasValue)
+            {
+                clutBuffer = clut.Value;
+            }
 
             //Open new OutputStream
             using (OutputStream ous = new OutputStream(path))
@@ -96,14 +101,25 @@ namespace FormatKFIV.FileFormat
                 ous.WriteByte((byte) ((image.Format == Texture.ColourMode.M4 | image.Format == Texture.ColourMode.M8) ? 1 : 2));   //Image Data Type
 
                 //Write Colour Map Specification
-                ous.WriteUInt16(0); //Clut Origin
-                ous.WriteUInt16((ushort)(clutBuffer.Length / 4));   //CLUT Colour Count
-                switch(clutBuffer.Format)
+                if (clut.HasValue)
                 {
-                    case Texture.ColourMode.D32: ous.WriteByte(32); break;  //Colour bit length
-                    case Texture.ColourMode.D24: ous.WriteByte(24); break;
-                    case Texture.ColourMode.D16: ous.WriteByte(16); break;
+                    ous.WriteUInt16(0); //Clut Origin
+                    ous.WriteUInt16((ushort)(clut.Value.Length / 4));   //CLUT Colour Count
+
+                    switch (clut.Value.Format)
+                    {
+                        case Texture.ColourMode.D32: ous.WriteByte(32); break;  //Colour bit length
+                        case Texture.ColourMode.D24: ous.WriteByte(24); break;
+                        case Texture.ColourMode.D16: ous.WriteByte(16); break;
+                    }
                 }
+                else
+                {
+                    ous.WriteUInt16(0);
+                    ous.WriteUInt16(0);
+                    ous.WriteByte(0);
+                }
+
 
                 //Write Image Specification
                 ous.WriteUInt16(0); //X Origin
@@ -121,13 +137,15 @@ namespace FormatKFIV.FileFormat
                 ous.WriteByte(0);   //Colour Map Type
 
                 //Write Colour Map if applicable
-                if((image.Format == Texture.ColourMode.M4 | image.Format == Texture.ColourMode.M8) == true)
+                if(image.ClutCount > 0 && clut.HasValue)
                 {
-                    ous.Write(clutBuffer.data);
+                    ous.Write(clut.Value.data);
                 }
 
                 //Write Image Data
-                ous.Write(image.data);
+                byte[] imageBits = image.data;
+                Texture.FlipV(ref imageBits, image.Format, (int)image.Width, (int)image.Height);
+                ous.Write(imageBits);
             }
         }
 

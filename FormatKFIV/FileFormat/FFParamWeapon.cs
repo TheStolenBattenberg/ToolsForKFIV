@@ -54,6 +54,24 @@ namespace FormatKFIV.FileFormat
 
         #endregion
 
+        #region Format Data
+        private static string[] gEquipEffectNames =
+        {
+            "None",
+            "Unknown (0x01)",
+            "Damage HP",
+            "Increase HP",
+            "Decrease HP",
+            "Increase MP",
+            "Decrease MP",
+            "HP Vamparism",
+            "MP Vamparism",
+            "Increase Physical",
+            "Increase Magical"
+        };
+
+        #endregion
+
         public Param LoadFromFile(string filepath, out object ret2, out object ret3, out object ret4)
         {
             ret2 = null;
@@ -98,13 +116,53 @@ namespace FormatKFIV.FileFormat
                     new Param.ParamColumn { Name = "Dark", DataType = Param.ParamColumnFormat.DTUInt16 }
                 }
             };
+            Param.ParamLayout paramLayoutStatus = new Param.ParamLayout
+            {
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Poison Chance", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Paralyze Chance", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Dark Chance", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Curse Chance", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Slow Chance", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Silence Chance", DataType = Param.ParamColumnFormat.DTUInt16 }
+                }
+            };
+            Param.ParamLayout paramLayoutMagics = new Param.ParamLayout
+            {
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Magic ID", DataType = Param.ParamColumnFormat.DTInt16 },
+                    new Param.ParamColumn { Name = "Delay", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown0x04", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown0x06", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown0x08", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown0x0A", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown0x0C", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown0x0E", DataType = Param.ParamColumnFormat.DTUInt16 },
+                }
+            };
+            Param.ParamLayout paramLayoutEquipEffects = new Param.ParamLayout
+            {
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Type", DataType = Param.ParamColumnFormat.DTUInt8 },
+                    new Param.ParamColumn { Name = "Name", DataType = Param.ParamColumnFormat.DTString },
+                    new Param.ParamColumn { Name = "Amount", DataType = Param.ParamColumnFormat.DTInt8 }
+                }
+            };
 
             //Define Weapon Param Pages
             paramOut.Pages = new List<Param.ParamPage>()
             {
-                new Param.ParamPage { name = "Weapon Stats (Lvl 1)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
-                new Param.ParamPage { name = "Weapon Stats (Lvl 2)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
-                new Param.ParamPage { name = "Weapon Stats (Lvl 3)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
+                new Param.ParamPage { name = "Stats (Lvl 1)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
+                new Param.ParamPage { name = "Stats (Lvl 2)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
+                new Param.ParamPage { name = "Stats (Lvl 3)", rows = new List<Param.ParamRow>(), layout = paramLayoutStats },
+                new Param.ParamPage { name = "Status Chance", rows = new List<Param.ParamRow>(), layout = paramLayoutStatus },
+                new Param.ParamPage { name = "Magic Type A", rows = new List<Param.ParamRow>(), layout = paramLayoutMagics },
+                new Param.ParamPage { name = "Magic Type B", rows = new List<Param.ParamRow>(), layout = paramLayoutMagics },
+                new Param.ParamPage { name = "Equip Effect #1", rows = new List<Param.ParamRow>(), layout = paramLayoutEquipEffects},
+                new Param.ParamPage { name = "Equip Effect #2", rows = new List<Param.ParamRow>(), layout = paramLayoutEquipEffects},
             };
 
             //Load Parameters
@@ -112,8 +170,9 @@ namespace FormatKFIV.FileFormat
             {
                 do
                 {
+                    //Stats Per Level
                     for(int i = 0; i < 3; ++i)
-                    {
+                    {                    
                         ushort slashDmg = ins.ReadUInt16();
                         ushort hitDmg = ins.ReadUInt16();
                         ushort stabDmg = ins.ReadUInt16();
@@ -139,7 +198,91 @@ namespace FormatKFIV.FileFormat
                         }
                     }
 
-                    ins.Seek(0x5a, System.IO.SeekOrigin.Current);
+                    //Status Chance
+                    ushort statusPoison = ins.ReadUInt16();
+                    ushort statusParalyze = ins.ReadUInt16();
+                    ushort statusDark = ins.ReadUInt16();
+                    ushort statusCurse = ins.ReadUInt16();
+                    ushort statusSlow = ins.ReadUInt16();
+                    ushort statusSilence = ins.ReadUInt16();
+
+                    paramOut.Pages[3].AddRow(new Param.ParamRow(statusPoison, statusParalyze, statusDark, statusCurse, statusSlow, statusSilence));
+
+                    //Magic Type A
+                    short magicTypeAID = ins.ReadInt16();
+                    ushort magicTypeADelay = ins.ReadUInt16();
+                    ushort magicUnknown0x46 = ins.ReadUInt16();
+                    ushort magicUnknown0x48 = ins.ReadUInt16();
+                    ushort magicUnknown0x4a = ins.ReadUInt16();
+                    ushort magicUnknown0x4c = ins.ReadUInt16();
+                    ushort magicUnknown0x4e = ins.ReadUInt16();
+                    ushort magicUnknown0x50 = ins.ReadUInt16();
+
+                    paramOut.Pages[4].AddRow(
+                        new Param.ParamRow(
+                            magicTypeAID, 
+                            magicTypeADelay, 
+                            magicUnknown0x46, 
+                            magicUnknown0x48,
+                            magicUnknown0x4a,
+                            magicUnknown0x4c,
+                            magicUnknown0x4e,
+                            magicUnknown0x50
+                        )
+                    );
+
+                    //Magic Type B
+                    short magicTypeBID = ins.ReadInt16();
+                    ushort magicTypeBDelay = ins.ReadUInt16();
+                    ushort magicUnknown0x56 = ins.ReadUInt16();
+                    ushort magicUnknown0x58 = ins.ReadUInt16();
+                    ushort magicUnknown0x5a = ins.ReadUInt16();
+                    ushort magicUnknown0x5c = ins.ReadUInt16();
+                    ushort magicUnknown0x5e = ins.ReadUInt16();
+                    ushort magicUnknown0x60 = ins.ReadUInt16();
+
+                    paramOut.Pages[5].AddRow(
+                        new Param.ParamRow(
+                            magicTypeBID,
+                            magicTypeBDelay,
+                            magicUnknown0x56,
+                            magicUnknown0x58,
+                            magicUnknown0x5a,
+                            magicUnknown0x5c,
+                            magicUnknown0x5e,
+                            magicUnknown0x60
+                        )
+                    );
+
+                    //Weapon Type
+                    byte ammoItemID = ins.ReadByte();
+                    byte attackType = ins.ReadByte();
+
+                    //Equip Effect #1
+                    byte equipEffectAId    = ins.ReadByte();
+                    byte equipEffectADelay = ins.ReadByte();
+                    string equipEffectAName = $"Unknown (0x{equipEffectAId.ToString("X2")})";
+                    if (equipEffectAId < gEquipEffectNames.Length)
+                    {
+                        equipEffectAName = gEquipEffectNames[equipEffectAId];
+                    }
+                    paramOut.Pages[6].AddRow(new Param.ParamRow(equipEffectAId, equipEffectAName, equipEffectADelay));
+
+                    //Equip Effect #2
+                    byte equipEffectBId = ins.ReadByte();
+                    byte equipEffectBDelay = ins.ReadByte();
+                    string equipEffectBName = $"Unknown (0x{equipEffectBId.ToString("X2")})";
+
+                    if (equipEffectBId < gEquipEffectNames.Length)
+                    {
+                        equipEffectBName = gEquipEffectNames[equipEffectBId];
+                    }
+
+                    paramOut.Pages[7].AddRow(new Param.ParamRow(equipEffectBId, equipEffectBName, equipEffectBDelay));
+
+                    //Skip the rest of the data for now.
+                    ins.Seek(0x28, System.IO.SeekOrigin.Current);
+
                 } while (!ins.IsEndOfStream());
             }
             catch (Exception Ex)

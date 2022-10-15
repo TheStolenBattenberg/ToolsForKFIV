@@ -88,9 +88,10 @@ namespace FormatKFIV.FileFormat
                     new Param.ParamColumn { Name = "Icon ID", DataType = Param.ParamColumnFormat.DTUInt16 },
                     new Param.ParamColumn { Name = "Unknown 0x32", DataType = Param.ParamColumnFormat.DTUInt16 },
                     new Param.ParamColumn { Name = "Unknown 0x34", DataType = Param.ParamColumnFormat.DTUInt16 },
-                    new Param.ParamColumn { Name = "Unknown 0x36", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown 0x36", DataType = Param.ParamColumnFormat.DTUInt8 },
+                    new Param.ParamColumn { Name = "Durability Health", DataType = Param.ParamColumnFormat.DTUInt8 },
                     new Param.ParamColumn { Name = "Unknown 0x38", DataType = Param.ParamColumnFormat.DTFloat },
-                    new Param.ParamColumn { Name = "Unknown 0x3C", DataType = Param.ParamColumnFormat.DTUInt32 }
+                    new Param.ParamColumn { Name = "Durability",   DataType = Param.ParamColumnFormat.DTUInt32 }
                 }
             };
 
@@ -190,16 +191,17 @@ namespace FormatKFIV.FileFormat
 
         private static Param.ParamRow ReadParamsRow(InputStream ins)
         {
-            string name        = ins.ReadFixedKFIVString(23);
+            string name = ins.ReadFixedKFIVString(23);
             ushort unknown0x2e = ins.ReadUInt16();
-            ushort iconID      = ins.ReadUInt16();
+            ushort iconID = ins.ReadUInt16();
             ushort unknown0x32 = ins.ReadUInt16();
             ushort unknown0x34 = ins.ReadUInt16();
-            ushort unknown0x36 = ins.ReadUInt16();
+            byte   unknown0x36 = ins.ReadByte();
+            byte damagePerDura = ins.ReadByte();
             float  unknown0x38 = ins.ReadSingle();
-            uint   unknown0x3c = ins.ReadUInt32();
+            uint   durability = ins.ReadUInt32();
 
-            return new Param.ParamRow(name, unknown0x2e, iconID, unknown0x32, unknown0x34, unknown0x36, unknown0x38, unknown0x3c);
+            return new Param.ParamRow(name, unknown0x2e, iconID, unknown0x32, unknown0x34, unknown0x36, damagePerDura, unknown0x38, durability);
         }
     }
 }

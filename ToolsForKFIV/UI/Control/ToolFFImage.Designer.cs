@@ -30,6 +30,8 @@ namespace ToolsForKFIV.UI.Control
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ToolFFImage));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tiTabView = new System.Windows.Forms.TabControl();
             this.tiPreview = new System.Windows.Forms.TabPage();
             this.itHSplit = new System.Windows.Forms.SplitContainer();
@@ -44,13 +46,13 @@ namespace ToolsForKFIV.UI.Control
             this.cdKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cdValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tiExport = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.itBtDoExport = new System.Windows.Forms.Button();
             this.itbtExpSelPath = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.ittbExpPath = new System.Windows.Forms.TextBox();
             this.itcbExpFmt = new System.Windows.Forms.ComboBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tiTabView.SuspendLayout();
             this.tiPreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.itHSplit)).BeginInit();
@@ -116,7 +118,9 @@ namespace ToolsForKFIV.UI.Control
             // 
             // itPicture
             // 
+            this.itPicture.BackColor = System.Drawing.SystemColors.Control;
             this.itPicture.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("itPicture.BackgroundImage")));
+            this.itPicture.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.itPicture.Dock = System.Windows.Forms.DockStyle.Fill;
             this.itPicture.Location = new System.Drawing.Point(0, 0);
             this.itPicture.Name = "itPicture";
@@ -183,6 +187,8 @@ namespace ToolsForKFIV.UI.Control
             this.itIData.AllowUserToDeleteRows = false;
             this.itIData.AllowUserToResizeColumns = false;
             this.itIData.AllowUserToResizeRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.itIData.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.itIData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.itIData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.itIData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -199,7 +205,7 @@ namespace ToolsForKFIV.UI.Control
             // 
             // idKey
             // 
-            this.idKey.HeaderText = "Key";
+            this.idKey.HeaderText = "Property";
             this.idKey.Name = "idKey";
             this.idKey.ReadOnly = true;
             // 
@@ -215,6 +221,8 @@ namespace ToolsForKFIV.UI.Control
             this.itCData.AllowUserToDeleteRows = false;
             this.itCData.AllowUserToResizeColumns = false;
             this.itCData.AllowUserToResizeRows = false;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.itCData.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
             this.itCData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.itCData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.itCData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -232,7 +240,7 @@ namespace ToolsForKFIV.UI.Control
             // 
             // cdKey
             // 
-            this.cdKey.HeaderText = "Key";
+            this.cdKey.HeaderText = "Property";
             this.cdKey.Name = "cdKey";
             this.cdKey.ReadOnly = true;
             // 
@@ -254,6 +262,15 @@ namespace ToolsForKFIV.UI.Control
             this.tiExport.Text = "Export";
             this.tiExport.UseVisualStyleBackColor = true;
             this.tiExport.Enter += new System.EventHandler(this.tiExport_Enter);
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Location = new System.Drawing.Point(6, 113);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(492, 362);
+            this.groupBox2.TabIndex = 4;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Additional Settings...";
             // 
             // groupBox1
             // 
@@ -320,15 +337,6 @@ namespace ToolsForKFIV.UI.Control
             this.itcbExpFmt.Size = new System.Drawing.Size(312, 23);
             this.itcbExpFmt.TabIndex = 0;
             // 
-            // groupBox2
-            // 
-            this.groupBox2.Location = new System.Drawing.Point(6, 113);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(492, 362);
-            this.groupBox2.TabIndex = 4;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Additional Settings...";
-            // 
             // ToolFFImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -371,11 +379,7 @@ namespace ToolsForKFIV.UI.Control
         private System.Windows.Forms.ListBox itImageList;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.DataGridView itIData;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idKey;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idValue;
         private System.Windows.Forms.DataGridView itCData;
-        private System.Windows.Forms.DataGridViewTextBoxColumn cdKey;
-        private System.Windows.Forms.DataGridViewTextBoxColumn cdValue;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button itBtDoExport;
         private System.Windows.Forms.Button itbtExpSelPath;
@@ -384,5 +388,9 @@ namespace ToolsForKFIV.UI.Control
         private System.Windows.Forms.ComboBox itcbExpFmt;
         private PictureBoxUnfiltered itPicture;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idKey;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idValue;
+        private System.Windows.Forms.DataGridViewTextBoxColumn cdKey;
+        private System.Windows.Forms.DataGridViewTextBoxColumn cdValue;
     }
 }

@@ -20,38 +20,31 @@ namespace ToolsForKFIV
     public partial class MainWindow : Form
     {
         #region Tool Controls
-        private ToolFFini controltool_FileINI = null;
-        private ToolFFParam controltool_FileParam = null;
-        private ToolFFImage controltool_FileImage = null;
-        private ToolFFModel controltool_FileModel = null;
+        private ToolFFParam controltool_Param = null;
+        private ToolFFImage controltool_Texture = null;
+        private ToolFFModel controltool_Model = null;
         private ToolFFScene controltool_Scene = null;
+
         #endregion
 
         public MainWindow()
         {
             InitializeComponent();
 
-            //Initialize Tool Controls
-
-            //INI Tool
-            controltool_FileINI = new ToolFFini();
-            controltool_FileINI.Dock = DockStyle.Fill;
-            controltool_FileINI.Margin = Padding.Empty;
-
             //PRM Tool
-            controltool_FileParam = new ToolFFParam();
-            controltool_FileParam.Dock = DockStyle.Fill;
-            controltool_FileParam.Margin = Padding.Empty;
+            controltool_Param = new ToolFFParam();
+            controltool_Param.Dock = DockStyle.Fill;
+            controltool_Param.Margin = Padding.Empty;
 
             //Generic Image Tool
-            controltool_FileImage = new ToolFFImage();
-            controltool_FileImage.Dock = DockStyle.Fill;
-            controltool_FileImage.Margin = Padding.Empty;
+            controltool_Texture = new ToolFFImage();
+            controltool_Texture.Dock = DockStyle.Fill;
+            controltool_Texture.Margin = Padding.Empty;
 
             //Gneric Model Tool
-            controltool_FileModel = new ToolFFModel();
-            controltool_FileModel.Dock = DockStyle.Fill;
-            controltool_FileModel.Margin = Padding.Empty;
+            controltool_Model = new ToolFFModel();
+            controltool_Model.Dock = DockStyle.Fill;
+            controltool_Model.Margin = Padding.Empty;
 
             //Scene Tool
             controltool_Scene = new ToolFFScene();
@@ -68,39 +61,42 @@ namespace ToolsForKFIV
             //Open File Dialog
             DialogResult openResult = mwOpenKFIVDialog.ShowDialog();
 
-            switch(openResult)
+            if(openResult == DialogResult.OK)
             {
-                case DialogResult.OK:
-                    //Get Found File Information
-                    string foundFile = mwOpenKFIVDialog.FileName;
-                    string filePath  = Path.GetDirectoryName(foundFile);
+                string foundFile = mwOpenKFIVDialog.FileName;
+                string foundPath = Path.GetDirectoryName(foundFile);
 
-                    //Make sure DAT exists at  expected relative location
-                    if(!File.Exists(filePath+ "\\DATA\\KF4.DAT"))
+                ResourceManager.vfs.Reset();
+                ResourceManager.vfs.SetRoot(foundPath + Path.DirectorySeparatorChar);
+
+                //Scan OS File System
+                foreach(string dir in Directory.GetDirectories(foundPath, "*", SearchOption.AllDirectories))
+                {
+                    foreach(string file in Directory.GetFiles(dir))
                     {
-                        Logger.LogWarn("KF4.DAT does not exist.");
-                        return;
+                        string vfsPath = file.Replace(foundPath + Path.DirectorySeparatorChar, "");
+
+                        if (!vfsPath.Contains("KF4.DAT"))
+                        {
+                            ResourceManager.vfs.PutResource(new SystemResource(vfsPath, file));
+                        }
                     }
+                }
+                foreach (string file in Directory.GetFiles(foundPath))
+                {
+                    string vfsPath = file.Replace(foundPath + Path.DirectorySeparatorChar, "");
+                    ResourceManager.vfs.PutResource(new SystemResource(vfsPath, file));
+                }
 
-                    //Load EXE
-                    ResourceManager.KFIVEXE = null;
+                //Scan KF File System
+                FFResourceDAT dataDat = FFResourceDAT.LoadFromFile(foundPath + "\\DATA\\KF4.DAT");
+                for(int i = 0; i < dataDat.FileCount; ++i)
+                {
+                    string vfsPath = ("DATA\\KF4.DAT\\" + dataDat[i].name.Replace("/", "\\")).Replace('\\', Path.DirectorySeparatorChar);
+                    ResourceManager.vfs.PutResource(new VirtualResource(vfsPath, dataDat[i].buffer));
+                }
 
-                    //Load DAT
-                    if(ResourceManager.KFIVDAT != null) //Free Old KFIV data
-                    {
-                        ResourceManager.KFIVDAT.Clear();
-                        ResourceManager.KFIVDAT = null;
-                        GC.Collect();   //Force GC to run to free the old KFIVDAT
-                    }
-                    ResourceManager.KFIVDAT = FFResourceDAT.LoadFromFile(filePath + "\\DATA\\KF4.DAT");
-
-                    //Enumurate DAT files into FileTree
-                    mwFileTree.EnumurateDATFiles(ResourceManager.KFIVDAT);
-                    break;
-
-                default:
-                    Logger.LogInfo(":(");
-                    break;
+                mwFileTree.EnumurateVFS(ResourceManager.vfs);
             }
         }
 
@@ -113,116 +109,149 @@ namespace ToolsForKFIV
 
         public void OpenTool(TreeNode fileNode)
         {
-            //Clear all current controls in the tool panel.
+            //Clear current tool
             mwSplit.Panel2.Controls.Clear();
 
-            //Grab the buffer for this file
-            byte[] fileBuffer = ResourceManager.KFIVDAT[(int)fileNode.Tag].buffer;
-            string fileExtension = Path.GetExtension(fileNode.Text);
-
-            //Do some insane shit to support many different format types easily.
-            object formatHandler;
-            FEType formatType;
-            if(ResourceManager.FormatIsSupported(fileExtension, fileBuffer, out formatType, out formatHandler))
+            int resourceIndex = (int)fileNode.Tag;
+            if(resourceIndex >= 0)
             {
-                switch(formatType)
+                //Get File from VFS
+                Type resourceType;
+                Resource resource = ResourceManager.vfs.GetResource(resourceIndex, out resourceType);
+
+                //Get File Buffer
+                byte[] fileBuffer;
+                string fileExtension = Path.GetExtension(resource.RelativePath);
+
+                switch (resource)
                 {
-                    case FEType.Model:
-                        Logger.LogInfo("Casting To Generic Model Handler...");
-                        FIFormat<Model> mdlHandler = (FIFormat<Model>)formatHandler;
+                    case VirtualResource vres:
+                        Logger.LogInfo("Opened file is VIRTUAL type!");
 
-                        Logger.LogInfo("Doing Model Import...");
-                        Model   ResultingModel;
-                        object  ResultingMTexture;
+                        fileBuffer = vres.Buffer;
+                        break;
 
-                        ResultingModel = mdlHandler.LoadFromMemory(ResourceManager.KFIVDAT[(int)fileNode.Tag].buffer, out ResultingMTexture, out _, out _);
+                    case SystemResource sres:
+                        Logger.LogInfo("Opened file is SYSTEM type!");
 
-                        mwSplit.Panel2.Controls.Add(controltool_FileModel);
-
-                        Logger.LogInfo("Bringing in the UI");
-
-                        if (ResultingModel != null)
+                        if (!sres.GetBuffer(out fileBuffer))
                         {
-                            if (ResultingMTexture != null)
-                            {
-                                controltool_FileModel.SetModelFile(ResultingModel, (Texture)ResultingMTexture);
-                                Console.WriteLine("Model with internal texture");
-                            }
-                            else
-                            {
-                                controltool_FileModel.SetModelFile(ResultingModel);
-                            }
+                            Logger.LogError("Failed to aquire system file buffer!!!");
+                            return;
                         }
                         break;
 
-                    case FEType.Texture:
-                        Logger.LogInfo("Casting To Generic Texture Handler...");
-                        FIFormat<Texture> texHandler = (FIFormat<Texture>)formatHandler;
+                    default:
+                        Logger.LogError($"An invalid object is inside the VFS ({resourceType.Name}), WTF?");
+                        return;
+                }
 
-                        Logger.LogInfo("Doing Model Import...");
-                        Texture ResultingTexture;
+                //Try to find a format handler, and the format type.
+                object formatHandler;
+                FEType formatType;
 
-                        ResultingTexture = texHandler.LoadFromMemory(ResourceManager.KFIVDAT[(int)fileNode.Tag].buffer, out _, out _, out _);
+                if(!ResourceManager.FormatIsSupported(fileExtension, fileBuffer, out formatType, out formatHandler))
+                {
+                    Logger.LogWarn($"Unable to find format handler for file! (file: {resource.RelativePath})");
+                    return;
+                }
 
-                        Logger.LogInfo("Doing pretty names...");
-                        for(int i = 0; i < ResultingTexture.SubimageCount; ++i)
-                        {
-                            Texture.ImageBuffer? ibNullable = ResultingTexture.GetSubimage(i);
-                            if(ibNullable.HasValue)
-                            {
-                                //Do pretty names
-                                string outName;
-                                if(ResourceManager.PrettyNamesData.GetPrettyName(ibNullable.Value.data, out outName))
-                                {
-                                    ResultingTexture.SetSubimageName(i, outName);
-                                }
-                            }
-                        }
-
-                        Logger.LogInfo("Bringing in the UI");
-                        if (ResultingTexture != null)
-                            controltool_FileImage.SetTextureData(ResultingTexture);
-
-                        mwSplit.Panel2.Controls.Add(controltool_FileImage);
+                //Open the required tool for the selected file.
+                switch (formatType)
+                {
+                    default:
+                    case FEType.None:
+                        Logger.LogError("Invalid file type!");
                         break;
 
-                    case FEType.Scene:
-                        Logger.LogInfo("Casting To Generic Scene Handler...");
-                        FIFormat<Scene> sceneHandler = (FIFormat<Scene>)formatHandler;
-
-                        Logger.LogInfo("Doing Scene Import...");
-                        Scene ResultingScene;
-                        ResultingScene = sceneHandler.LoadFromMemory(ResourceManager.KFIVDAT[(int)fileNode.Tag].buffer, out _, out _, out _);
-
-                        Logger.LogInfo("Bringing in the UI");
-                        mwSplit.Panel2.Controls.Add(controltool_Scene);
-
-                        if (ResultingScene != null)
-                        {
-                            controltool_Scene.SetSceneData(ResultingScene);
-                        }                        
-                        break;
-
+                    //FormatType = Parameters
                     case FEType.Param:
-                        Logger.LogInfo("Casting To Generic Param Handler...");
+                        Logger.LogInfo("Attempting to cast generic format handler to a parameter format handler...");
                         FIFormat<Param> paramHandler = (FIFormat<Param>)formatHandler;
 
-                        Logger.LogInfo("Doing Scene Import...");
-                        Param ResultingParam;
-                        ResultingParam = paramHandler.LoadFromMemory(ResourceManager.KFIVDAT[(int)fileNode.Tag].buffer, out _, out _, out _);
+                        Logger.LogInfo("Attempting to import parameters...");
+                        Param paramData = paramHandler.LoadFromMemory(fileBuffer, out _, out _, out _);
 
-                        Logger.LogInfo("Bringing in the UI");
-                        mwSplit.Panel2.Controls.Add(controltool_FileParam);
-
-                        if (ResultingParam != null)
+                        if(paramData != null)
                         {
-                            controltool_FileParam.SetParamData(ResultingParam);
+                            controltool_Param.SetParamData(paramData);
+                            mwSplit.Panel2.Controls.Add(controltool_Param);
+                        }
+                        else
+                        {
+                            Logger.LogError("Param Data is NULL!");
+                            return;
+                        }
+                        break;
+
+                    //FormatType == Scene
+                    case FEType.Scene:
+                        Logger.LogInfo("Attempting to cast generic format handler to a scene format handler...");
+                        FIFormat<Scene> sceneHandler = (FIFormat<Scene>)formatHandler;
+
+                        Logger.LogInfo("Attempting to import scene...");
+                        Scene sceneData = sceneHandler.LoadFromMemory(fileBuffer, out _, out _, out _);
+
+                        if (sceneData != null)
+                        {
+                            controltool_Scene.SetSceneData(sceneData);
+                            mwSplit.Panel2.Controls.Add(controltool_Scene);
+                        }
+                        else
+                        {
+                            Logger.LogError("Scene Data is NULL!");
+                            return;
+                        }
+                        break;
+
+                    //FormatType == Texture
+                    case FEType.Texture:
+                        Logger.LogInfo("Attempting to cast generic format handler to a texture format handler...");
+                        FIFormat<Texture> textureHandler = (FIFormat<Texture>)formatHandler;
+
+                        Logger.LogInfo("Attempting to import texture...");
+                        Texture textureData = textureHandler.LoadFromMemory(fileBuffer, out _, out _, out _);
+
+                        if(textureData != null)
+                        {
+                            controltool_Texture.SetTextureData(textureData);
+                            mwSplit.Panel2.Controls.Add(controltool_Texture);
+                        }
+                        else
+                        {
+                            Logger.LogError("Texture Data is NULL!");
+                            return;
+                        }
+                        break;
+
+                    //FormatType == Model
+                    case FEType.Model:
+                        Logger.LogInfo("Attempting to cast generic format handler to a model format handler...");
+                        FIFormat<Model> modelHandler = (FIFormat<Model>)formatHandler;
+
+                        Logger.LogInfo("Attempting to import model...");
+                        object modelTextureData = null;
+
+                        Model modelData = modelHandler.LoadFromMemory(fileBuffer, out modelTextureData, out _, out _);
+
+                        if (modelData != null)
+                        {
+                            controltool_Model.SetModelFile(modelData, (Texture)modelTextureData);
+                            mwSplit.Panel2.Controls.Add(controltool_Texture);
+                        }
+                        else
+                        {
+                            Logger.LogError("Model Data is NULL!");
+                            return;
                         }
                         break;
                 }
 
+                Logger.LogInfo("Import Complete!");
                 return;
             }
+
+            return; //Method end (incase you got lost in the woods lad)
         }
     }
 }

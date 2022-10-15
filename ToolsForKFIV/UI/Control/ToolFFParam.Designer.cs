@@ -87,6 +87,8 @@ namespace ToolsForKFIV.UI.Control
             this.tpeDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.tpeDataGrid.Location = new System.Drawing.Point(3, 29);
             this.tpeDataGrid.Name = "tpeDataGrid";
+            this.tpeDataGrid.RowHeadersWidth = 64;
+            this.tpeDataGrid.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.tpeDataGrid.RowTemplate.Height = 25;
             this.tpeDataGrid.Size = new System.Drawing.Size(242, 193);
             this.tpeDataGrid.TabIndex = 0;

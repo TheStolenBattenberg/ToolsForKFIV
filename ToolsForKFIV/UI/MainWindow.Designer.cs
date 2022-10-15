@@ -72,26 +72,26 @@ namespace ToolsForKFIV
             // openKFIVToolStripMenuItem
             // 
             this.openKFIVToolStripMenuItem.Name = "openKFIVToolStripMenuItem";
-            this.openKFIVToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openKFIVToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.openKFIVToolStripMenuItem.Text = "Open KFIV";
             this.openKFIVToolStripMenuItem.Click += new System.EventHandler(this.openKFIVToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(126, 6);
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             // 
             // mwOpenKFIVDialog
@@ -101,7 +101,7 @@ namespace ToolsForKFIV
             // 
             // mwSplit
             // 
-            this.mwSplit.Cursor = System.Windows.Forms.Cursors.VSplit;
+            this.mwSplit.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.mwSplit.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mwSplit.Location = new System.Drawing.Point(0, 24);
             this.mwSplit.Name = "mwSplit";
@@ -109,6 +109,7 @@ namespace ToolsForKFIV
             // mwSplit.Panel1
             // 
             this.mwSplit.Panel1.Controls.Add(this.mwFileTree);
+            this.mwSplit.Panel1.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.mwSplit.Panel1MinSize = 200;
             this.mwSplit.Size = new System.Drawing.Size(800, 426);
             this.mwSplit.SplitterDistance = 200;
@@ -135,6 +136,7 @@ namespace ToolsForKFIV
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.mwSplit);
             this.Controls.Add(this.mwMenuStrip);
+            this.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mwMenuStrip;
             this.Name = "MainWindow";

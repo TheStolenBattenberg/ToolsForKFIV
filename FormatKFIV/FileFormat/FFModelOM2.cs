@@ -51,8 +51,16 @@ namespace FormatKFIV.FileFormat
         public struct OM2Primitive
         {
             public sceDmaTag DMATag;
-            public ulong Unknown0x10;
-            public ulong Unknown0x18;
+            public ulong Unknown0x10;   //These could be some weird fromsoft thing. They seem to contain a counter, for the number ...
+            public ulong Unknown0x18;   // ... of following 16 byte rows. DMA?..
+            public sceGifTag GIFTag;
+            public sceGsTex0 tex0Data;
+            public ulong tex0Addr;
+            public sceGsTex1 tex1Data;
+            public ulong tex1Addr;
+            public byte[] Unknown0x50;  //48 Unknown Bytes. Most likely PS2 Register stuff, but it's mostly unused.
+            public ulong Unknown0x80;   //See comment on Unknown0x10 and Unknown0x18
+            public ulong Unknown0x88;   // ^^^
 
         }
 

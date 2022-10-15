@@ -309,7 +309,7 @@ namespace FormatKFIV.FileFormat
                             new Vector3f(P3.X, P3.Y, P3.Z));
 
                         Vector3f AverageNorm = Vector3f.Normalize(Vector3f.Average(
-                            new Vector3f(N1.X, N1.Y, N1.Z),
+                            new Vector3f(N1.X, N1.Y, N1.Z), 
                             new Vector3f(N2.X, N2.Y, N2.Z),
                             new Vector3f(N3.X, N3.Y, N3.Z)));
 

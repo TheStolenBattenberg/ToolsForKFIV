@@ -15,11 +15,14 @@ namespace ToolsForKFIV
         private static List<FIFormat<Scene>> formatsScene;
         private static List<FIFormat<Param>> formatsParam;
 
+        /// <summary>Stores data files</summary>
+        public static VirtualFileSystem vfs = new VirtualFileSystem();
+
         /// <summary>Stores content of the main KFIV.DAT</summary>
-        public static FFResourceDAT KFIVDAT = null;
+        //public static FFResourceDAT KFIVDAT = null;
 
         /// <summary>Stores content of the executable</summary>
-        public static FIExecutable  KFIVEXE = null;
+        //public static FIExecutable  KFIVEXE = null;
 
         ///<summary>Stores pretty names</summary>
         public static FFPrettyNames PrettyNamesData = null;

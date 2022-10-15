@@ -130,7 +130,7 @@ namespace FormatKFIV.FileFormat
             get 
             {
                 if (i < 0 || i > FileList.Count)
-                    return FileList[0]; // :)
+                    return FileList[0];
 
                 return FileList[i]; 
             }

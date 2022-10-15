@@ -32,18 +32,15 @@ namespace FormatKFIV.Utility
             switch(filepath.ToLower())
             {
                 case "rev_para.dat": return FileFormatType.Database;
+                case "kf4.dat":     return FileFormatType.Archive;
             }
 
             //By file extension
             switch(Path.GetExtension(filepath).ToLower())
             {
                 case ".prm": return FileFormatType.Database;
-                case ".ini": return FileFormatType.Ini;
                 case ".map": return FileFormatType.Map;
                 case ".tmr": return FileFormatType.Font;
-                case ".sq":  return FileFormatType.MIDI;
-                case ".hd":  return FileFormatType.Wave;
-                case ".bd":  return FileFormatType.Wave;
 
                 case ".tmx":
                 case ".tx2":
@@ -53,15 +50,9 @@ namespace FormatKFIV.Utility
                 case ".mi2":
                 case ".ico":
                 case ".omd":
-                case ".om2":
                     return FileFormatType.Model;
 
-                case ".mix":
-                    return FileFormatType.Animation;
-
                 case ".mod":
-                case ".arm":
-                case ".chr":
                     return FileFormatType.Archive;
 
             }

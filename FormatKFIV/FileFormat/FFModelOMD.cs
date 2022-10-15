@@ -81,7 +81,7 @@ namespace FormatKFIV.FileFormat
             public ulong unknown0x68;
             public byte numVertex;
             public byte[] unknown0x71;  //15 Bytes...
-            public ulong unknown0x80;
+            public ulong unknown0x80;   //Near duplicate of the last 16 bytes.
             public ulong unknown0x88;
 
             public OMDVertex[] vertices;
