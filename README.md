@@ -3,6 +3,9 @@ A GUI based toolset for exploring and extracting data files from King's Field IV
 
 ![Image Tool Preview 1](/WikiData/ReadMe/tfkf4_preview.png)
 
+### Software Support
+Obviously only King's Field IV is supported, though as for the specific region support, NTSC (SLUS-20318, SLUS-20353) and NTSC-J (SLPS-25057) are fully supported, PAL (SLES-50920) is currently only partially supported. You can still access all the data of a PAL copy, but you'll only be able to see the English translations.
+
 ### Usage
 1. Download the latest release
 2. Fire up the executable
