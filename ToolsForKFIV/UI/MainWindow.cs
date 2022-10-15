@@ -88,12 +88,60 @@ namespace ToolsForKFIV
                     ResourceManager.vfs.PutResource(new SystemResource(vfsPath, file));
                 }
 
-                //Scan KF File System
-                FFResourceDAT dataDat = FFResourceDAT.LoadFromFile(foundPath + "\\DATA\\KF4.DAT");
-                for(int i = 0; i < dataDat.FileCount; ++i)
+                string[] kf4DatFiles;
+                string kf4Region  = "None";
+
+                switch(Path.GetFileName(foundFile))
                 {
-                    string vfsPath = ("DATA\\KF4.DAT\\" + dataDat[i].name.Replace("/", "\\")).Replace('\\', Path.DirectorySeparatorChar);
-                    ResourceManager.vfs.PutResource(new VirtualResource(vfsPath, dataDat[i].buffer));
+                    case "SLUS_203.18":
+                    case "SLUS_203.53":
+                        kf4Region = "NTSC";
+                        kf4DatFiles = new string[] 
+                        { 
+                            $"DATA{Path.DirectorySeparatorChar}KF4.DAT", 
+                        };
+                        break;
+
+                    case "SLPS_250.57":
+                        kf4Region = "NTSC-J";
+                        kf4DatFiles = new string[]
+                        {
+                            $"DATA{Path.DirectorySeparatorChar}KF4.DAT",
+                        };
+                        break;
+
+                    case "SLES_509.20":
+                        kf4Region = "PAL";
+                        kf4DatFiles = new string[]
+                        {
+                            $"DATA{Path.DirectorySeparatorChar}KF4_ENG.DAT",
+                        };
+                        break;
+
+                    default:
+                        kf4DatFiles = new string[] { "None" };
+                        break;
+                }
+
+                if (kf4Region == "None")
+                {
+                    Logger.LogError("Invalid KF4 Data! Did you try to trick the system by renaming something?");
+                    Logger.LogError($"{foundFile}");
+                    return;
+                }
+
+                Logger.LogInfo($"Loading KFIV Data (region: {kf4Region}, exe: {foundFile})");
+
+                //Scan KF File System
+                FFResourceDAT dataDat;
+                foreach (string datFile in kf4DatFiles)
+                {
+                    dataDat = FFResourceDAT.LoadFromFile(foundPath + Path.DirectorySeparatorChar + datFile);
+                    for(int i = 0; i < dataDat.FileCount; ++i)
+                    {
+                        string vfsPath = datFile + Path.DirectorySeparatorChar + dataDat[i].name.Replace('/', Path.DirectorySeparatorChar);
+                        ResourceManager.vfs.PutResource(new VirtualResource(vfsPath, dataDat[i].buffer));
+                    }
                 }
 
                 mwFileTree.EnumurateVFS(ResourceManager.vfs);
@@ -174,8 +222,8 @@ namespace ToolsForKFIV
 
                         if(paramData != null)
                         {
-                            controltool_Param.SetParamData(paramData);
                             mwSplit.Panel2.Controls.Add(controltool_Param);
+                            controltool_Param.SetParamData(paramData);
                         }
                         else
                         {
@@ -194,8 +242,8 @@ namespace ToolsForKFIV
 
                         if (sceneData != null)
                         {
-                            controltool_Scene.SetSceneData(sceneData);
                             mwSplit.Panel2.Controls.Add(controltool_Scene);
+                            controltool_Scene.SetSceneData(sceneData);
                         }
                         else
                         {
@@ -214,8 +262,8 @@ namespace ToolsForKFIV
 
                         if(textureData != null)
                         {
-                            controltool_Texture.SetTextureData(textureData);
                             mwSplit.Panel2.Controls.Add(controltool_Texture);
+                            controltool_Texture.SetTextureData(textureData);
                         }
                         else
                         {
@@ -236,8 +284,8 @@ namespace ToolsForKFIV
 
                         if (modelData != null)
                         {
+                            mwSplit.Panel2.Controls.Add(controltool_Model);
                             controltool_Model.SetModelFile(modelData, (Texture)modelTextureData);
-                            mwSplit.Panel2.Controls.Add(controltool_Texture);
                         }
                         else
                         {

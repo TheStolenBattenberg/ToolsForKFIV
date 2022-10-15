@@ -74,5 +74,10 @@ namespace FormatKFIV.Utility
 
             return new Vector3f(Xaccum / vlist.Length, Yaccum / vlist.Length, Zaccum / vlist.Length);
         }
+
+        public override string ToString()
+        {
+            return $"[x: {X}, y: {Y}, z: {Z}]";
+        }
     }
 }

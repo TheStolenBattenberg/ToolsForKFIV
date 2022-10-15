@@ -4,9 +4,9 @@
         <SAVE_STATE>
             <ARRAY NAME="EXPANDED_PATHS" TYPE="string">
                 <A VALUE="KFIV:PS2SDK224 LIBs:" />
+                <A VALUE="KFIV:PS2SDK224 FIDB Sources:" />
                 <A VALUE="KFIV:PS2 FromSoft IOP:" />
                 <A VALUE="KFIV:" />
-                <A VALUE="KFIV:PS2SDK224 FIDB Sources:" />
             </ARRAY>
             <STATE NAME="SHOW_TABLE" TYPE="boolean" VALUE="false" />
         </SAVE_STATE>

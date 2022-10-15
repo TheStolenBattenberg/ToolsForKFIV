@@ -151,6 +151,27 @@ namespace FormatKFIV.FileFormat
                     new Param.ParamColumn { Name = "Amount", DataType = Param.ParamColumnFormat.DTInt8 }
                 }
             };
+            Param.ParamLayout paramLayoutType = new Param.ParamLayout
+            {
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Ammo Item",   DataType = Param.ParamColumnFormat.DTUInt8 },
+                    new Param.ParamColumn { Name = "Attack Type", DataType = Param.ParamColumnFormat.DTUInt8 }
+                }
+            };
+            Param.ParamLayout paramLayoutAttack = new Param.ParamLayout
+            {
+                Columns = new Param.ParamColumn[]
+                {
+                    new Param.ParamColumn { Name = "Unknown 0x68", DataType = Param.ParamColumnFormat.DTUInt32},
+                    new Param.ParamColumn { Name = "Collider Bounds", DataType = Param.ParamColumnFormat.DTString },
+                    new Param.ParamColumn { Name = "Scan Start Frame", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Scan End Frame", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown 0x7c", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Stamina Recharge Delay", DataType = Param.ParamColumnFormat.DTUInt8},
+                    new Param.ParamColumn { Name = "Unknown 0x7f", DataType = Param.ParamColumnFormat.DTUInt8}
+                }
+            };
 
             //Define Weapon Param Pages
             paramOut.Pages = new List<Param.ParamPage>()
@@ -161,8 +182,10 @@ namespace FormatKFIV.FileFormat
                 new Param.ParamPage { name = "Status Chance", rows = new List<Param.ParamRow>(), layout = paramLayoutStatus },
                 new Param.ParamPage { name = "Magic Type A", rows = new List<Param.ParamRow>(), layout = paramLayoutMagics },
                 new Param.ParamPage { name = "Magic Type B", rows = new List<Param.ParamRow>(), layout = paramLayoutMagics },
+                new Param.ParamPage { name = "Type", rows = new List<Param.ParamRow>(), layout = paramLayoutType},
                 new Param.ParamPage { name = "Equip Effect #1", rows = new List<Param.ParamRow>(), layout = paramLayoutEquipEffects},
                 new Param.ParamPage { name = "Equip Effect #2", rows = new List<Param.ParamRow>(), layout = paramLayoutEquipEffects},
+                new Param.ParamPage { name = "Attack", rows = new List<Param.ParamRow>(), layout = paramLayoutAttack}
             };
 
             //Load Parameters
@@ -258,6 +281,9 @@ namespace FormatKFIV.FileFormat
                     byte ammoItemID = ins.ReadByte();
                     byte attackType = ins.ReadByte();
 
+                    paramOut.Pages[6].AddRow(new Param.ParamRow(ammoItemID, attackType));
+
+
                     //Equip Effect #1
                     byte equipEffectAId    = ins.ReadByte();
                     byte equipEffectADelay = ins.ReadByte();
@@ -266,7 +292,7 @@ namespace FormatKFIV.FileFormat
                     {
                         equipEffectAName = gEquipEffectNames[equipEffectAId];
                     }
-                    paramOut.Pages[6].AddRow(new Param.ParamRow(equipEffectAId, equipEffectAName, equipEffectADelay));
+                    paramOut.Pages[7].AddRow(new Param.ParamRow(equipEffectAId, equipEffectAName, equipEffectADelay));
 
                     //Equip Effect #2
                     byte equipEffectBId = ins.ReadByte();
@@ -278,10 +304,22 @@ namespace FormatKFIV.FileFormat
                         equipEffectBName = gEquipEffectNames[equipEffectBId];
                     }
 
-                    paramOut.Pages[7].AddRow(new Param.ParamRow(equipEffectBId, equipEffectBName, equipEffectBDelay));
+                    paramOut.Pages[8].AddRow(new Param.ParamRow(equipEffectBId, equipEffectBName, equipEffectBDelay));
+
+                    //Attack
+                    uint unknown0x68 = ins.ReadUInt32();
+                    Vector3f hitBox = ins.ReadVector3f();
+                    ushort hitScanSf = ins.ReadUInt16();
+                    ushort hitScanEf = ins.ReadUInt16();
+                    ushort unknown0x7c = ins.ReadUInt16();
+                    byte staminaRechargeDelay = ins.ReadByte();
+                    byte unknown0x7f = ins.ReadByte();
+
+                    paramOut.Pages[9].AddRow(new Param.ParamRow(unknown0x68, hitBox.ToString(), hitScanSf, hitScanEf, unknown0x7c, staminaRechargeDelay, unknown0x7f));
 
                     //Skip the rest of the data for now.
-                    ins.Seek(0x28, System.IO.SeekOrigin.Current);
+
+                    ins.Seek(0x10, System.IO.SeekOrigin.Current);
 
                 } while (!ins.IsEndOfStream());
             }
