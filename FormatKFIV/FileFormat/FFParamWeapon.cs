@@ -163,13 +163,15 @@ namespace FormatKFIV.FileFormat
             {
                 Columns = new Param.ParamColumn[]
                 {
-                    new Param.ParamColumn { Name = "Unknown 0x68", DataType = Param.ParamColumnFormat.DTUInt32},
+                    new Param.ParamColumn { Name = "Length (Ft)", DataType = Param.ParamColumnFormat.DTFloat },
+                    new Param.ParamColumn { Name = "Length (Cm)", DataType = Param.ParamColumnFormat.DTUInt16 },
+                    new Param.ParamColumn { Name = "Unknown 0x7a", DataType = Param.ParamColumnFormat.DTUInt16 },
                     new Param.ParamColumn { Name = "Collider Bounds", DataType = Param.ParamColumnFormat.DTString },
                     new Param.ParamColumn { Name = "Scan Start Frame", DataType = Param.ParamColumnFormat.DTUInt16 },
                     new Param.ParamColumn { Name = "Scan End Frame", DataType = Param.ParamColumnFormat.DTUInt16 },
                     new Param.ParamColumn { Name = "Unknown 0x7c", DataType = Param.ParamColumnFormat.DTUInt16 },
-                    new Param.ParamColumn { Name = "Stamina Recharge Delay", DataType = Param.ParamColumnFormat.DTUInt8},
-                    new Param.ParamColumn { Name = "Unknown 0x7f", DataType = Param.ParamColumnFormat.DTUInt8}
+                    new Param.ParamColumn { Name = "Stamina Recharge Delay", DataType = Param.ParamColumnFormat.DTUInt8 },
+                    new Param.ParamColumn { Name = "Unknown 0x7f", DataType = Param.ParamColumnFormat.DTUInt8 }
                 }
             };
 
@@ -307,7 +309,8 @@ namespace FormatKFIV.FileFormat
                     paramOut.Pages[8].AddRow(new Param.ParamRow(equipEffectBId, equipEffectBName, equipEffectBDelay));
 
                     //Attack
-                    uint unknown0x68 = ins.ReadUInt32();
+                    ushort length = ins.ReadUInt16();
+                    ushort unknown0x6a = ins.ReadUInt16();
                     Vector3f hitBox = ins.ReadVector3f();
                     ushort hitScanSf = ins.ReadUInt16();
                     ushort hitScanEf = ins.ReadUInt16();
@@ -315,9 +318,9 @@ namespace FormatKFIV.FileFormat
                     byte staminaRechargeDelay = ins.ReadByte();
                     byte unknown0x7f = ins.ReadByte();
 
-                    paramOut.Pages[9].AddRow(new Param.ParamRow(unknown0x68, hitBox.ToString(), hitScanSf, hitScanEf, unknown0x7c, staminaRechargeDelay, unknown0x7f));
+                    float lengthFt = MathF.Round((float)(length * 0.0328084), 1, MidpointRounding.ToZero);
 
-                    //Skip the rest of the data for now.
+                    paramOut.Pages[9].AddRow(new Param.ParamRow(lengthFt, length, unknown0x6a, hitBox.ToString(), hitScanSf, hitScanEf, unknown0x7c, staminaRechargeDelay, unknown0x7f));
 
                     ins.Seek(0x10, System.IO.SeekOrigin.Current);
 

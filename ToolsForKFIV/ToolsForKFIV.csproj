@@ -10,8 +10,12 @@
     <PackageIcon>t4kfivicon.png</PackageIcon>
     <PackageIconUrl />
     <Company>FromSoft Modding Committee</Company>
-    <Description>https://discord.gg/PRR46bd9jj</Description>
+    <Description>https://discord.gg/mzPPVvezSH</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(SolutionDir)Resource\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Resource\" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FormatKFIV\FormatKFIV.csproj" />
@@ -49,6 +53,12 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resource\shd_3DNormTexColour.fs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

@@ -22,12 +22,22 @@ namespace FormatKFIV.Asset
             DTInt8,
         }
 
+        [Flags]
+        public enum ParamColumnFlag
+        {
+            None     = 0x0000,  //No Flags
+            NoExport = 0x0001,  //Columns with this flag shouldn't be exported to files
+            NoShow   = 0x0002,  //Columns with this flag shouldn't be shown to the user
+        }
+
         //Structures
         public struct ParamColumn
         {
             public string Name;
             public ParamColumnFormat DataType;
+            public ParamColumnFlag flags;
         }
+
         public struct ParamRow
         {
             public ParamRow(params object[] vargs)
