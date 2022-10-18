@@ -30,7 +30,6 @@ namespace FormatKFIV.Asset
         public List<Model> omdData = new List<Model>();
         public List<Model> om2Data = new List<Model>();
         public List<Model> cskData = new List<Model>();
-
         public List<Texture> texData = new List<Texture>();
 
         public List<Chunk> chunks = new List<Chunk>();

@@ -99,90 +99,12 @@ namespace ToolsForKFIV.UI.Control
             glShaders[1].SetUniformMat4("cameraMatrix", mVP, false);
             glSceneTextures[0].Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
 
-            scene.Draw(drawFlags);
+            SceneDraw myDrawFlags = 0;
+            myDrawFlags |= SceneDraw.Geometry;
+            myDrawFlags |= stTSEnableLight.Checked ? SceneDraw.PointLight : 0;
+            myDrawFlags |= stTSEnableObj.Checked ? SceneDraw.Object : 0;
 
-            /*
-            for (int i = 0; i < currentScene.ChunkCount; ++i)
-            {
-                //Get a chunk
-                Scene.Chunk chunk = currentScene.GetChunk(i);
-
-                //Build chunk transformation
-                Matrix4 MAT_TRANS = Matrix4.CreateTranslation(chunk.Position.X / 256f, -chunk.Position.Y / 256f, -chunk.Position.Z / 256f);
-                Matrix4 MAT_SCALE = Matrix4.CreateScale(chunk.Scale.X, chunk.Scale.Y, chunk.Scale.Z);
-                Matrix4 MAT_ROTTX = Matrix4.CreateRotationX((MathF.PI * 2) - chunk.Rotation.X);
-                Matrix4 MAT_ROTTY = Matrix4.CreateRotationY((MathF.PI * 2) - chunk.Rotation.Y);
-                Matrix4 MAT_ROTTZ = Matrix4.CreateRotationZ((MathF.PI * 2) - chunk.Rotation.Z);
-                matModel = (MAT_ROTTY * MAT_ROTTX * MAT_ROTTZ) * MAT_SCALE * MAT_TRANS;
-
-                glShaders[1].SetUniformMat4("uMVPMatrix", matModel * mVP, false);
-
-                //Draw Chunk
-                if (chunk.drawModelID != -1)
-                {
-                    currentGLScene.scenePieceMdl[chunk.drawModelID].DrawTriangles();
-                }
-
-                if(chunk.hitcModelID != -1 && stTSEnableCollision.Checked)
-                {
-                    GL.Disable(EnableCap.CullFace);
-                    currentGLScene.scenePieceCSK[chunk.hitcModelID].DrawTriangles();
-                    GL.Enable(EnableCap.CullFace);
-                }
-            }*/
-
-            //
-            // Draw Objects
-            //
-            /*
-            foreach(Scene.Object obj in currentScene.sceneObject)
-            {
-                //Build Transform
-                Matrix4 MAT_TRANS = Matrix4.CreateTranslation(obj.Position.X / 256f, -obj.Position.Y / 256f, -obj.Position.Z / 256f);
-                Matrix4 MAT_SCALE = Matrix4.CreateScale(obj.Scale.X, obj.Scale.Y, obj.Scale.Z);
-                Matrix4 MAT_ROTTX = Matrix4.CreateRotationX((MathF.PI * 2) - obj.Rotation.X);
-                Matrix4 MAT_ROTTY = Matrix4.CreateRotationY((MathF.PI * 2) - obj.Rotation.Y);
-                Matrix4 MAT_ROTTZ = Matrix4.CreateRotationZ((MathF.PI * 2) - obj.Rotation.Z);
-
-                matModel = (MAT_ROTTY * MAT_ROTTZ * MAT_ROTTX ) * MAT_SCALE * MAT_TRANS;
-
-                //Do Object Draw
-                switch (obj.ClassId)
-                {
-                    //Special Types
-                    case 0x01FB:    //Point Light 1
-                    case 0x01FC:    //Point Light 2
-                        if (stTSEnableLight.Checked)
-                        {
-                            glShaders[0].Bind();
-                            glShaders[0].SetUniformMat4("uMVPMatrix", matModel * mVP, false);
-
-                            glSceneModels[1].DrawLines();
-                        }
-                        continue;
-
-                    //Static Type
-                    default:
-                        if (stTSEnableObj.Checked)
-                        {
-                            glShaders[1].Bind();
-                            glShaders[1].SetUniformMat4("uMVPMatrix", matModel * mVP, false);
-
-                            if (obj.MeshId != -1)
-                            {
-                                if (obj.TextureId != -1)
-                                {
-                                    currentGLScene.sceneSObjTexture[obj.TextureId].Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
-                                }
-
-                                currentGLScene.scenePieceMdl[obj.MeshId].DrawTriangles();
-                            }
-                        }
-                           break;
-
-                }
-
-            }*/
+            scene.Draw(myDrawFlags);
 
             stPreviewGL.SwapBuffers();
         }

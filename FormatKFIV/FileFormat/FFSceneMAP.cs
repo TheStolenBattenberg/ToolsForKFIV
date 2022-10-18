@@ -316,6 +316,7 @@ namespace FormatKFIV.FileFormat
                 }
 
                 //Read Map Object Nodes
+
                 MAPNodeObject[] mapObjectNode = new MAPNodeObject[mapHeader.numNodeObject];
                 for(int i = 0; i < mapHeader.numNodeObject; ++i)
                 {
@@ -334,6 +335,20 @@ namespace FormatKFIV.FileFormat
                         Unknown0x3E = ins.ReadInt16(),
                         ClassParams = ins.ReadBytes(64),
                     };
+
+                    if (mapObjectNode[i].ClassId == 0x1A)
+                    {
+                        Console.WriteLine($"Object #{i.ToString("D4")}: " +
+                            $"Class={mapObjectNode[i].ClassId}, " +
+                            $"Omd={mapObjectNode[i].RenderMeshId}, " +
+                            $"Csk={mapObjectNode[i].CollisionMeshId}, " +
+                            $"0x36={mapObjectNode[i].Unknown0x36}, " +
+                            $"0x38={mapObjectNode[i].Unknown0x38}, " +
+                            $"0x3A={mapObjectNode[i].Unknown0x3A}, " +
+                            $"0x3C={mapObjectNode[i].Unknown0x3C}, " +
+                            $"0x3E={mapObjectNode[i].Unknown0x3E}");
+                    }
+
                 }
 
                 //

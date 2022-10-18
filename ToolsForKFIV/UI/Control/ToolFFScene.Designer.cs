@@ -38,11 +38,11 @@ namespace ToolsForKFIV.UI.Control
             this.stEnableStuffBtLst = new System.Windows.Forms.ToolStripSplitButton();
             this.stTSEnableObj = new System.Windows.Forms.ToolStripMenuItem();
             this.stTSEnableLight = new System.Windows.Forms.ToolStripMenuItem();
+            this.stTSEnableCollision = new System.Windows.Forms.ToolStripMenuItem();
             this.stPreviewGL = new OpenTK.WinForms.GLControl();
             this.stPropertiesTab = new System.Windows.Forms.TabPage();
             this.stExportTab = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.stTSEnableCollision = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.stPreviewTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.stPreviewSplit1)).BeginInit();
@@ -133,6 +133,15 @@ namespace ToolsForKFIV.UI.Control
             this.stTSEnableLight.Size = new System.Drawing.Size(180, 22);
             this.stTSEnableLight.Text = "Enable Lights";
             // 
+            // stTSEnableCollision
+            // 
+            this.stTSEnableCollision.Checked = true;
+            this.stTSEnableCollision.CheckOnClick = true;
+            this.stTSEnableCollision.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.stTSEnableCollision.Name = "stTSEnableCollision";
+            this.stTSEnableCollision.Size = new System.Drawing.Size(180, 22);
+            this.stTSEnableCollision.Text = "Enable Collision";
+            // 
             // stPreviewGL
             // 
             this.stPreviewGL.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -178,15 +187,6 @@ namespace ToolsForKFIV.UI.Control
             this.timer1.Enabled = true;
             this.timer1.Interval = 10;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // stTSEnableCollision
-            // 
-            this.stTSEnableCollision.Checked = true;
-            this.stTSEnableCollision.CheckOnClick = true;
-            this.stTSEnableCollision.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.stTSEnableCollision.Name = "stTSEnableCollision";
-            this.stTSEnableCollision.Size = new System.Drawing.Size(180, 22);
-            this.stTSEnableCollision.Text = "Enable Collision";
             // 
             // ToolFFScene
             // 
