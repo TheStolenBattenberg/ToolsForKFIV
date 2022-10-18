@@ -9,6 +9,8 @@ using FormatKFIV.FileFormat;
 
 using ToolsForKFIV.Utility;
 
+using ToolsForKFIV.Rendering;
+
 namespace ToolsForKFIV.UI.Control
 {
     public partial class ToolFFScene : UserControl
@@ -23,10 +25,11 @@ namespace ToolsForKFIV.UI.Control
         private float lastMouseX, lastMouseY;
 
 
-        private Matrix4 matModel, matView, matProjection;
-
-        private GLScene currentGLScene = null;
+        private Matrix4 matView, matProjection;
         private Scene currentScene = null;
+
+        //NEW!!!
+        IScene scene = null;
 
         public ToolFFScene()
         {
@@ -35,6 +38,18 @@ namespace ToolsForKFIV.UI.Control
 
         public void SetSceneData(Scene newScene)
         {
+            if(scene != null)
+            {
+                scene.Dispose();
+                scene = null;
+            }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            currentScene = newScene;
+            scene = new Scene3D(currentScene);
+
+            /*
             if (currentGLScene != null)
             {
                 currentGLScene.Destroy();
@@ -49,6 +64,7 @@ namespace ToolsForKFIV.UI.Control
             currentScene = newScene;
             currentGLScene = new GLScene();
             currentGLScene.BuildScene(currentScene);
+            */
         }
 
         #region Preview Events
@@ -72,6 +88,7 @@ namespace ToolsForKFIV.UI.Control
             glSceneTextures[0] = GLTexture.Generate44Grid();
             glSceneTextures[1] = GLTexture.Generate44White();
         }
+
         private void stPreviewGL_Resize(object sender, EventArgs e)
         {
             stPreviewGL.MakeCurrent();
@@ -82,6 +99,7 @@ namespace ToolsForKFIV.UI.Control
             //Calculate Projection
             matProjection = Matrix4.CreatePerspectiveFieldOfView(0.7f, (float)(((float)stPreviewGL.ClientSize.Width) / ((float)stPreviewGL.ClientSize.Height)), 0.1f, 256f);
         }
+
         private void stPreviewGL_Paint(object sender, PaintEventArgs e)
         {
             stPreviewGL.MakeCurrent();
@@ -100,15 +118,19 @@ namespace ToolsForKFIV.UI.Control
 
             //Draw 3D Grid
             glShaders[0].Bind();
-            glShaders[0].SetUniformMat4("uMVPMatrix", mVP, false);
+            glShaders[0].SetUniformMat4("cameraMatrix", mVP, false);
             glSceneModels[0].DrawLines();
 
             //
             // Draw Map Chunks
             //
             glShaders[1].Bind();
+            glShaders[1].SetUniformMat4("cameraMatrix", mVP, false);
             glSceneTextures[0].Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
 
+            scene.Draw();
+
+            /*
             for (int i = 0; i < currentScene.ChunkCount; ++i)
             {
                 //Get a chunk
@@ -136,11 +158,12 @@ namespace ToolsForKFIV.UI.Control
                     currentGLScene.scenePieceCSK[chunk.hitcModelID].DrawTriangles();
                     GL.Enable(EnableCap.CullFace);
                 }
-            }
+            }*/
 
             //
             // Draw Objects
             //
+            /*
             foreach(Scene.Object obj in currentScene.sceneObject)
             {
                 //Build Transform
@@ -188,7 +211,7 @@ namespace ToolsForKFIV.UI.Control
 
                 }
 
-            }
+            }*/
 
 
             GL.UseProgram(0);

@@ -248,11 +248,13 @@ namespace FormatKFIV.FileFormat
                 //Read ICO Model Shapes
                 for(int i = 0; i < header.numShape; ++i)
                 {
-                    model.shapes[i] = new ICOShape();
-                    model.shapes[i].vertices = new ICOVertex[model.numVertex];
-                    model.shapes[i].normals = new ICONormal[model.numVertex];
-                    model.shapes[i].texcoords = new ICOTexcoord[model.numVertex];
-                    model.shapes[i].colours = new ICOColour[model.numVertex];
+                    model.shapes[i] = new ICOShape
+                    {
+                        vertices = new ICOVertex[model.numVertex],
+                        normals = new ICONormal[model.numVertex],
+                        texcoords = new ICOTexcoord[model.numVertex],
+                        colours = new ICOColour[model.numVertex]
+                    };
 
                     //Read Vertices
                     for (int j = 0; j < model.numVertex; ++j)
@@ -358,17 +360,21 @@ namespace FormatKFIV.FileFormat
                 //Convert each shape to a mesh
                 for(int i = 0; i < model.shapes.Length; ++i)
                 {
-                    Model.Mesh mesh = new Model.Mesh();
-                    mesh.numTriangle = model.numVertex / 3;
+                    Model.Mesh mesh = new Model.Mesh
+                    {
+                        numTriangle = model.numVertex / 3
+                    };
                     mesh.triangles = new Model.Triangle[mesh.numTriangle];
                     
                     for (int j = 0; j < model.numVertex; j += 3)
                     {
-                        Model.Triangle tri = new Model.Triangle();
-                        tri.vIndices = new ushort[3];
-                        tri.nIndices = new ushort[3];
-                        tri.tIndices = new ushort[3];
-                        tri.cIndices = new ushort[3];
+                        Model.Triangle tri = new Model.Triangle
+                        {
+                            vIndices = new ushort[3],
+                            nIndices = new ushort[3],
+                            tIndices = new ushort[3],
+                            cIndices = new ushort[3]
+                        };
 
                         //Add Vertices to Triangle
                         ICOVertex V;

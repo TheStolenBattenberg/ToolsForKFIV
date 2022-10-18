@@ -8,12 +8,12 @@ out vec3 fNormal;
 out vec2 fTexcoord;
 out vec4 fColour;
 
-
-uniform mat4 uMVPMatrix;
+uniform mat4 worldMatrix;
+uniform mat4 cameraMatrix;
 
 void main()
 {
-    gl_Position = uMVPMatrix * vec4(vPosition, 1.0f);
+    gl_Position = (cameraMatrix * worldMatrix) * vec4(vPosition, 1.0f);
 
 	fNormal = normalize(vNormal);
 	fTexcoord = vTexcoord;

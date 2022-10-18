@@ -6,8 +6,12 @@ namespace FormatKFIV.Utility
 {
     public class Vector3f
     {
+        //Data
+        private static readonly Vector3f _Zero = new Vector3f(0, 0, 0);
+        private readonly float _x, _y, _z;
+
         //Properties
-        public Vector3f Zero
+        public static Vector3f Zero
         {
             get { return _Zero; }
         }
@@ -25,8 +29,7 @@ namespace FormatKFIV.Utility
         }
 
         //Members
-        private static Vector3f _Zero = new Vector3f(0, 0, 0);
-        private float _x, _y, _z;
+
 
         public Vector3f(float x, float y, float z)
         {
@@ -35,9 +38,17 @@ namespace FormatKFIV.Utility
             _z = z;
         }
 
+        public static Vector3f Add(Vector3f v1, Vector3f v2)
+        {
+            return new Vector3f(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
+        }
         public static Vector3f Subtract(Vector3f v1, Vector3f v2)
         {
             return new Vector3f(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
+        }
+        public static Vector3f Multiply(Vector3f v1, Vector3f v2)
+        {
+            return new Vector3f(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z);
         }
         public static Vector3f Cross(Vector3f v1, Vector3f v2)
         {

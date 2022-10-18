@@ -4,10 +4,10 @@ layout (location = 1) in vec4 vColour;
 
 out vec4 fColour;
 
-uniform mat4 uMVPMatrix;
+uniform mat4 cameraMatrix;
 
 void main()
 {
-    gl_Position = uMVPMatrix * vec4(vPosition, 1.0f);
+    gl_Position = cameraMatrix * vec4(vPosition, 1.0f);
     fColour = vColour;
 }
