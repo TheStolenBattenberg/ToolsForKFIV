@@ -9,5 +9,5 @@ uniform sampler2D sDiffuse;
 
 void main()
 {
-    cDiffuse = texture(sDiffuse, fTexcoord);
+    cDiffuse = fColour * texture(sDiffuse, fTexcoord);
 }

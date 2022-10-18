@@ -6,10 +6,19 @@ using System.Text;
 
 namespace ToolsForKFIV.Rendering
 {
+    [Flags]
+    public enum SceneDraw : uint
+    {
+        Geometry   = 0x00000001,
+        Object     = 0x00000002,
+        PointLight = 0x00000004,
+        Default    = 0xFFFFFFFF
+    }
+
     public interface IScene : IDisposable
     {
         List<ISceneNode> Nodes { get; }
 
-        void Draw();
+        void Draw(SceneDraw flags);
     }
 }

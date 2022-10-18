@@ -99,9 +99,24 @@ namespace ToolsForKFIV.UI.Control
             }
         }
 
+        #region Tree View Input
         private void ftTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             ResourceManager.winMain.OpenTool(e.Node);
         }
+        private void ftTreeView_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void ftTreeView_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void ftTreeView_KeyUp(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        #endregion
     }
 }

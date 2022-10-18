@@ -16,6 +16,8 @@ namespace ToolsForKFIV.Rendering
         private Vector3f _scale;
         private Matrix4 Transform;
         private IMesh StaticMesh;
+        private string _name = "Static Mesh Node";
+        private SceneDraw _drawFlags = SceneDraw.Default;
 
         //Properties
         public Vector3f Position 
@@ -61,6 +63,16 @@ namespace ToolsForKFIV.Rendering
             { 
                 _visible = value; 
             }
+        }
+        public string Name
+        {
+            get { return _name; }
+            set { _name = value; }
+        }
+        public SceneDraw DrawFlags
+        {
+            get { return _drawFlags; }
+            set { _drawFlags = value; }
         }
 
         #endregion

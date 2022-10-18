@@ -16,8 +16,21 @@ namespace ToolsForKFIV.Rendering
         private Vector3f _rotation;
         private Vector3f _scale;
         private bool _visible;
+        private string _name = "Collection Node";
+        private SceneDraw _drawFlags = SceneDraw.Default;
 
         //Properties
+        public List<ISceneNode> Children
+        {
+            get
+            {
+                return _children;
+            }
+            private set
+            {
+                _children = value;
+            }
+        }
         public Vector3f Position
         {
             get
@@ -56,16 +69,15 @@ namespace ToolsForKFIV.Rendering
             get { return _visible; }
             set { _visible = value; }
         }
-        public List<ISceneNode> Children
+        public string Name
         {
-            get
-            {
-                return _children;
-            }
-            private set
-            {
-                _children = value;
-            }
+            get { return _name; }
+            set { _name = value; }
+        }
+        public SceneDraw DrawFlags
+        {
+            get { return _drawFlags; }
+            set { _drawFlags = value; }
         }
 
         #endregion
@@ -124,7 +136,7 @@ namespace ToolsForKFIV.Rendering
                 }
 
                 //Add static mesh to children
-                IMesh staticMesh = new TriangleListMesh(ref vertexArray, (int) (staticMeshKFIV.numTriangle * 3));
+                IMesh staticMesh = new TriangleMesh(ref vertexArray, (int) (staticMeshKFIV.numTriangle * 3));
                 var staticMeshNode = new SceneNodeStaticMesh(staticMesh)
                 {
                     Position = new Vector3f(0, 0, 0),

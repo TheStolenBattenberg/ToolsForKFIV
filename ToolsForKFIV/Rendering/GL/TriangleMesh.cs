@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace ToolsForKFIV.Rendering
 {
-    public class TriangleListMesh : IMesh
+    public class TriangleMesh : IMesh
     {
         //Data
         private int _vbo;
@@ -34,7 +34,7 @@ namespace ToolsForKFIV.Rendering
             }
         }
 
-        public TriangleListMesh(ref float[] vertices, int vertexCount)
+        public TriangleMesh(ref float[] vertices, int vertexCount)
         {
             VertexCount = vertexCount;
 
@@ -69,7 +69,7 @@ namespace ToolsForKFIV.Rendering
         }
 
         //Disposal
-        ~TriangleListMesh()
+        ~TriangleMesh()
         {
             Dispose(false);
         }

@@ -51,6 +51,9 @@ namespace ToolsForKFIV.UI.Control
             this.ftTreeView.Size = new System.Drawing.Size(150, 150);
             this.ftTreeView.TabIndex = 0;
             this.ftTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.ftTreeView_NodeMouseDoubleClick);
+            this.ftTreeView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ftTreeView_KeyDown);
+            this.ftTreeView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ftTreeView_KeyPress);
+            this.ftTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ftTreeView_KeyUp);
             // 
             // ftTreeViewIconSet
             // 

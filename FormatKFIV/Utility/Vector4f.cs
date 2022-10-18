@@ -32,6 +32,12 @@ namespace FormatKFIV.Utility
         private static Vector4f _Zero = new Vector4f(0, 0, 0, 0);
         private float _x, _y, _z, _w;
 
+
+        public Vector3f ToVector3()
+        {
+            return new Vector3f(X, Y, Z);
+        }
+
         public Vector4f(float x, float y, float z, float w)
         {
             _x = x;

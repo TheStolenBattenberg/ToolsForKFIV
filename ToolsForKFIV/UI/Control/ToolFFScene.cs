@@ -15,18 +15,19 @@ namespace ToolsForKFIV.UI.Control
 {
     public partial class ToolFFScene : UserControl
     {
-        //Members
+        //Data
         private GLShader[] glShaders;
         private GLModel[]  glSceneModels;
         private GLTexture[] glSceneTextures;
 
         private Vector3 cameraTo = new Vector3(0, 0, 0), cameraFrom = new Vector3(8, 4, 0);
         private float   camLookX = 0, camLookY = 0;
-        private float lastMouseX, lastMouseY;
-
+        private Vector2 mousePosition = new Vector2(0,0), lastMousePosition = new Vector2(0, 0);
+        private bool mouseOnWindow = false;
 
         private Matrix4 matView, matProjection;
         private Scene currentScene = null;
+        private SceneDraw drawFlags = SceneDraw.Default;
 
         //NEW!!!
         IScene scene = null;
@@ -48,23 +49,6 @@ namespace ToolsForKFIV.UI.Control
 
             currentScene = newScene;
             scene = new Scene3D(currentScene);
-
-            /*
-            if (currentGLScene != null)
-            {
-                currentGLScene.Destroy();
-                currentGLScene = null;
-            }
-            currentScene = null;
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
-            currentScene = newScene;
-            currentGLScene = new GLScene();
-            currentGLScene.BuildScene(currentScene);
-            */
         }
 
         #region Preview Events
@@ -80,8 +64,6 @@ namespace ToolsForKFIV.UI.Control
             //Initialize Scene Viewer Models
             glSceneModels = new GLModel[3];
             glSceneModels[0] = GLModel.Generate3DGrid();
-            glSceneModels[1] = GLModel.GenerateLineSphere(Color.LightYellow);   //Point Light
-            glSceneModels[2] = GLModel.GenerateLineSphere(Color.LawnGreen);     //Weird Thing...
 
             //Initialize Scene Viewer Textures
             glSceneTextures = new GLTexture[2];
@@ -110,25 +92,14 @@ namespace ToolsForKFIV.UI.Control
             GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.Texture2D);
 
-            //Calculate Look at
             matView = Matrix4.LookAt(cameraFrom, cameraTo, Vector3.UnitY);
-
-            //Calculate VP Matrix
             Matrix4 mVP = matView * matProjection;
 
-            //Draw 3D Grid
-            glShaders[0].Bind();
-            glShaders[0].SetUniformMat4("cameraMatrix", mVP, false);
-            glSceneModels[0].DrawLines();
-
-            //
-            // Draw Map Chunks
-            //
             glShaders[1].Bind();
             glShaders[1].SetUniformMat4("cameraMatrix", mVP, false);
             glSceneTextures[0].Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
 
-            scene.Draw();
+            scene.Draw(drawFlags);
 
             /*
             for (int i = 0; i < currentScene.ChunkCount; ++i)
@@ -213,64 +184,74 @@ namespace ToolsForKFIV.UI.Control
 
             }*/
 
-
-            GL.UseProgram(0);
             stPreviewGL.SwapBuffers();
         }
 
         //GLControl Input
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if ((MouseButtons & MouseButtons.Right) > 0)
+            //Most Position Logic
+            lastMousePosition.X = mousePosition.X;
+            lastMousePosition.Y = mousePosition.Y;
+
+            if (mouseOnWindow)
             {
-                bool aKeyDown = false;
-
-                if (InputManager.KeyIsDown(87))
-                {
-                    cameraFrom.X += MathF.Cos(camLookX) / 8f;
-                    cameraFrom.Z += MathF.Sin(camLookX) / 8f;
-                    cameraFrom.Y -= MathF.Sin(camLookY * 0.0174533f) / 8f;
-                    aKeyDown = true;
-                }else
-                if (InputManager.KeyIsDown(83))
-                {
-                    cameraFrom.X -= MathF.Cos(camLookX) / 8f;
-                    cameraFrom.Z -= MathF.Sin(camLookX) / 8f;
-                    cameraFrom.Y += MathF.Sin(camLookY * 0.0174533f) / 8f;
-                    aKeyDown = true;
-                }
-
-                if (aKeyDown)
-                    stPreviewGL.Invalidate();
+                mousePosition.X = Cursor.Position.X;
+                mousePosition.Y = Cursor.Position.Y;
             }
-        }
-        private void stPreviewGL_MouseMove(object sender, MouseEventArgs e)
-        {
-            bool IsInside = 
-                (e.X > stPreviewGL.Location.X) & 
-                (e.Y > stPreviewGL.Location.Y) &
-                (e.X < stPreviewGL.Location.X + stPreviewGL.Size.Width) &
-                (e.Y < stPreviewGL.Location.Y + stPreviewGL.Size.Height);
-
-            if (!IsInside)
-                return;
 
             if ((MouseButtons & MouseButtons.Right) > 0)
             {
-                camLookX -= (lastMouseX - e.X) / 64f;
-                camLookY -= (lastMouseY - e.Y);
+                //Mouse Input
+                camLookX -= ((lastMousePosition.X - mousePosition.X) * 0.0174533f) / 4f;
+                camLookY -= ((lastMousePosition.Y - mousePosition.Y)) / 4f;
                 camLookY = Math.Clamp(camLookY, -90f, 90f);
 
                 float f_x = MathF.Sqrt(MathF.Pow(91, 2) - MathF.Pow(camLookY, 2));
 
+                //Keyboard Input
+                int wKey = InputManager.KeyIsDown(87) ? 1 : 0;
+                int aKey = InputManager.KeyIsDown(65) ? 1 : 0;
+                int sKey = InputManager.KeyIsDown(83) ? 1 : 0;
+                int dKey = InputManager.KeyIsDown(68) ? 1 : 0;
+                int xAxis = (aKey - dKey);
+                int yAxis = (wKey - sKey);
+
+                float speed = 1.0f;
+                if(xAxis != 0 && yAxis != 0)
+                {
+                    speed = 0.70710678118f;
+                }
+
+                if(yAxis != 0)
+                {
+                    cameraFrom.X += ((MathF.Cos(camLookX) * f_x) * 0.0039f) * yAxis * speed;
+                    cameraFrom.Z += ((MathF.Sin(camLookX) * f_x) * 0.0039f) * yAxis * speed;
+                    cameraFrom.Y += (-(camLookY * 0.0039f)) * yAxis * speed;
+                }
+
+                if(xAxis != 0)
+                {
+                    cameraFrom.X += ((MathF.Cos(camLookX - 1.57079632679f) * f_x) * 0.0039f) * xAxis * speed;
+                    cameraFrom.Z += ((MathF.Sin(camLookX - 1.57079632679f) * f_x) * 0.0039f) * xAxis * speed;
+                }
+
+                //Set Camera To
                 cameraTo.X = cameraFrom.X + (MathF.Cos(camLookX) * f_x);
                 cameraTo.Z = cameraFrom.Z + (MathF.Sin(camLookX) * f_x);
                 cameraTo.Y = cameraFrom.Y - camLookY;
-            }
 
-            lastMouseX = e.X;
-            lastMouseY = e.Y;
-            stPreviewGL.Invalidate();
+                stPreviewGL.Invalidate();
+            }
+        }
+
+        private void stPreviewGL_MouseMove(object sender, MouseEventArgs e)
+        {
+            mouseOnWindow = 
+                (e.X > stPreviewGL.Location.X) &
+                (e.Y > stPreviewGL.Location.Y) &
+                (e.X < stPreviewGL.Location.X + stPreviewGL.Size.Width) &
+                (e.Y < stPreviewGL.Location.Y + stPreviewGL.Size.Height);
         }
         #endregion 
     }

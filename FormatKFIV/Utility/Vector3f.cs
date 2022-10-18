@@ -7,6 +7,7 @@ namespace FormatKFIV.Utility
     public class Vector3f
     {
         //Data
+        private static readonly Vector3f _one = new Vector3f(1, 1, 1);
         private static readonly Vector3f _Zero = new Vector3f(0, 0, 0);
         private readonly float _x, _y, _z;
 
@@ -15,6 +16,11 @@ namespace FormatKFIV.Utility
         {
             get { return _Zero; }
         }
+        public static Vector3f One
+        {
+            get { return _one; }
+        }
+
         public float X
         {
             get { return _x; }

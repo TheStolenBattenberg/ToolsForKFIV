@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 using FormatKFIV.Asset;
 using FormatKFIV.Utility;
-using FormatKFIV.FileFormat;
 using FormatKFIV.TypePlayStation;
 
 namespace FormatKFIV.FileFormat
@@ -341,99 +339,112 @@ namespace FormatKFIV.FileFormat
                 //
                 // MAP DATA
                 //
-                FFModelOMD   OMDLoader = new FFModelOMD();
+                FFModelOMD OMDLoader = new FFModelOMD();
                 FFTextureTX2 TX2Loader = new FFTextureTX2();
 
-                //Read OMD Models
+                //
+                // Map Geometry
+                //
+                int[] mapChunkOMD = new int[mapHeader.numPieceOMD];
+                int[] mapChunkCSK = new int[mapHeader.numPieceCSK];
 
-                //We do this to retrieve proper Texture W/H and colour mode.
-                FFModelOMD.OMDModel[] pieceOMDs = new FFModelOMD.OMDModel[mapHeader.numPieceOMD];
                 ins.Jump(mapHeader.offPieceOMD);
                 for (int i = 0; i < mapHeader.numPieceOMD; ++i)
                 {
-                    pieceOMDs[i] = FFModelOMD.ImportOMDFromStream(ins);
+                    OUT.omdData.Add(OMDLoader.ImportOMD(ins));
+                    mapChunkOMD[i] = OUT.omdData.Count - 1;
                 }
                 ins.Return();
 
-                //Read CSK Models
-                FFModelCSK.CSKModel[] pieceCSKs = new FFModelCSK.CSKModel[mapHeader.numPieceCSK];
                 ins.Jump(mapHeader.offPieceCSK);
                 for(int i = 0; i < mapHeader.numPieceCSK; ++i)
                 {
-                    pieceCSKs[i] = FFModelCSK.ImportCSK(ins);
-                }
-                ins.Return();
-
-                List<int> PieceDrawMdl = new List<int>();
-
-                //Load Objects
-                Model[] mapObjectOMD = new Model[mapHeader.numObjectStatic];
-                Texture[] mapObjectTX2 = new Texture[mapHeader.numObjectStatic];
-
-                ins.Jump(mapHeader.offObjectStatic);
-                for(int i = 0; i < mapHeader.numObjectStatic; ++i)
-                {
-                    mapObjectOMD[i] = OMDLoader.ImportOMD(ins);
-                    mapObjectTX2[i] = TX2Loader.ImportTX2(ins);
-                }
-                ins.Return();
-
-
-                //
-                // Scene Building
-                //
-
-                //Add Map CSKs
-                foreach(FFModelCSK.CSKModel CSKmdl in pieceCSKs)
-                {
-                    OUT.scenePieceCSK.Add(FFModelCSK.CSKToModel(CSKmdl));
-                }
-
-                //Read MAP Peice OMDs
-                ins.Jump(mapHeader.offPieceOMD);
-                for (int i = 0; i < mapHeader.numPieceOMD; ++i)
-                {
-                    PieceDrawMdl.Add(OUT.AddModel(OMDLoader.ImportOMD(ins)));
+                    OUT.cskData.Add(FFModelCSK.CSKToModel(FFModelCSK.ImportCSK(ins)));
+                    mapChunkCSK[i] = OUT.cskData.Count - 1;
                 }
                 ins.Return();
 
                 foreach (MAPNodePiece piece in pieceNodes)
                 {
-                    Scene.Chunk chunk = new Scene.Chunk();
-
-                    chunk.Flags = piece.Flags;
-                    chunk.drawModelID = piece.OMDIndex;
-                    chunk.hitcModelID = piece.CSKIndex;
-                    chunk.Position = piece.Position;
-                    chunk.Rotation = piece.Rotation;
-                    chunk.Scale    = piece.Scale;
-
-                    OUT.AddChunk(chunk);
-                }
-
-                foreach(MAPNodeObject obj in mapObjectNode)
-                {
-                    Scene.Object sObj = new Scene.Object
+                    Scene.Chunk chunk = new Scene.Chunk()
                     {
-                        Position = obj.Position,
-                        Rotation = obj.Rotation,
-                        Scale = obj.Scale,
-
-                        ClassId = obj.ClassId,
-                        MeshId = -1,
-                        TextureId = -1
+                        position = piece.Position.ToVector3(),
+                        rotation = piece.Rotation.ToVector3(),
+                        scale = piece.Scale.ToVector3(),
+                        drawModelID = -1,
+                        collisionModelID = -1
                     };
 
-                    if(obj.RenderMeshId != -1 && mapObjectOMD.Length > obj.RenderMeshId)
+                    if(piece.OMDIndex >= 0 && piece.OMDIndex < mapChunkOMD.Length)
                     {
-                        sObj.MeshId = OUT.AddModel(mapObjectOMD[obj.RenderMeshId]);
-                        sObj.TextureId = OUT.AddTexture(mapObjectTX2[obj.RenderMeshId]);
+                        chunk.drawModelID = mapChunkOMD[piece.OMDIndex];
                     }
 
-                    OUT.sceneObject.Add(sObj);
+                    if(piece.CSKIndex >= 0 && piece.CSKIndex < mapChunkCSK.Length)
+                    {
+                        chunk.collisionModelID = mapChunkCSK[piece.CSKIndex];
+                    }
+                    
+                    OUT.chunks.Add(chunk);
                 }
-            } catch(Exception Ex)
-            {
+
+
+                //
+                // Map Objects
+                //
+                int[] mapObjectOMD = new int[mapHeader.numObjectStatic];    //OMD
+                int[] mapObjectOM2 = new int[mapHeader.numObjectMoveable];  //OM2
+                int[] mapObjectTX2 = new int[mapHeader.numObjectStatic];
+                int[] mapObjectCSK = new int[mapHeader.numObjectCSK];
+
+                ins.Jump(mapHeader.offObjectStatic);
+                for(int i = 0; i < mapHeader.numObjectStatic; ++i)
+                {
+                    OUT.omdData.Add(OMDLoader.ImportOMD(ins));
+                    OUT.texData.Add(TX2Loader.ImportTX2(ins));
+
+                    mapObjectOMD[i] = OUT.omdData.Count - 1;
+                    mapObjectTX2[i] = OUT.texData.Count - 1;
+                }
+                ins.Return();
+
+                ins.Jump(mapHeader.offObjectCSK);
+                for(int i = 0; i < mapHeader.numObjectCSK; ++i)
+                {
+                    OUT.cskData.Add(FFModelCSK.CSKToModel(FFModelCSK.ImportCSK(ins)));
+                    mapObjectCSK[i] = OUT.cskData.Count - 1;
+                }
+
+                foreach(MAPNodeObject mapObject in mapObjectNode)
+                {
+                    Scene.Object sceneObject = new Scene.Object
+                    {
+                        position = mapObject.Position.ToVector3(),
+                        rotation = mapObject.Rotation.ToVector3(),
+                        scale = mapObject.Scale.ToVector3(),
+                        classID = mapObject.ClassId,
+                        drawModelID = -1,
+                        textureID = -1,
+                        collisionModelID = -1,
+                    };
+
+                    if(mapObject.RenderMeshId >= 0 && mapObject.RenderMeshId < mapObjectOMD.Length)
+                    {
+                        sceneObject.drawModelID = mapObjectOMD[mapObject.RenderMeshId];
+                        sceneObject.textureID = mapObjectTX2[mapObject.RenderMeshId];
+                    }
+
+                    if(mapObject.CollisionMeshId >= 0 && mapObject.CollisionMeshId < mapObjectCSK.Length)
+                    {
+                        sceneObject.collisionModelID = mapObjectCSK[mapObject.CollisionMeshId];
+                    }
+
+                    OUT.objects.Add(sceneObject);
+                }
+
+            } catch(Exception Ex) {
+
+                //SOMETHINGS FUCKED UP BARRY! BETTER GET THE CHAINSAW.
                 Console.WriteLine(Ex.Message);
                 Console.WriteLine(Ex.StackTrace);
                 return null;
@@ -664,7 +675,6 @@ namespace FormatKFIV.FileFormat
 
             return textures;
         }
-
 
         public void SaveToFile(string filepath, Scene data)
         {
