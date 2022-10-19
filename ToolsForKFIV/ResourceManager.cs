@@ -48,6 +48,7 @@ namespace ToolsForKFIV
             formatsModel = new List<FIFormat<Model>>();
             formatsModel.Add(new FFModelICO());
             formatsModel.Add(new FFModelOMD());
+            formatsModel.Add(new FFModelOM2());
             formatsModel.Add(new FFModelMOD());
 
             formatsModel.Add(new FFModelOBJ());

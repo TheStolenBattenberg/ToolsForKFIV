@@ -50,6 +50,7 @@ namespace FormatKFIV.Utility
                 case ".mi2":
                 case ".ico":
                 case ".omd":
+                case ".om2":
                     return FileFormatType.Model;
 
                 case ".mod":

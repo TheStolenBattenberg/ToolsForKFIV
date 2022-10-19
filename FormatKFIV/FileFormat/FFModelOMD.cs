@@ -239,11 +239,6 @@ namespace FormatKFIV.FileFormat
                                 CA = ins.ReadUInt16(),
                             };
 
-                            if (V.NW != 0 && V.NW != -32768)
-                            {
-                                Console.WriteLine($"N Flag: {V.NW}");
-                            }
-
                             tristrip.vertices[k] = V;
                         }
 
@@ -300,9 +295,6 @@ namespace FormatKFIV.FileFormat
                                 tIndices = new ushort[3],
                                 cIndices = new ushort[3]
                             };
-
-                            //Console.WriteLine($"OMD [V1W = {V1.PW}, V2W = {V2.PW}, V3W = {V3.PW}]");
-                            //Console.WriteLine($"OMD [N1W = {V1.NW}, N2W = {V2.NW}, N3W = {V3.NW}]");
 
                             tri.vIndices[0] = (ushort)ResultingModel.AddVertex(V1.PX / 256f, -V1.PY / 256f, -V1.PZ / 256f);
                             tri.vIndices[1] = (ushort)ResultingModel.AddVertex(V2.PX / 256f, -V2.PY / 256f, -V2.PZ / 256f);

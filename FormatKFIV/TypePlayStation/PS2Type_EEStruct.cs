@@ -154,7 +154,7 @@ namespace FormatKFIV.TypePlayStation
     #pragma warning disable CS0649
     public struct sceGsTex0
     {
-        private ulong data0_8;  //IGNORE THESE WARNINGS.
+        private ulong data0_8;
 
         /// <summary>Packed Texture Buffer Pointer. Multiply by 0x100 to restore actual pointer.</summary>
         public uint TBP

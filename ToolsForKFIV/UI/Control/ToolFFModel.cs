@@ -167,8 +167,8 @@ namespace ToolsForKFIV.UI.Control
 
             //Draw Editor Shit
             shader3DColour.Bind();
-            shader3DColour.SetUniformMat4("uMVPMatrix", matrixView * matrixProjection, false);
-
+            shader3DColour.SetUniformMat4("cameraMatrix", matrixView * matrixProjection, false);
+            
             modelGrid.DrawLines();
             //modelAxis.DrawLines();
 
@@ -176,7 +176,8 @@ namespace ToolsForKFIV.UI.Control
             if (modelFile != null)
             {
                 shader3DNormTexColour.Bind();
-                shader3DNormTexColour.SetUniformMat4("uMVPMatrix", matrixView * matrixProjection, false);
+                shader3DNormTexColour.SetUniformMat4("cameraMatrix", matrixView * matrixProjection, false);
+                shader3DNormTexColour.SetUniformMat4("worldMatrix", Matrix4.Identity, false);
                 shader3DNormTexColour.SetUniformInt1("sDiffuse", 0);
 
                 if (textureFile != null)
