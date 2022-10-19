@@ -25,6 +25,7 @@
     <PackageReference Include="NeatInput.Windows" Version="2.0.1" />
     <PackageReference Include="OpenTK" Version="4.6.7" />
     <PackageReference Include="OpenTK.WinForms" Version="4.0.0-pre.6" />
+    <PackageReference Include="YamlDotNet" Version="12.0.2" />
   </ItemGroup>
 
   <ItemGroup>

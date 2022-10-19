@@ -6,6 +6,7 @@ using System.Text;
 using OpenTK.Graphics.OpenGL;
 
 using FormatKFIV.Asset;
+using FormatKFIV.Utility;
 
 namespace ToolsForKFIV.Utility
 {
@@ -55,6 +56,10 @@ namespace ToolsForKFIV.Utility
             //Create vertex data
             List<float> VertexDataList = new List<float>();
 
+            Color xAxisC = ResourceManager.settings.mtXAxC.ToColor();
+            Color yAxisC = ResourceManager.settings.mtYAxC.ToColor();
+            Color zAxisC = ResourceManager.settings.mtZAxC.ToColor();
+
             for (int i = -8; i <= 8; ++i)
             {
                 //I like the effect this gives, but need to improve line generation to make it sweet af.
@@ -76,17 +81,17 @@ namespace ToolsForKFIV.Utility
                 else
                 {
                     VertexDataList.AddRange(new float[] { i, 0f, -8f });
-                    VertexDataList.AddRange(new float[] { 244 / 255f, 67 / 255f, 54 / 255f, 1f });
+                    VertexDataList.AddRange(new float[] { xAxisC.R / 255f, xAxisC.G / 255f, xAxisC.B / 255f, 1f });
                     VertexDataList.AddRange(new float[] { i, 0f, 8f });
-                    VertexDataList.AddRange(new float[] { 244 / 255f, 67 / 255f, 54 / 255f, 1f });
+                    VertexDataList.AddRange(new float[] { xAxisC.R / 255f, xAxisC.G / 255f, xAxisC.B / 255f, 1f });
                     VertexDataList.AddRange(new float[] { -8f, 0f, i });
-                    VertexDataList.AddRange(new float[] { 3 / 255f, 169 / 255f, 244 / 255f, 1f });
+                    VertexDataList.AddRange(new float[] { zAxisC.R / 255f, zAxisC.G / 255f, zAxisC.B / 255f, 1f });
                     VertexDataList.AddRange(new float[] { 8f, 0f, i });
-                    VertexDataList.AddRange(new float[] { 3 / 255f, 169 / 255f, 244 / 255f, 1f });
+                    VertexDataList.AddRange(new float[] { zAxisC.R / 255f, zAxisC.G / 255f, zAxisC.B / 255f, 1f });
                     VertexDataList.AddRange(new float[] { 0f, -8f, 0f });
-                    VertexDataList.AddRange(new float[] { 76 / 255f, 175 / 255f, 80 / 255f, 1f });
+                    VertexDataList.AddRange(new float[] { yAxisC.R / 255f, yAxisC.G / 255f, yAxisC.B / 255f, 1f });
                     VertexDataList.AddRange(new float[] { 0f,  8f, 0f });
-                    VertexDataList.AddRange(new float[] { 76 / 255f, 175 / 255f, 80 / 255f, 1f });
+                    VertexDataList.AddRange(new float[] { yAxisC.R / 255f, yAxisC.G / 255f, yAxisC.B / 255f, 1f });
 
                     glMesh.VertexCount += 6;
                 }
@@ -212,12 +217,15 @@ namespace ToolsForKFIV.Utility
                 Model.Mesh mesh = m.GetMesh(i);
                 GLMesh glMesh = new GLMesh();
 
+                Vector3f meshP = mesh.transform.position;
+                meshP = new Vector3f(meshP.X / 512f, -meshP.Y / 512f, -meshP.Z / 512f);
+
                 foreach (Model.Triangle tri in mesh.triangles)
                 {
                     for (int j = 0; j < 3; ++j)
                     {
                         Model.Vertex V = m.GetVertex(tri.vIndices[j]);
-                        VertexDataList.AddRange(new float[] { V.X, V.Y, V.Z });
+                        VertexDataList.AddRange(new float[] { meshP.X + V.X, meshP.Y + V.Y, meshP.Z + V.Z });
 
                         Model.Normal N = m.GetNormal(tri.nIndices[j]);
                         VertexDataList.AddRange(new float[] { N.X, N.Y, N.Z });

@@ -1,8 +1,9 @@
 ﻿using System;
-using FormatKFIV.Utility;
-
-using FormatKFIV.Asset;
 using System.Collections.Generic;
+
+using FormatKFIV.Utility;
+using FormatKFIV.Asset;
+
 
 namespace FormatKFIV.FileFormat
 {

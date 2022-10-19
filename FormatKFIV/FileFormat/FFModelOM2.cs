@@ -140,11 +140,11 @@ namespace FormatKFIV.FileFormat
 
             using (InputStream ins = new InputStream(buffer))
             {
-                return ImportOM2(ins);
+                return ImportOM2(ins, null);
             }
         }
 
-        public Model ImportOM2(InputStream ins)
+        public Model ImportOM2(InputStream ins, FFModelOMD.OMDModel? omd = null)
         {
             long insPosition = ins.Position();
 
@@ -222,13 +222,13 @@ namespace FormatKFIV.FileFormat
                         {
                             vertices[j] = new OM2Vertex
                             {
-                                PX = ins.ReadSingle(),
-                                PY = ins.ReadSingle(),
-                                PZ = ins.ReadSingle(),
+                                PX = ins.ReadSingle() / 256f,
+                                PY = -ins.ReadSingle() / 256f,
+                                PZ = -ins.ReadSingle() / 256f,
                                 PW = ins.ReadSingle(),
                                 NX = ins.ReadSingle(),
-                                NY = ins.ReadSingle(),
-                                NZ = ins.ReadSingle(),
+                                NY = -ins.ReadSingle(),
+                                NZ = -ins.ReadSingle(),
                                 NW = ins.ReadSingle(),
                                 TU = ins.ReadSingle(),
                                 TV = ins.ReadSingle(),
@@ -239,8 +239,6 @@ namespace FormatKFIV.FileFormat
                                 CB = ins.ReadSingle(),
                                 CA = ins.ReadSingle()
                             };
-
-                            Console.WriteLine($"X: {vertices[j].PX}, Y: {vertices[j].PY}, Z: {vertices[j].PZ}");
                         }
 
                         primitive.unknown0xN0 = ins.ReadUInt64();
@@ -257,10 +255,41 @@ namespace FormatKFIV.FileFormat
                 ins.Seek(insPosition + header.length, System.IO.SeekOrigin.Begin);
 
                 //Convert OM2
+                int om2MeshId = 0;
                 foreach(OM2Mesh om2Mesh in meshes)
                 {
                     Model.Mesh mesh = new Model.Mesh();
                     List<Model.Triangle> triangles = new List<Model.Triangle>();
+
+                    //Copy Transform of OMD
+                    if (omd.HasValue)
+                    {
+                        FFModelOMD.OMDModel omdV = omd.Value;
+
+                        FFModelOMD.OMDMesh omdMesh = omdV.meshes[0];
+                        if (om2MeshId < omdV.header.numMesh)
+                        {
+                            omdMesh = omdV.meshes[om2MeshId];
+                        }
+
+                        mesh.transform = new Model.Transform
+                        {
+                            position = omdMesh.translation,
+                            rotation = omdMesh.rotation,
+                            scale = omdMesh.scale
+                        };
+
+                        Console.WriteLine(mesh.transform.position.ToString());
+                    }
+                    else
+                    {
+                        mesh.transform = new Model.Transform
+                        {
+                            position = Vector3f.Zero,
+                            rotation = Vector3f.Zero,
+                            scale = Vector3f.One
+                        };
+                    }
 
                     foreach (OM2Primitive om2Prim in om2Mesh.primitives)
                     {
@@ -281,7 +310,7 @@ namespace FormatKFIV.FileFormat
                             }
 
                             //Tristrip break
-                            if(om2Vertices[2].NW == -32768)
+                            if(om2Vertices[2].NW != 0)
                             {
                                 i += 1;
                                 continue;
@@ -329,6 +358,8 @@ namespace FormatKFIV.FileFormat
                     triangles.Clear();
 
                     om2Out.AddMesh(mesh);
+
+                    om2MeshId++;
                 }
             }
             catch (Exception Ex)

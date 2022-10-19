@@ -18,14 +18,11 @@ namespace ToolsForKFIV
         /// <summary>Stores data files</summary>
         public static VirtualFileSystem vfs = new VirtualFileSystem();
 
-        /// <summary>Stores content of the main KFIV.DAT</summary>
-        //public static FFResourceDAT KFIVDAT = null;
-
-        /// <summary>Stores content of the executable</summary>
-        //public static FIExecutable  KFIVEXE = null;
-
         ///<summary>Stores pretty names</summary>
         public static FFPrettyNames PrettyNamesData = null;
+
+        ///<summary>Stores settings</summary>
+        public static Settings settings = null;
 
         ///<summary>Stores path to exe</summary>
         public static string ProgramDirectory;
@@ -44,12 +41,16 @@ namespace ToolsForKFIV
             PrettyNamesData.Initialize();
             PrettyNamesData.LoadPrettyNames(ProgramDirectory + "Resource\\prettynames.csv");
 
+            //Load Settings
+            settings = Settings.LoadConfiguration();
+
             //Initialize Model Handlers
             formatsModel = new List<FIFormat<Model>>();
             formatsModel.Add(new FFModelICO());
             formatsModel.Add(new FFModelOMD());
             formatsModel.Add(new FFModelOM2());
             formatsModel.Add(new FFModelMOD());
+            formatsModel.Add(new FFModelCHR());
 
             formatsModel.Add(new FFModelOBJ());
 

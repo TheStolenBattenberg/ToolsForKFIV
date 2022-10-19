@@ -2,23 +2,40 @@
 using System.Collections.Generic;
 using System.Text;
 
+using System.Drawing;
+
 namespace FormatKFIV.Utility
 {
     /// <summary>Colour class stores a colour. Pretty obvious right?</summary>
-    public class Colour
+    public struct Colour
     {
-        //Properties
+        public byte R;
+        public byte G;
+        public byte B;
+        public byte A;
 
-
-        //Members
-        private float[] RGB;
-        private float[] HSV;
-        private float[] HSL;
-        private float Alpha;
-
-        public static void RGBtoHSV(float r, float g, float b)
+        public static Colour FromARGB(byte A, byte R, byte G, byte B)
         {
-            return;
+            Colour outC = new Colour();
+            outC.R = R;
+            outC.G = G;
+            outC.B = B;
+            outC.A = A;
+            return outC;
+        }
+        public static Colour FromColor(Color c)
+        {
+            Colour outC = new Colour();
+            outC.R = c.R;
+            outC.G = c.G;
+            outC.B = c.B;
+            outC.A = c.A;
+            return outC;
+        }
+        
+        public Color ToColor()
+        {
+            return Color.FromArgb(A, R, G, B);
         }
     }
 }

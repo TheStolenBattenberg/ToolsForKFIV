@@ -37,22 +37,33 @@ namespace ToolsForKFIV.UI
             this.cbPrettifyAssetNames = new System.Windows.Forms.CheckBox();
             this.wsImageViewer = new System.Windows.Forms.TabPage();
             this.wsModelViewer = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.gbMVSEnables = new System.Windows.Forms.GroupBox();
+            this.gbMVSColours = new System.Windows.Forms.GroupBox();
+            this.wsZAColPreview = new System.Windows.Forms.Panel();
+            this.wsLBZACol = new System.Windows.Forms.Label();
+            this.wsBtSetZA = new System.Windows.Forms.Button();
+            this.wsYAColPreview = new System.Windows.Forms.Panel();
+            this.wsLBYACol = new System.Windows.Forms.Label();
+            this.wsBtSetYA = new System.Windows.Forms.Button();
+            this.wsXAColPreview = new System.Windows.Forms.Panel();
+            this.wsLBXACol = new System.Windows.Forms.Label();
+            this.wsBtSetXA = new System.Windows.Forms.Button();
             this.wsBGColPreview = new System.Windows.Forms.Panel();
+            this.wsLBBGCol = new System.Windows.Forms.Label();
             this.wsBtnSetBGCol = new System.Windows.Forms.Button();
             this.ttprettifyassetnames = new System.Windows.Forms.ToolTip(this.components);
             this.wsColourPicker = new System.Windows.Forms.ColorDialog();
-            this.wsBtSetXA = new System.Windows.Forms.Button();
-            this.wsXAColPreview = new System.Windows.Forms.Panel();
-            this.wsLBXACol = new System.Windows.Forms.Label();
-            this.wsLBBGCol = new System.Windows.Forms.Label();
+            this.cbDisplayGridAxis = new System.Windows.Forms.CheckBox();
             this.wsTabView.SuspendLayout();
             this.wsTabFileSettings.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.wsModelViewer.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.wsBGColPreview.SuspendLayout();
+            this.gbMVSEnables.SuspendLayout();
+            this.gbMVSColours.SuspendLayout();
+            this.wsZAColPreview.SuspendLayout();
+            this.wsYAColPreview.SuspendLayout();
             this.wsXAColPreview.SuspendLayout();
+            this.wsBGColPreview.SuspendLayout();
             this.SuspendLayout();
             // 
             // wsTabView
@@ -110,7 +121,8 @@ namespace ToolsForKFIV.UI
             // 
             // wsModelViewer
             // 
-            this.wsModelViewer.Controls.Add(this.groupBox2);
+            this.wsModelViewer.Controls.Add(this.gbMVSEnables);
+            this.wsModelViewer.Controls.Add(this.gbMVSColours);
             this.wsModelViewer.Location = new System.Drawing.Point(4, 24);
             this.wsModelViewer.Name = "wsModelViewer";
             this.wsModelViewer.Size = new System.Drawing.Size(792, 422);
@@ -118,47 +130,96 @@ namespace ToolsForKFIV.UI
             this.wsModelViewer.Text = "Model Viewer Settings";
             this.wsModelViewer.UseVisualStyleBackColor = true;
             // 
-            // groupBox2
+            // gbMVSEnables
             // 
-            this.groupBox2.Controls.Add(this.wsXAColPreview);
-            this.groupBox2.Controls.Add(this.wsBtSetXA);
-            this.groupBox2.Controls.Add(this.wsBGColPreview);
-            this.groupBox2.Controls.Add(this.wsBtnSetBGCol);
-            this.groupBox2.Location = new System.Drawing.Point(4, 4);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(785, 415);
-            this.groupBox2.TabIndex = 1;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Settings modifiying the model viewing tool";
+            this.gbMVSEnables.Controls.Add(this.cbDisplayGridAxis);
+            this.gbMVSEnables.Location = new System.Drawing.Point(4, 142);
+            this.gbMVSEnables.Name = "gbMVSEnables";
+            this.gbMVSEnables.Size = new System.Drawing.Size(785, 139);
+            this.gbMVSEnables.TabIndex = 2;
+            this.gbMVSEnables.TabStop = false;
+            this.gbMVSEnables.Text = "Change features of the model viewer";
             // 
-            // wsBGColPreview
+            // gbMVSColours
             // 
-            this.wsBGColPreview.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(11)))), ((int)(((byte)(23)))));
-            this.wsBGColPreview.Controls.Add(this.wsLBBGCol);
-            this.wsBGColPreview.Location = new System.Drawing.Point(162, 22);
-            this.wsBGColPreview.Name = "wsBGColPreview";
-            this.wsBGColPreview.Size = new System.Drawing.Size(618, 23);
-            this.wsBGColPreview.TabIndex = 1;
+            this.gbMVSColours.Controls.Add(this.wsZAColPreview);
+            this.gbMVSColours.Controls.Add(this.wsBtSetZA);
+            this.gbMVSColours.Controls.Add(this.wsYAColPreview);
+            this.gbMVSColours.Controls.Add(this.wsBtSetYA);
+            this.gbMVSColours.Controls.Add(this.wsXAColPreview);
+            this.gbMVSColours.Controls.Add(this.wsBtSetXA);
+            this.gbMVSColours.Controls.Add(this.wsBGColPreview);
+            this.gbMVSColours.Controls.Add(this.wsBtnSetBGCol);
+            this.gbMVSColours.Location = new System.Drawing.Point(4, 4);
+            this.gbMVSColours.Name = "gbMVSColours";
+            this.gbMVSColours.Size = new System.Drawing.Size(785, 139);
+            this.gbMVSColours.TabIndex = 1;
+            this.gbMVSColours.TabStop = false;
+            this.gbMVSColours.Text = "Change the colours of the model viewer";
             // 
-            // wsBtnSetBGCol
+            // wsZAColPreview
             // 
-            this.wsBtnSetBGCol.Location = new System.Drawing.Point(6, 22);
-            this.wsBtnSetBGCol.Name = "wsBtnSetBGCol";
-            this.wsBtnSetBGCol.Size = new System.Drawing.Size(150, 23);
-            this.wsBtnSetBGCol.TabIndex = 0;
-            this.wsBtnSetBGCol.Text = "Set Background Colour";
-            this.wsBtnSetBGCol.UseVisualStyleBackColor = true;
-            this.wsBtnSetBGCol.Click += new System.EventHandler(this.button1_Click);
+            this.wsZAColPreview.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(67)))), ((int)(((byte)(54)))));
+            this.wsZAColPreview.Controls.Add(this.wsLBZACol);
+            this.wsZAColPreview.Location = new System.Drawing.Point(162, 109);
+            this.wsZAColPreview.Name = "wsZAColPreview";
+            this.wsZAColPreview.Size = new System.Drawing.Size(618, 23);
+            this.wsZAColPreview.TabIndex = 5;
             // 
-            // wsBtSetXA
+            // wsLBZACol
             // 
-            this.wsBtSetXA.Location = new System.Drawing.Point(6, 51);
-            this.wsBtSetXA.Name = "wsBtSetXA";
-            this.wsBtSetXA.Size = new System.Drawing.Size(150, 23);
-            this.wsBtSetXA.TabIndex = 2;
-            this.wsBtSetXA.Text = "Set X Axis Colour";
-            this.wsBtSetXA.UseVisualStyleBackColor = true;
-            this.wsBtSetXA.Click += new System.EventHandler(this.wsBtSetXA_Click);
+            this.wsLBZACol.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.wsLBZACol.AutoSize = true;
+            this.wsLBZACol.Location = new System.Drawing.Point(267, 4);
+            this.wsLBZACol.Name = "wsLBZACol";
+            this.wsLBZACol.Size = new System.Drawing.Size(91, 15);
+            this.wsLBZACol.TabIndex = 0;
+            this.wsLBZACol.Text = "Z AXIS COLOUR";
+            this.wsLBZACol.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // wsBtSetZA
+            // 
+            this.wsBtSetZA.Location = new System.Drawing.Point(6, 109);
+            this.wsBtSetZA.Name = "wsBtSetZA";
+            this.wsBtSetZA.Size = new System.Drawing.Size(150, 23);
+            this.wsBtSetZA.TabIndex = 5;
+            this.wsBtSetZA.Text = "Set Z Axis Colour";
+            this.wsBtSetZA.UseVisualStyleBackColor = true;
+            this.wsBtSetZA.Click += new System.EventHandler(this.wsBtSetZA_Click);
+            // 
+            // wsYAColPreview
+            // 
+            this.wsYAColPreview.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(67)))), ((int)(((byte)(54)))));
+            this.wsYAColPreview.Controls.Add(this.wsLBYACol);
+            this.wsYAColPreview.Location = new System.Drawing.Point(162, 80);
+            this.wsYAColPreview.Name = "wsYAColPreview";
+            this.wsYAColPreview.Size = new System.Drawing.Size(618, 23);
+            this.wsYAColPreview.TabIndex = 4;
+            // 
+            // wsLBYACol
+            // 
+            this.wsLBYACol.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.wsLBYACol.AutoSize = true;
+            this.wsLBYACol.Location = new System.Drawing.Point(267, 4);
+            this.wsLBYACol.Name = "wsLBYACol";
+            this.wsLBYACol.Size = new System.Drawing.Size(91, 15);
+            this.wsLBYACol.TabIndex = 0;
+            this.wsLBYACol.Text = "Y AXIS COLOUR";
+            this.wsLBYACol.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // wsBtSetYA
+            // 
+            this.wsBtSetYA.Location = new System.Drawing.Point(6, 80);
+            this.wsBtSetYA.Name = "wsBtSetYA";
+            this.wsBtSetYA.Size = new System.Drawing.Size(150, 23);
+            this.wsBtSetYA.TabIndex = 3;
+            this.wsBtSetYA.Text = "Set Y Axis Colour";
+            this.wsBtSetYA.UseVisualStyleBackColor = true;
+            this.wsBtSetYA.Click += new System.EventHandler(this.wsBtSetYA_Click);
             // 
             // wsXAColPreview
             // 
@@ -182,6 +243,25 @@ namespace ToolsForKFIV.UI
             this.wsLBXACol.Text = "X AXIS COLOUR";
             this.wsLBXACol.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // wsBtSetXA
+            // 
+            this.wsBtSetXA.Location = new System.Drawing.Point(6, 51);
+            this.wsBtSetXA.Name = "wsBtSetXA";
+            this.wsBtSetXA.Size = new System.Drawing.Size(150, 23);
+            this.wsBtSetXA.TabIndex = 2;
+            this.wsBtSetXA.Text = "Set X Axis Colour";
+            this.wsBtSetXA.UseVisualStyleBackColor = true;
+            this.wsBtSetXA.Click += new System.EventHandler(this.wsBtSetXA_Click);
+            // 
+            // wsBGColPreview
+            // 
+            this.wsBGColPreview.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(11)))), ((int)(((byte)(23)))));
+            this.wsBGColPreview.Controls.Add(this.wsLBBGCol);
+            this.wsBGColPreview.Location = new System.Drawing.Point(162, 22);
+            this.wsBGColPreview.Name = "wsBGColPreview";
+            this.wsBGColPreview.Size = new System.Drawing.Size(618, 23);
+            this.wsBGColPreview.TabIndex = 1;
+            // 
             // wsLBBGCol
             // 
             this.wsLBBGCol.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -195,6 +275,26 @@ namespace ToolsForKFIV.UI
             this.wsLBBGCol.Text = "BACKGROUND COLOUR";
             this.wsLBBGCol.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // wsBtnSetBGCol
+            // 
+            this.wsBtnSetBGCol.Location = new System.Drawing.Point(6, 22);
+            this.wsBtnSetBGCol.Name = "wsBtnSetBGCol";
+            this.wsBtnSetBGCol.Size = new System.Drawing.Size(150, 23);
+            this.wsBtnSetBGCol.TabIndex = 0;
+            this.wsBtnSetBGCol.Text = "Set Background Colour";
+            this.wsBtnSetBGCol.UseVisualStyleBackColor = true;
+            this.wsBtnSetBGCol.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // cbDisplayGridAxis
+            // 
+            this.cbDisplayGridAxis.AutoSize = true;
+            this.cbDisplayGridAxis.Location = new System.Drawing.Point(6, 22);
+            this.cbDisplayGridAxis.Name = "cbDisplayGridAxis";
+            this.cbDisplayGridAxis.Size = new System.Drawing.Size(154, 19);
+            this.cbDisplayGridAxis.TabIndex = 1;
+            this.cbDisplayGridAxis.Text = "Display Grid and 3D Axis";
+            this.cbDisplayGridAxis.UseVisualStyleBackColor = true;
+            // 
             // WinSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -204,16 +304,23 @@ namespace ToolsForKFIV.UI
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "WinSettings";
             this.Text = "Tools For KFIV - Settings";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.WinSettings_FormClosed);
             this.wsTabView.ResumeLayout(false);
             this.wsTabFileSettings.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.wsModelViewer.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.wsBGColPreview.ResumeLayout(false);
-            this.wsBGColPreview.PerformLayout();
+            this.gbMVSEnables.ResumeLayout(false);
+            this.gbMVSEnables.PerformLayout();
+            this.gbMVSColours.ResumeLayout(false);
+            this.wsZAColPreview.ResumeLayout(false);
+            this.wsZAColPreview.PerformLayout();
+            this.wsYAColPreview.ResumeLayout(false);
+            this.wsYAColPreview.PerformLayout();
             this.wsXAColPreview.ResumeLayout(false);
             this.wsXAColPreview.PerformLayout();
+            this.wsBGColPreview.ResumeLayout(false);
+            this.wsBGColPreview.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -227,7 +334,7 @@ namespace ToolsForKFIV.UI
         private System.Windows.Forms.CheckBox cbPrettifyAssetNames;
         private System.Windows.Forms.ToolTip ttprettifyassetnames;
         private System.Windows.Forms.TabPage wsModelViewer;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox gbMVSColours;
         private System.Windows.Forms.Button wsBtnSetBGCol;
         private System.Windows.Forms.ColorDialog wsColourPicker;
         private System.Windows.Forms.Panel wsBGColPreview;
@@ -235,5 +342,13 @@ namespace ToolsForKFIV.UI
         private System.Windows.Forms.Button wsBtSetXA;
         private System.Windows.Forms.Label wsLBXACol;
         private System.Windows.Forms.Label wsLBBGCol;
+        private System.Windows.Forms.Button wsBtSetYA;
+        private System.Windows.Forms.Button wsBtSetZA;
+        private System.Windows.Forms.Panel wsZAColPreview;
+        private System.Windows.Forms.Label wsLBZACol;
+        private System.Windows.Forms.Panel wsYAColPreview;
+        private System.Windows.Forms.Label wsLBYACol;
+        private System.Windows.Forms.GroupBox gbMVSEnables;
+        private System.Windows.Forms.CheckBox cbDisplayGridAxis;
     }
 }

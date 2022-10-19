@@ -6,10 +6,12 @@ using OpenTK.Mathematics;
 
 using FormatKFIV.Asset;
 using FormatKFIV.FileFormat;
+using FormatKFIV.Utility;
 
 using ToolsForKFIV.Utility;
-
 using ToolsForKFIV.Rendering;
+
+using ToolsForKFIV.UI.SceneNodeWidget;
 
 namespace ToolsForKFIV.UI.Control
 {
@@ -26,10 +28,8 @@ namespace ToolsForKFIV.UI.Control
         private bool mouseOnWindow = false;
 
         private Matrix4 matView, matProjection;
-        private Scene currentScene = null;
-        private SceneDraw drawFlags = SceneDraw.Default;
 
-        //NEW!!!
+        Scene currentScene = null;
         IScene scene = null;
 
         public ToolFFScene()
@@ -49,6 +49,54 @@ namespace ToolsForKFIV.UI.Control
 
             currentScene = newScene;
             scene = new Scene3D(currentScene);
+
+            //Populate Scene Node View
+            stSceneNodeTree.Nodes.Clear();
+
+            foreach(ISceneNode sceneNode in scene.Nodes)
+            {
+                RecursiveTreeViewNodes(null, sceneNode);
+            }
+        }
+
+        private void RecursiveTreeViewNodes(TreeNode treeNode, ISceneNode sceneNode)
+        {
+            TreeNode node = null;
+            switch (sceneNode)
+            {
+                case SceneNodeCollection snc:
+
+                    if (treeNode == null)
+                    {
+                        node = stSceneNodeTree.Nodes.Add(sceneNode.Name, sceneNode.Name);
+                        node.Tag = sceneNode;
+                    }
+                    else
+                    {
+                        node =  treeNode.Nodes.Add(sceneNode.Name, sceneNode.Name);
+                        node.Tag = sceneNode;
+                    }
+
+                    foreach (ISceneNode childNode in snc.Children)
+                    {
+                        RecursiveTreeViewNodes(node, childNode);
+                    }
+
+                    break;
+
+                default:
+                    if (treeNode == null)
+                    {
+                        node = stSceneNodeTree.Nodes.Add(sceneNode.Name, sceneNode.Name);
+                        node.Tag = sceneNode;
+                    }
+                    else
+                    {
+                        node = treeNode.Nodes.Add(sceneNode.Name, sceneNode.Name);
+                        node.Tag = sceneNode;
+                    }
+                    break;
+            }
         }
 
         #region Preview Events
@@ -71,6 +119,28 @@ namespace ToolsForKFIV.UI.Control
             glSceneTextures[1] = GLTexture.Generate44White();
         }
 
+        private void stSceneNodeTree_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            ISceneNode node = (ISceneNode)e.Node.Tag;
+
+            propertyGrid1.SelectedObject = node;
+        }
+
+        private void stSceneNodeTree_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            stPreviewGL.Invalidate();
+        }
+
+        private void propertyGrid1_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+
+        }
+
         private void stPreviewGL_Resize(object sender, EventArgs e)
         {
             stPreviewGL.MakeCurrent();
@@ -85,7 +155,7 @@ namespace ToolsForKFIV.UI.Control
         private void stPreviewGL_Paint(object sender, PaintEventArgs e)
         {
             stPreviewGL.MakeCurrent();
-            GL.ClearColor(Settings.mtBgCC);
+            GL.ClearColor(ResourceManager.settings.mtBgCC.ToColor());
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
             GL.CullFace(CullFaceMode.Back);

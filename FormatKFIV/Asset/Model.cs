@@ -113,6 +113,7 @@ namespace FormatKFIV.Asset
         {
             public uint numTriangle;
             public Triangle[] triangles;
+            public Transform transform;
         }
 
         /// <summary>Transformation Data</summary>

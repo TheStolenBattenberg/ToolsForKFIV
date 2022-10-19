@@ -160,7 +160,7 @@ namespace ToolsForKFIV.UI.Control
 
             //Do OpenGL
             tmOGL.MakeCurrent();
-            GL.ClearColor(Settings.mtBgCC);
+            GL.ClearColor(ResourceManager.settings.mtBgCC.ToColor());
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.Enable(EnableCap.DepthTest);
@@ -169,8 +169,10 @@ namespace ToolsForKFIV.UI.Control
             shader3DColour.Bind();
             shader3DColour.SetUniformMat4("cameraMatrix", matrixView * matrixProjection, false);
             
-            modelGrid.DrawLines();
-            //modelAxis.DrawLines();
+            if (ResourceManager.settings.mtShowGridAxis)
+            {
+                modelGrid.DrawLines();
+            }
 
             //Draw Loaded File
             if (modelFile != null)

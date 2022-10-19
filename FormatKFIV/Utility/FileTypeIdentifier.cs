@@ -54,6 +54,7 @@ namespace FormatKFIV.Utility
                     return FileFormatType.Model;
 
                 case ".mod":
+                case ".chr":
                     return FileFormatType.Archive;
 
             }

@@ -40,6 +40,9 @@ namespace ToolsForKFIV.UI.Control
             this.stTSEnableLight = new System.Windows.Forms.ToolStripMenuItem();
             this.stTSEnableCollision = new System.Windows.Forms.ToolStripMenuItem();
             this.stPreviewGL = new OpenTK.WinForms.GLControl();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.stSceneNodeTree = new System.Windows.Forms.TreeView();
+            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.stPropertiesTab = new System.Windows.Forms.TabPage();
             this.stExportTab = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -47,8 +50,10 @@ namespace ToolsForKFIV.UI.Control
             this.stPreviewTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.stPreviewSplit1)).BeginInit();
             this.stPreviewSplit1.Panel1.SuspendLayout();
+            this.stPreviewSplit1.Panel2.SuspendLayout();
             this.stPreviewSplit1.SuspendLayout();
             this.stToolStrip.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -77,7 +82,7 @@ namespace ToolsForKFIV.UI.Control
             // 
             // stPreviewSplit1
             // 
-            this.stPreviewSplit1.Cursor = System.Windows.Forms.Cursors.VSplit;
+            this.stPreviewSplit1.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.stPreviewSplit1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stPreviewSplit1.Location = new System.Drawing.Point(3, 3);
             this.stPreviewSplit1.Name = "stPreviewSplit1";
@@ -86,6 +91,11 @@ namespace ToolsForKFIV.UI.Control
             // 
             this.stPreviewSplit1.Panel1.Controls.Add(this.stToolStrip);
             this.stPreviewSplit1.Panel1.Controls.Add(this.stPreviewGL);
+            this.stPreviewSplit1.Panel1.Cursor = System.Windows.Forms.Cursors.Arrow;
+            // 
+            // stPreviewSplit1.Panel2
+            // 
+            this.stPreviewSplit1.Panel2.Controls.Add(this.tableLayoutPanel1);
             this.stPreviewSplit1.Size = new System.Drawing.Size(498, 475);
             this.stPreviewSplit1.SplitterDistance = 364;
             this.stPreviewSplit1.TabIndex = 0;
@@ -121,7 +131,7 @@ namespace ToolsForKFIV.UI.Control
             this.stTSEnableObj.CheckOnClick = true;
             this.stTSEnableObj.CheckState = System.Windows.Forms.CheckState.Checked;
             this.stTSEnableObj.Name = "stTSEnableObj";
-            this.stTSEnableObj.Size = new System.Drawing.Size(180, 22);
+            this.stTSEnableObj.Size = new System.Drawing.Size(158, 22);
             this.stTSEnableObj.Text = "Enable Objects";
             // 
             // stTSEnableLight
@@ -130,7 +140,7 @@ namespace ToolsForKFIV.UI.Control
             this.stTSEnableLight.CheckOnClick = true;
             this.stTSEnableLight.CheckState = System.Windows.Forms.CheckState.Checked;
             this.stTSEnableLight.Name = "stTSEnableLight";
-            this.stTSEnableLight.Size = new System.Drawing.Size(180, 22);
+            this.stTSEnableLight.Size = new System.Drawing.Size(158, 22);
             this.stTSEnableLight.Text = "Enable Lights";
             // 
             // stTSEnableCollision
@@ -139,7 +149,7 @@ namespace ToolsForKFIV.UI.Control
             this.stTSEnableCollision.CheckOnClick = true;
             this.stTSEnableCollision.CheckState = System.Windows.Forms.CheckState.Checked;
             this.stTSEnableCollision.Name = "stTSEnableCollision";
-            this.stTSEnableCollision.Size = new System.Drawing.Size(180, 22);
+            this.stTSEnableCollision.Size = new System.Drawing.Size(158, 22);
             this.stTSEnableCollision.Text = "Enable Collision";
             // 
             // stPreviewGL
@@ -149,6 +159,7 @@ namespace ToolsForKFIV.UI.Control
             | System.Windows.Forms.AnchorStyles.Right)));
             this.stPreviewGL.API = OpenTK.Windowing.Common.ContextAPI.OpenGL;
             this.stPreviewGL.APIVersion = new System.Version(3, 3, 0, 0);
+            this.stPreviewGL.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.stPreviewGL.Flags = OpenTK.Windowing.Common.ContextFlags.Default;
             this.stPreviewGL.IsEventDriven = true;
             this.stPreviewGL.Location = new System.Drawing.Point(-3, 25);
@@ -162,6 +173,44 @@ namespace ToolsForKFIV.UI.Control
             this.stPreviewGL.Paint += new System.Windows.Forms.PaintEventHandler(this.stPreviewGL_Paint);
             this.stPreviewGL.MouseMove += new System.Windows.Forms.MouseEventHandler(this.stPreviewGL_MouseMove);
             this.stPreviewGL.Resize += new System.EventHandler(this.stPreviewGL_Resize);
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.AutoSize = true;
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.stSceneNodeTree, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.propertyGrid1, 0, 1);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 36.63158F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 63.36842F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(130, 475);
+            this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // stSceneNodeTree
+            // 
+            this.stSceneNodeTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stSceneNodeTree.Location = new System.Drawing.Point(3, 3);
+            this.stSceneNodeTree.Name = "stSceneNodeTree";
+            this.stSceneNodeTree.Size = new System.Drawing.Size(124, 168);
+            this.stSceneNodeTree.TabIndex = 0;
+            this.stSceneNodeTree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.stSceneNodeTree_NodeMouseClick);
+            this.stSceneNodeTree.KeyDown += new System.Windows.Forms.KeyEventHandler(this.stSceneNodeTree_KeyDown);
+            // 
+            // propertyGrid1
+            // 
+            this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertyGrid1.Location = new System.Drawing.Point(3, 177);
+            this.propertyGrid1.Name = "propertyGrid1";
+            this.propertyGrid1.PropertySort = System.Windows.Forms.PropertySort.Categorized;
+            this.propertyGrid1.Size = new System.Drawing.Size(124, 295);
+            this.propertyGrid1.TabIndex = 1;
+            this.propertyGrid1.ToolbarVisible = false;
+            this.propertyGrid1.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid1_PropertyValueChanged);
+            this.propertyGrid1.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.propertyGrid1_PreviewKeyDown);
             // 
             // stPropertiesTab
             // 
@@ -199,10 +248,13 @@ namespace ToolsForKFIV.UI.Control
             this.stPreviewTab.ResumeLayout(false);
             this.stPreviewSplit1.Panel1.ResumeLayout(false);
             this.stPreviewSplit1.Panel1.PerformLayout();
+            this.stPreviewSplit1.Panel2.ResumeLayout(false);
+            this.stPreviewSplit1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.stPreviewSplit1)).EndInit();
             this.stPreviewSplit1.ResumeLayout(false);
             this.stToolStrip.ResumeLayout(false);
             this.stToolStrip.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -221,5 +273,8 @@ namespace ToolsForKFIV.UI.Control
         private System.Windows.Forms.ToolStripMenuItem stTSEnableObj;
         private System.Windows.Forms.ToolStripMenuItem stTSEnableLight;
         private System.Windows.Forms.ToolStripMenuItem stTSEnableCollision;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TreeView stSceneNodeTree;
+        private System.Windows.Forms.PropertyGrid propertyGrid1;
     }
 }
