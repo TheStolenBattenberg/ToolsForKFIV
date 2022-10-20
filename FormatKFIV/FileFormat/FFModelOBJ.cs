@@ -44,7 +44,7 @@ namespace FormatKFIV.FileFormat
                 //Write Model Vertices.
                 for (int i = 0; i < data.VertexCount; ++i)
                 {
-                    Model.Vertex v = data.GetVertex(i);
+                    Model.Components v = data.Vertices[i];
 
                     //Write Vertex Line
                     sr.Write("v ");
@@ -59,7 +59,7 @@ namespace FormatKFIV.FileFormat
                 //Write Model Normals
                 for (int i = 0; i < data.NormalCount; ++i)
                 {
-                    Model.Normal n = data.GetNormal(i);
+                    Model.Components n = data.Normals[i];
 
                     //Write Vertex Line
                     sr.Write("vn ");
@@ -74,12 +74,12 @@ namespace FormatKFIV.FileFormat
                 //Write Model Texcoords
                 for (int i = 0; i < data.NormalCount; ++i)
                 {
-                    Model.Texcoord tc = data.GetTexcoord(i);
+                    Model.Components t = data.Texcoords[i];
 
                     //Write Vertex Line
                     sr.Write("vt ");
-                    sr.Write(tc.U.ToString("0.00000000", CultureInfo.InvariantCulture) + " ");
-                    sr.Write(tc.V.ToString("0.00000000", CultureInfo.InvariantCulture));
+                    sr.Write(t.U.ToString("0.00000000", CultureInfo.InvariantCulture) + " ");
+                    sr.Write(t.V.ToString("0.00000000", CultureInfo.InvariantCulture));
                     sr.WriteLine();
                 }
                 sr.WriteLine("# Texcoord Count = " + data.NormalCount.ToString());
@@ -88,29 +88,37 @@ namespace FormatKFIV.FileFormat
                 //Write Model Groups
                 for(int i = 0; i < data.MeshCount; ++i)
                 {
-                    Model.Mesh m = data.GetMesh(i);
+                    Model.Mesh m = data.Meshes[i];
+
                     //Group Header
                     sr.WriteLine("g Mesh" + i.ToString("D4"));
                     
                     //Faces
-                    for(int j = 0; j < m.numTriangle; ++j)
+                    for(int j = 0; j < m.PrimitiveCount; ++j)
                     {
-                        Model.Triangle tri = m.triangles[j];
+                        switch(m.primitives[j])
+                        {
+                            case Model.TrianglePrimitive tri:
+                                sr.Write("f ");
+                                sr.Write((1 + tri.Indices[0]).ToString() + "/");
+                                sr.Write((1 + tri.Indices[1]).ToString() + "/");
+                                sr.Write((1 + tri.Indices[2]).ToString() + " ");
+                                sr.Write((1 + tri.Indices[6]).ToString() + "/");
+                                sr.Write((1 + tri.Indices[7]).ToString() + "/");
+                                sr.Write((1 + tri.Indices[8]).ToString() + " ");
+                                sr.Write((1 + tri.Indices[3]).ToString() + "/");
+                                sr.Write((1 + tri.Indices[4]).ToString() + "/");
+                                sr.Write((1 + tri.Indices[5]).ToString() + " ");
+                                sr.WriteLine();
+                                break;
 
-                        sr.Write("f ");
-                        sr.Write((tri.vIndices[0] + 1).ToString() + "/");
-                        sr.Write((tri.tIndices[0] + 1).ToString() + "/");
-                        sr.Write((tri.nIndices[0] + 1).ToString() + " ");
-                        sr.Write((tri.vIndices[1] + 1).ToString() + "/");
-                        sr.Write((tri.tIndices[1] + 1).ToString() + "/");
-                        sr.Write((tri.nIndices[1] + 1).ToString() + " ");
-                        sr.Write((tri.vIndices[2] + 1).ToString() + "/");
-                        sr.Write((tri.tIndices[2] + 1).ToString() + "/");
-                        sr.Write((tri.nIndices[2] + 1).ToString());
-                        sr.WriteLine();
+                            default:
+                                Console.WriteLine("Cannot export non triangle primitive types to Wavefront Object!");
+                                break;
+                        }
                     }
 
-                    sr.WriteLine("# Triangle Count = " + m.numTriangle.ToString());
+                    sr.WriteLine("# Primitive Count = " + m.PrimitiveCount.ToString());
                     sr.WriteLine();
                 }
             }

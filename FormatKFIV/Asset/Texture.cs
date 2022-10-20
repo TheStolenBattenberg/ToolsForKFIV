@@ -548,14 +548,7 @@ namespace FormatKFIV.Asset
                         data[i + 2] = buffer;
 
                         //PS2 alpha is 0x00 - 0x80, we expand it to regular alpha values here. Could be optimized.
-                        if (fixPS2Alpha)
-                        {
-                            data[i + 3] = (byte)(fixPS2Alpha == false ? 255 : Math.Min(data[i + 3] * 2, 255));
-                        }
-                        else
-                        {
-                            data[i + 3] = 0xFF;
-                        }
+                        data[i + 3] = (byte)(fixPS2Alpha == false ? 255 : Math.Min(data[i + 3] * 2, 255));
 
                         
                     }

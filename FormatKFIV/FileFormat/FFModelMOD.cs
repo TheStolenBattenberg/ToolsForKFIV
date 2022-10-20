@@ -52,16 +52,13 @@ namespace FormatKFIV.FileFormat
         {
             public ushort PId;
             public ushort NId;
-            public byte CR;
-            public byte CG;
-            public byte CB;
-            public byte CA;
+            public uint Unknown0x04;
             public float U;
             public float V;
-            public uint Unknown0x10;
-            public uint Unknown0x14;
-            public uint Unknown0x18;
-            public uint Unknown0x1C;
+            public float CR;
+            public float CG;
+            public float CB;
+            public float CA;
         }
         public struct MODModelVec4
         {
@@ -142,7 +139,7 @@ namespace FormatKFIV.FileFormat
 
         public Model ImportMOD(InputStream ins, out Texture tex)
         {
-            Model   OutM = new Model();
+            Model result = new Model();
             Texture OutT = new Texture();
 
             try
@@ -217,19 +214,14 @@ namespace FormatKFIV.FileFormat
                         {
                             PId = ins.ReadUInt16(),
                             NId = ins.ReadUInt16(),
-                            CR = ins.ReadByte(),
-                            CG = ins.ReadByte(),
-                            CB = ins.ReadByte(),
-                            CA = ins.ReadByte(),
+                            Unknown0x04 = ins.ReadUInt32(),
                             U = ins.ReadSingle(),
                             V = ins.ReadSingle(),
-                            Unknown0x10 = ins.ReadUInt32(),
-                            Unknown0x14 = ins.ReadUInt32(),
-                            Unknown0x18 = ins.ReadUInt32(),
-                            Unknown0x1C = ins.ReadUInt32()
+                            CR = ins.ReadSingle(),
+                            CG = ins.ReadSingle(),
+                            CB = ins.ReadSingle(),
+                            CA = ins.ReadSingle()
                         };
-
-                        Console.WriteLine(modMesh.vertices[j].Unknown0x14);
                     }
 
                     meshes.Add(modMesh);
@@ -244,87 +236,83 @@ namespace FormatKFIV.FileFormat
                 ins.Return();
 
                 //Do MOD -> Model
-                List<Model.Triangle> triangles = new List<Model.Triangle>();
-                Model.Mesh mdlMesh = new Model.Mesh();
+                List<Model.IPrimitiveType> primitives = new List<Model.IPrimitiveType>();
 
-                for (int i = 0; i < meshes.Count; ++i)
+                foreach(MODModelMesh modMesh in meshes)
                 {
-                    MODModelMesh modMesh = meshes[i];
+                    Model.Mesh mesh = new Model.Mesh();
+                    primitives.Clear();
 
-                    //Add Vertices, Normals Etc...
-                    for(int j = 0; j < modMesh.numVertex-2; ++j)
+                    for (int i = 0; i < modMesh.numVertex - 2; ++i)
                     {
                         MODModelVertex V1, V2, V3;
                         Vector4f P1, P2, P3;
                         Vector4f N1, N2, N3;
 
-                        if ((j & 1) == 1)
+                        if((i & 1) == 1)
                         {
-                            V1 = modMesh.vertices[j + 1];
-                            V2 = modMesh.vertices[j + 0];
-                            V3 = modMesh.vertices[j + 2];
-                            P1 = vertices[V1.PId];
-                            P2 = vertices[V2.PId];
-                            P3 = vertices[V3.PId];
-                            N1 = normals[V1.NId];
-                            N2 = normals[V2.NId];
-                            N3 = normals[V3.NId];
+                            V1 = modMesh.vertices[i + 1];
+                            V2 = modMesh.vertices[i + 0];
+                            V3 = modMesh.vertices[i + 2];
                         }
                         else
                         {
-                            V1 = modMesh.vertices[j + 1];
-                            V2 = modMesh.vertices[j + 0];
-                            V3 = modMesh.vertices[j + 2];
-                            P1 = vertices[V1.PId];
-                            P2 = vertices[V2.PId];
-                            P3 = vertices[V3.PId];
-                            N1 = normals[V1.NId];
-                            N2 = normals[V2.NId];
-                            N3 = normals[V3.NId];
+                            V1 = modMesh.vertices[i + 0];
+                            V2 = modMesh.vertices[i + 1];
+                            V3 = modMesh.vertices[i + 2];
                         }
 
-                        Model.Triangle tri = new Model.Triangle
+                        P1 = vertices[V1.PId];
+                        P2 = vertices[V2.PId];
+                        P3 = vertices[V3.PId];
+                        N1 = normals[V1.NId];
+                        N2 = normals[V2.NId];
+                        N3 = normals[V3.NId];
+
+                        //Break tristrips
+                        if (N3.W == -32768)
                         {
-                            vIndices = new ushort[3],
-                            nIndices = new ushort[3],
-                            tIndices = new ushort[3],
-                            cIndices = new ushort[3]
-                        };
+                            i += 1;
+                            continue;
+                        }
 
-                        tri.vIndices[0] = (ushort)OutM.AddVertex(P1.X / 64f, -(P1.Y / 64f), P1.Z / 64f);
-                        tri.vIndices[1] = (ushort)OutM.AddVertex(P2.X / 64f, -(P2.Y / 64f), P2.Z / 64f);
-                        tri.vIndices[2] = (ushort)OutM.AddVertex(P3.X / 64f, -(P3.Y / 64f), P3.Z / 64f);
-                        tri.nIndices[0] = (ushort)OutM.AddNormal(N1.X, N1.Y, N1.Z);
-                        tri.nIndices[1] = (ushort)OutM.AddNormal(N2.X, N2.Y, N2.Z);
-                        tri.nIndices[2] = (ushort)OutM.AddNormal(N3.X, N3.Y, N3.Z);
-                        tri.tIndices[0] = (ushort)OutM.AddTexcoord(V1.U, V1.V);
-                        tri.tIndices[1] = (ushort)OutM.AddTexcoord(V2.U, V2.V);
-                        tri.tIndices[2] = (ushort)OutM.AddTexcoord(V3.U, V3.V);
-                        tri.cIndices[0] = (ushort)OutM.AddColour(1f, 1f, 1f, 1f);
-                        tri.cIndices[1] = (ushort)OutM.AddColour(1f, 1f, 1f, 1f);
-                        tri.cIndices[2] = (ushort)OutM.AddColour(1f, 1f, 1f, 1f);
+                        Model.TrianglePrimitive tri = Model.TrianglePrimitive.New();
+                        tri.Indices[0]  = result.AddVertex(P1.X, -P1.Y, -P1.Z);
+                        tri.Indices[1]  = result.AddVertex(P2.X, -P2.Y, -P2.Z);
+                        tri.Indices[2]  = result.AddVertex(P3.X, -P3.Y, -P3.Z);
+                        tri.Indices[3]  = result.AddNormal(N1.X, -N1.Y, -N1.Z);
+                        tri.Indices[4]  = result.AddNormal(N2.X, -N2.Y, -N2.Z);
+                        tri.Indices[5]  = result.AddNormal(N3.X, -N3.Y, -N3.Z);
+                        tri.Indices[6]  = result.AddTexcoord(V1.U, V1.V);
+                        tri.Indices[7]  = result.AddTexcoord(V2.U, V2.V);
+                        tri.Indices[8]  = result.AddTexcoord(V3.U, V3.V);
+                        tri.Indices[9]  = result.AddColour(V1.CR / 128f, V1.CB / 128f, V1.CG / 128f, V1.CA / 128f);
+                        tri.Indices[10] = result.AddColour(V2.CR / 128f, V2.CB / 128f, V2.CG / 128f, V2.CA / 128f);
+                        tri.Indices[11] = result.AddColour(V3.CR / 128f, V3.CB / 128f, V3.CG / 128f, V3.CA / 128f);
 
-                        Vector3f FaceNormal = Model.GenerateFaceNormal(
-                            new Vector3f(P1.X, P1.Y, P1.Z),
-                            new Vector3f(P2.X, P2.Y, P2.Z),
-                            new Vector3f(P3.X, P3.Y, P3.Z));
+                        Vector3f faceNormal = Model.GenerateFlatNormal(
+                            new Vector3f(P1.X, -P1.Y, -P1.Z),
+                            new Vector3f(P2.X, -P2.Y, -P2.Z),
+                            new Vector3f(P3.X, -P3.Y, -P3.Z));
 
-                        Vector3f AverageNorm = Vector3f.Normalize(Vector3f.Average(
-                            new Vector3f(N1.X, N1.Y, N1.Z), 
-                            new Vector3f(N2.X, N2.Y, N2.Z),
-                            new Vector3f(N3.X, N3.Y, N3.Z)));
+                        Vector3f averageNormal = Vector3f.Normalize(Vector3f.Average(
+                            new Vector3f(N1.X, -N1.Y, -N1.Z),
+                            new Vector3f(N2.X, -N2.Y, -N2.Z),
+                            new Vector3f(N3.X, -N3.Y, -N3.Z)
+                            ));
 
-                        if (Vector3f.Dot(AverageNorm, FaceNormal) > 0)
+                        if(Vector3f.Dot(averageNormal, faceNormal) < 0)
+                        {
                             tri.FlipIndices();
+                        }
 
-                        triangles.Add(tri);
+                        primitives.Add(tri);
                     }
 
-                }
+                    mesh.primitives = primitives.ToArray();
 
-                mdlMesh.triangles = triangles.ToArray();
-                mdlMesh.numTriangle = (uint)triangles.Count;
-                OutM.AddMesh(mdlMesh);
+                    result.AddMesh(mesh);
+                }
 
             } catch(Exception Ex)
             {
@@ -335,7 +323,7 @@ namespace FormatKFIV.FileFormat
             }
 
             tex = OutT;
-            return OutM;
+            return result;
         }
 
         public void SaveToFile(string filepath, Model data)

@@ -222,13 +222,13 @@ namespace FormatKFIV.FileFormat
                         {
                             vertices[j] = new OM2Vertex
                             {
-                                PX = ins.ReadSingle() / 256f,
-                                PY = -ins.ReadSingle() / 256f,
-                                PZ = -ins.ReadSingle() / 256f,
+                                PX = ins.ReadSingle(),
+                                PY = ins.ReadSingle(),
+                                PZ = ins.ReadSingle(),
                                 PW = ins.ReadSingle(),
                                 NX = ins.ReadSingle(),
-                                NY = -ins.ReadSingle(),
-                                NZ = -ins.ReadSingle(),
+                                NY = ins.ReadSingle(),
+                                NZ = ins.ReadSingle(),
                                 NW = ins.ReadSingle(),
                                 TU = ins.ReadSingle(),
                                 TV = ins.ReadSingle(),
@@ -255,11 +255,13 @@ namespace FormatKFIV.FileFormat
                 ins.Seek(insPosition + header.length, System.IO.SeekOrigin.Begin);
 
                 //Convert OM2
+                List<Model.IPrimitiveType> primitives = new List<Model.IPrimitiveType>();
+
                 int om2MeshId = 0;
                 foreach(OM2Mesh om2Mesh in meshes)
                 {
                     Model.Mesh mesh = new Model.Mesh();
-                    List<Model.Triangle> triangles = new List<Model.Triangle>();
+                    primitives.Clear();
 
                     //Copy Transform of OMD
                     if (omd.HasValue)
@@ -272,23 +274,15 @@ namespace FormatKFIV.FileFormat
                             omdMesh = omdV.meshes[om2MeshId];
                         }
 
-                        mesh.transform = new Model.Transform
-                        {
-                            position = omdMesh.translation,
-                            rotation = omdMesh.rotation,
-                            scale = omdMesh.scale
-                        };
-
-                        Console.WriteLine(mesh.transform.position.ToString());
+                        mesh.position = omdMesh.translation;
+                        mesh.rotation = omdMesh.rotation;
+                        mesh.scale = omdMesh.scale;
                     }
                     else
                     {
-                        mesh.transform = new Model.Transform
-                        {
-                            position = Vector3f.Zero,
-                            rotation = Vector3f.Zero,
-                            scale = Vector3f.One
-                        };
+                        mesh.position = Vector3f.Zero;
+                        mesh.rotation = Vector3f.Zero;
+                        mesh.scale = Vector3f.One;
                     }
 
                     foreach (OM2Primitive om2Prim in om2Mesh.primitives)
@@ -316,47 +310,36 @@ namespace FormatKFIV.FileFormat
                                 continue;
                             }
 
-                            //Convert tristrip to triangle
-                            Model.Triangle triangle = new Model.Triangle()
-                            {
-                                vIndices = new ushort[3],
-                                nIndices = new ushort[3],
-                                tIndices = new ushort[3],
-                                cIndices = new ushort[3]
-                            };
-
+                            Model.TrianglePrimitive tri = Model.TrianglePrimitive.New();
                             for(int j = 0; j < 3; ++j)
                             {
-                                triangle.vIndices[j] = (ushort)om2Out.AddVertex(om2Vertices[j].PX, om2Vertices[j].PY, om2Vertices[j].PZ);
-                                triangle.nIndices[j] = (ushort)om2Out.AddNormal(om2Vertices[j].NX, om2Vertices[j].NY, om2Vertices[j].NZ);
-                                triangle.tIndices[j] = (ushort)om2Out.AddTexcoord(om2Vertices[j].TU, om2Vertices[j].TV);
-                                triangle.cIndices[j] = (ushort)om2Out.AddColour(om2Vertices[j].CR / 128f, om2Vertices[j].CG / 128f, om2Vertices[j].CB / 128f, om2Vertices[j].CA / 128f);
+                                tri.Indices[0 + j] = om2Out.AddVertex(om2Vertices[j].PX, -om2Vertices[j].PY, -om2Vertices[j].PZ);
+                                tri.Indices[3 + j] = om2Out.AddNormal(om2Vertices[j].NX, -om2Vertices[j].NY, -om2Vertices[j].NZ);
+                                tri.Indices[6 + j] = om2Out.AddTexcoord(om2Vertices[j].TU, om2Vertices[j].TV);
+                                tri.Indices[9 + j] = om2Out.AddColour(om2Vertices[j].CR / 128f, om2Vertices[j].CG / 128f, om2Vertices[j].CB / 128f, om2Vertices[j].CA / 128f);
                             }
 
                             //See the comment at this same point in FFModelOMD to understand why this is fresh bullshit on a paper plate...
-                            Vector3f faceNormal = Model.GenerateFaceNormal(
-                                new Vector3f(om2Vertices[0].PX, om2Vertices[0].PY, om2Vertices[0].PZ),
-                                new Vector3f(om2Vertices[1].PX, om2Vertices[1].PY, om2Vertices[1].PZ),
-                                new Vector3f(om2Vertices[2].PX, om2Vertices[2].PY, om2Vertices[2].PZ));
+                            Vector3f faceNormal = Model.GenerateFlatNormal(
+                                new Vector3f(om2Vertices[0].PX, -om2Vertices[0].PY, -om2Vertices[0].PZ),
+                                new Vector3f(om2Vertices[1].PX, -om2Vertices[1].PY, -om2Vertices[1].PZ),
+                                new Vector3f(om2Vertices[2].PX, -om2Vertices[2].PY, -om2Vertices[2].PZ));
 
                             Vector3f averageNormal = Vector3f.Average(
-                                new Vector3f(om2Vertices[0].NX, om2Vertices[0].NY, om2Vertices[0].NZ),
-                                new Vector3f(om2Vertices[1].NX, om2Vertices[1].NY, om2Vertices[1].NZ),
-                                new Vector3f(om2Vertices[2].NX, om2Vertices[2].NY, om2Vertices[2].NZ));
+                                new Vector3f(om2Vertices[0].NX, -om2Vertices[0].NY, -om2Vertices[0].NZ),
+                                new Vector3f(om2Vertices[1].NX, -om2Vertices[1].NY, -om2Vertices[1].NZ),
+                                new Vector3f(om2Vertices[2].NX, -om2Vertices[2].NY, -om2Vertices[2].NZ));
 
                             if(Vector3f.Dot(averageNormal, faceNormal) < 0)
                             {
-                                triangle.FlipIndices();
+                                tri.FlipIndices();
                             }
 
-                            triangles.Add(triangle);
+                            primitives.Add(tri);
                         }
                     }
 
-                    mesh.numTriangle = (uint)triangles.Count;
-                    mesh.triangles = triangles.ToArray();
-                    triangles.Clear();
-
+                    mesh.primitives = primitives.ToArray();
                     om2Out.AddMesh(mesh);
 
                     om2MeshId++;

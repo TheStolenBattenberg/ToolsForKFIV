@@ -1,5 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
+
 using FormatKFIV.Utility;
+using FormatKFIV.Asset;
 
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -20,6 +23,7 @@ namespace ToolsForKFIV.Rendering
         private SceneDraw _drawFlags = SceneDraw.Default;
 
         //Properties
+        [Category("Transform"), Description("The position of the scene node")]
         public Vector3f Position 
         { 
             get
@@ -31,6 +35,8 @@ namespace ToolsForKFIV.Rendering
                 _position = value;
             }
         }
+
+        [Category("Transform"), Description("The rotation of the scene node")]
         public Vector3f Rotation
         {
             get
@@ -42,6 +48,8 @@ namespace ToolsForKFIV.Rendering
                 _rotation = value;
             }
         }
+
+        [Category("Transform"), Description("the scale of the scene node")]
         public Vector3f Scale
         {
             get
@@ -53,22 +61,29 @@ namespace ToolsForKFIV.Rendering
                 _scale = value;
             }
         }
+
+        [Category("Visibility"), Description("Base visibilty of the node, ignoring visibility filters.")]
         public bool Visible
         {
             get 
             { 
                 return _visible; 
             }
-            private set 
+            set 
             { 
                 _visible = value; 
             }
         }
+
+        //[Category("Misc"), Description("The name of the node")]
+        [Browsable(false)]
         public string Name
         {
             get { return _name; }
             set { _name = value; }
         }
+
+        [Category("Visibility"), Description("Visibilty filter, 'Default' is always visible.")]
         public SceneDraw DrawFlags
         {
             get { return _drawFlags; }
@@ -87,6 +102,86 @@ namespace ToolsForKFIV.Rendering
             StaticMesh = mesh;
             Visible = true;
         }
+        public SceneNodeStaticMesh(Model model, Model.Mesh mesh)
+        {
+            if(mesh.PrimitiveCount <= 0)
+            {
+                Logger.LogWarn("SceneNodeStaticMesh -> Primitive count is less than or zero :(");
+                return;
+            }
+
+            float[] vertexBuffer = new float[144 * mesh.PrimitiveCount];
+            int vertexOffset = 0;
+
+            switch (mesh.primitives[0])
+            {
+                case Model.TrianglePrimitive trianglep:
+                    foreach(Model.TrianglePrimitive p in mesh.primitives)
+                    {
+                        for(int i = 0; i < 3; ++i)
+                        {
+                            Model.Components VC = model.Vertices[p.Indices[0 + i]];
+                            Model.Components NC = model.Normals[p.Indices[3 + i]];
+                            Model.Components TC = model.Texcoords[p.Indices[6 + i]];
+                            Model.Components CC = model.Colours[p.Indices[9 + i]];
+
+                            vertexBuffer[vertexOffset + 0] = VC.X;
+                            vertexBuffer[vertexOffset + 1] = VC.Y;
+                            vertexBuffer[vertexOffset + 2] = VC.Z;
+                            vertexBuffer[vertexOffset + 3] = NC.X;
+                            vertexBuffer[vertexOffset + 4] = NC.Y;
+                            vertexBuffer[vertexOffset + 5] = NC.Z;
+                            vertexBuffer[vertexOffset + 6] = TC.U;
+                            vertexBuffer[vertexOffset + 7] = TC.V;
+                            vertexBuffer[vertexOffset + 8] = CC.R;
+                            vertexBuffer[vertexOffset + 9] = CC.G;
+                            vertexBuffer[vertexOffset + 10] = CC.B;
+                            vertexBuffer[vertexOffset + 11] = CC.A;
+
+                            vertexOffset += 12;
+                        }
+                    }
+
+                    Name = "Static Mesh Node (Triangle Mesh)";
+                    StaticMesh = new TriangleMesh(ref vertexBuffer, mesh.PrimitiveCount * 3);
+
+                    break;
+
+                case Model.LinePrimitive linep:
+                    foreach(Model.LinePrimitive p in mesh.primitives)
+                    {
+                        for(int i = 0; i < 2; ++i)
+                        {
+                            Model.Components VC = model.Vertices[p.Indices[0 + i]];
+                            Model.Components CC = model.Colours[p.Indices[2 + i]];
+
+                            vertexBuffer[vertexOffset + 0] = VC.X;
+                            vertexBuffer[vertexOffset + 1] = VC.Y;
+                            vertexBuffer[vertexOffset + 2] = VC.Z;
+                            vertexBuffer[vertexOffset + 3] = 0f;
+                            vertexBuffer[vertexOffset + 4] = 0f;
+                            vertexBuffer[vertexOffset + 5] = 0f;
+                            vertexBuffer[vertexOffset + 6] = 0f;
+                            vertexBuffer[vertexOffset + 7] = 0f;
+                            vertexBuffer[vertexOffset + 8] = CC.R;
+                            vertexBuffer[vertexOffset + 9] = CC.G;
+                            vertexBuffer[vertexOffset + 10] = CC.B;
+                            vertexBuffer[vertexOffset + 11] = CC.A;
+
+                            vertexOffset += 12;
+                        }
+                    }
+                    Name = "Static Mesh Node (Line Mesh)";
+                    StaticMesh = new LineMesh(ref vertexBuffer, mesh.PrimitiveCount * 2);
+                    break;
+
+            }
+
+            Visible = true;
+            Position = mesh.position;
+            Rotation = mesh.rotation;
+            Scale = mesh.scale;
+        }
 
         //Node Setters and Getters
         public void SetMesh(IMesh mesh)
@@ -100,14 +195,14 @@ namespace ToolsForKFIV.Rendering
 
 
         //ISceneNode Interface
-        public void Draw(Vector3f position, Vector3f rotation, Vector3f scale)
+        public void Draw(SceneDraw flags, Vector3f position, Vector3f rotation, Vector3f scale)
         {
-            if (!Visible)
+            if (!Visible || (flags & DrawFlags) == 0)
                 return;
 
             //Construct transformation.
             Vector3f worldp = Vector3f.Add(Position, position);
-            Vector3f worldr = Vector3f.Zero;
+            Vector3f worldr = Vector3f.Add(Rotation, rotation);
             Vector3f worlds = Vector3f.Multiply(Scale, scale);
             Matrix4 translationMatrix = Matrix4.CreateTranslation(worldp.X, worldp.Y, worldp.Z);
             Matrix4 rotationMatrixX = Matrix4.CreateRotationX(worldr.X);
@@ -123,7 +218,6 @@ namespace ToolsForKFIV.Rendering
 
             StaticMesh.Draw();
         }
-
 
         //Disposal
         ~SceneNodeStaticMesh()

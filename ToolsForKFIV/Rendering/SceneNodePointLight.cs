@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 
 using FormatKFIV.Utility;
 using FormatKFIV.Asset;
@@ -18,6 +17,7 @@ namespace ToolsForKFIV.Rendering
         private SceneDraw _drawFlags = SceneDraw.Default;
 
         //Properties
+        [Category("Transform"), Description("The position of the scene node")]
         public Vector3f Position
         {
             get
@@ -29,6 +29,8 @@ namespace ToolsForKFIV.Rendering
                 _position = value;
             }
         }
+
+        [Category("Transform"), Description("The rotation of the scene node")]
         public Vector3f Rotation
         {
             get
@@ -40,6 +42,8 @@ namespace ToolsForKFIV.Rendering
                 _rotation = value;
             }
         }
+
+        [Category("Transform"), Description("the scale of the scene node")]
         public Vector3f Scale
         {
             get
@@ -51,16 +55,23 @@ namespace ToolsForKFIV.Rendering
                 _scale = value;
             }
         }
+
+        [Category("Visibility"), Description("Base visibilty of the node, ignoring visibility filters.")]
         public bool Visible
         {
             get { return _visible; }
             set { _visible = value; }
         }
+
+        //[Category("Misc"), Description("The name of the node")]
+        [Browsable(false)]
         public string Name
         {
             get { return _name; }
             set { _name = value; }
         }
+
+        [Category("Visibility"), Description("Visibilty filter, 'Default' is always visible.")]
         public SceneDraw DrawFlags
         {
             get { return _drawFlags; }
@@ -69,7 +80,7 @@ namespace ToolsForKFIV.Rendering
 
 
         //ISceneNode Interface
-        public void Draw(Vector3f position, Vector3f rotation, Vector3f scale)
+        public void Draw(SceneDraw flags, Vector3f position, Vector3f rotation, Vector3f scale)
         {
 
         }

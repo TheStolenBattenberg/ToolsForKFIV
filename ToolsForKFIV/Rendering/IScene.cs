@@ -12,6 +12,7 @@ namespace ToolsForKFIV.Rendering
         Geometry   = 0x00000001,
         Object     = 0x00000002,
         PointLight = 0x00000004,
+        RenderAABB = 0x00000008,
         Default    = 0xFFFFFFFF
     }
 

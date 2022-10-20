@@ -316,7 +316,6 @@ namespace FormatKFIV.FileFormat
                 }
 
                 //Read Map Object Nodes
-
                 MAPNodeObject[] mapObjectNode = new MAPNodeObject[mapHeader.numNodeObject];
                 for(int i = 0; i < mapHeader.numNodeObject; ++i)
                 {
@@ -336,6 +335,7 @@ namespace FormatKFIV.FileFormat
                         ClassParams = ins.ReadBytes(64),
                     };
 
+                    /*
                     if (mapObjectNode[i].ClassId == 0x1A)
                     {
                         Console.WriteLine($"Object #{i.ToString("D4")}: " +
@@ -348,6 +348,7 @@ namespace FormatKFIV.FileFormat
                             $"0x3C={mapObjectNode[i].Unknown0x3C}, " +
                             $"0x3E={mapObjectNode[i].Unknown0x3E}");
                     }
+                    */
 
                 }
 
@@ -356,10 +357,25 @@ namespace FormatKFIV.FileFormat
                 //
                 FFModelOMD OMDLoader = new FFModelOMD();
                 FFTextureTX2 TX2Loader = new FFTextureTX2();
+                FFTexturePNG PNGFormat = new FFTexturePNG();
 
-                //
+                /*
+                // Attempt texture extraction
+                FFModelOMD.OMDModel[] mapOMDs = new FFModelOMD.OMDModel[mapHeader.numPieceOMD];
+                Texture mapTextures;
+
+                ins.Jump(mapHeader.offPieceOMD);
+                for (int i = 0; i < mapHeader.numPieceOMD; ++i)
+                {
+                    mapOMDs[i] = FFModelOMD.ImportOMDFromStream(ins);
+                }
+                ins.Return();
+
+                mapTextures = UnpackMAPTX2(ins, mapHeader, ref mapOMDs);
+                PNGFormat.SaveToFile("D:\\REEEE\\KF4TexOut\\tex", mapTextures);
+                */
+
                 // Map Geometry
-                //
                 int[] mapChunkOMD = new int[mapHeader.numPieceOMD];
                 int[] mapChunkCSK = new int[mapHeader.numPieceCSK];
 
@@ -383,20 +399,35 @@ namespace FormatKFIV.FileFormat
                 {
                     Scene.Chunk chunk = new Scene.Chunk()
                     {
-                        position = piece.Position.ToVector3(),
-                        rotation = piece.Rotation.ToVector3(),
+                        position = new Vector3f(piece.Position.X, -piece.Position.Y, -piece.Position.Z),
+                        rotation = new Vector3f(piece.Rotation.X, 6.28318530718f - piece.Rotation.Y, 6.28318530718f - piece.Rotation.Z),
                         scale = piece.Scale.ToVector3(),
                         drawModelID = -1,
-                        collisionModelID = -1
+                        collisionModelID = -1,
+                        drawAABB = -1,
+                        collisionAABB = -1
                     };
+
+                    Vector3f aabbMin;
+                    Vector3f aabbMax;
 
                     if(piece.OMDIndex >= 0 && piece.OMDIndex < mapChunkOMD.Length)
                     {
+                        aabbMin = new Vector3f(piece.omdAABBMin.X, -piece.omdAABBMin.Y, -piece.omdAABBMin.Z);
+                        aabbMax = new Vector3f(piece.omdAABBMax.X, -piece.omdAABBMax.Y, -piece.omdAABBMax.Z);
+                        OUT.aabbData.Add(Model.GenerateLineCube(aabbMin, aabbMax, Colour.FromARGB(255, 255, 127, 127)));
+                        
+                        chunk.drawAABB = OUT.aabbData.Count - 1;
                         chunk.drawModelID = mapChunkOMD[piece.OMDIndex];
                     }
 
                     if(piece.CSKIndex >= 0 && piece.CSKIndex < mapChunkCSK.Length)
                     {
+                        aabbMin = new Vector3f(piece.cskAABBMin.X, -piece.cskAABBMin.Y, -piece.cskAABBMin.Z);
+                        aabbMax = new Vector3f(piece.cskAABBMax.X, -piece.cskAABBMax.Y, -piece.cskAABBMax.Z);
+                        OUT.aabbData.Add(Model.GenerateLineCube(aabbMin, aabbMax, Colour.FromARGB(255, 127, 127, 255)));
+
+                        chunk.collisionAABB = OUT.aabbData.Count - 1;
                         chunk.collisionModelID = mapChunkCSK[piece.CSKIndex];
                     }
                     
@@ -432,10 +463,11 @@ namespace FormatKFIV.FileFormat
 
                 foreach(MAPNodeObject mapObject in mapObjectNode)
                 {
+
                     Scene.Object sceneObject = new Scene.Object
                     {
-                        position = mapObject.Position.ToVector3(),
-                        rotation = mapObject.Rotation.ToVector3(),
+                        position = new Vector3f(mapObject.Position.X, -mapObject.Position.Y, -mapObject.Position.Z),
+                        rotation = new Vector3f(mapObject.Rotation.X, 6.28318530718f - mapObject.Rotation.Y, 6.28318530718f - mapObject.Rotation.Z),
                         scale = mapObject.Scale.ToVector3(),
                         classID = mapObject.ClassId,
                         drawModelID = -1,
@@ -468,7 +500,7 @@ namespace FormatKFIV.FileFormat
             return OUT;
         }
 
-        private Texture UnpackMAPTX2(InputStream ins, MAPHeader header, FFModelOMD.OMDModel[] omdModels)
+        private Texture UnpackMAPTX2(InputStream ins, MAPHeader header, ref FFModelOMD.OMDModel[] omdModels)
         {
             Texture textures = new Texture();
 
@@ -541,7 +573,7 @@ namespace FormatKFIV.FileFormat
                         int imgbW = (int)Math.Pow(2, omdTriS.tex0Data.TW);
                         int imgbH = (int)Math.Pow(2, omdTriS.tex0Data.TH);
 
-                        uint texKey = (omdTriS.tex0Data.CBP << 16) | (omdTriS.tex0Data.TBP);
+                        uint texKey = ((omdTriS.tex0Data.CBP & 0xFFFF) << 16) | (omdTriS.tex0Data.TBP & 0xFFFF);
 
                         if (keys.ContainsKey(texKey))
                         {

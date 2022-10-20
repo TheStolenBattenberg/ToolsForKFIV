@@ -149,7 +149,7 @@ namespace ToolsForKFIV.UI.Control
             GL.Viewport(0, 0, stPreviewGL.ClientSize.Width, stPreviewGL.ClientSize.Height);
 
             //Calculate Projection
-            matProjection = Matrix4.CreatePerspectiveFieldOfView(0.7f, (float)(((float)stPreviewGL.ClientSize.Width) / ((float)stPreviewGL.ClientSize.Height)), 0.1f, 256f);
+            matProjection = Matrix4.CreatePerspectiveFieldOfView(0.7f, (float)(((float)stPreviewGL.ClientSize.Width) / ((float)stPreviewGL.ClientSize.Height)), 0.1f, 65536f);
         }
 
         private void stPreviewGL_Paint(object sender, PaintEventArgs e)
@@ -171,6 +171,7 @@ namespace ToolsForKFIV.UI.Control
 
             SceneDraw myDrawFlags = 0;
             myDrawFlags |= SceneDraw.Geometry;
+            myDrawFlags |= stTSEnableAABB.Checked ? SceneDraw.RenderAABB : 0;
             myDrawFlags |= stTSEnableLight.Checked ? SceneDraw.PointLight : 0;
             myDrawFlags |= stTSEnableObj.Checked ? SceneDraw.Object : 0;
 
@@ -209,10 +210,16 @@ namespace ToolsForKFIV.UI.Control
                 int xAxis = (aKey - dKey);
                 int yAxis = (wKey - sKey);
 
-                float speed = 1.0f;
+                float speed = 64.0f;
                 if(xAxis != 0 && yAxis != 0)
                 {
-                    speed = 0.70710678118f;
+                    speed = speed * 0.70710678118f;
+                }
+
+                //Shift for sprint
+                if(InputManager.KeyIsDown(160))
+                {
+                    speed = speed * 2;
                 }
 
                 if(yAxis != 0)

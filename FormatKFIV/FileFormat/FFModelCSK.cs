@@ -358,61 +358,66 @@ namespace FormatKFIV.FileFormat
 
         public static Model CSKToModel(CSKModel csk)
         {
-            Model m = new Model();
+            Model result = new Model();
 
-            //Add Vertices
-            foreach(CSKVertex vert in csk.vertices)
+            int[] groupColours = new int[]
             {
-                m.AddVertex(vert.X/256F, -vert.Y/256F, -vert.Z/256F);
-            }
-            m.AddColour(0.160784f, 0.501960f, 0.725490f, 1f);   //Group A Colour
-            m.AddColour(0.725490f, 0.501960f, 0.160784f, 1f);   //Group B Colour
-            m.AddColour(0.160784f, 0.725490f, 0.501960f, 1f);   //Group C Colour
+                result.AddUniqueColour(0.160784f, 0.501960f, 0.725490f, 1f),
+                result.AddUniqueColour(0.160784f, 0.501960f, 0.725490f, 1f),
+                result.AddUniqueColour(0.160784f, 0.501960f, 0.725490f, 1f)
+            };
 
-            m.AddTexcoord(0f, 0f);
-            m.AddNormal(0f, 0f, 0f);
-
-            //Add Faces
-            List<Model.Triangle> tris = new List<Model.Triangle>();
-            foreach (CSKGroup group in csk.groups)
+            foreach(CSKGroup group in csk.groups)
             {
-                //Build triangles fro indices
+                if (group.numIndices <= 2)
+                {
+                    //Console.WriteLine($"Low Index Count in CSKGroup, skipping... ({group.numIndices})");
+                    continue;
+                }
+                
+                Model.Mesh mesh = new Model.Mesh();
+                mesh.position = Vector3f.Zero;
+                mesh.rotation = Vector3f.Zero;
+                mesh.scale = Vector3f.One;
+                mesh.primitives = new Model.IPrimitiveType[group.numIndices - 2];
+
                 for(int i = 0; i < group.numIndices - 2; ++i)
                 {
-                    Model.Triangle tri = new Model.Triangle();
-                    tri.vIndices = new ushort[3];
+                    Model.TrianglePrimitive triangle = Model.TrianglePrimitive.New();
 
-                    if((i & 1) == 1)
+                    CSKVertex V1, V2, V3;
+                    if ((i & 1) == 1)
                     {
-                        tri.vIndices[0] = (ushort)group.indices[i + 1];
-                        tri.vIndices[1] = (ushort)group.indices[i + 0];
-                        tri.vIndices[2] = (ushort)group.indices[i + 2];
-                    }
-                    else
+                        V1 = csk.vertices[group.indices[i + 1]];
+                        V2 = csk.vertices[group.indices[i + 0]];
+                        V3 = csk.vertices[group.indices[i + 2]];
+                    } else
                     {
-                        tri.vIndices[0] = (ushort)group.indices[i + 0];
-                        tri.vIndices[1] = (ushort)group.indices[i + 1];
-                        tri.vIndices[2] = (ushort)group.indices[i + 2];
+                        V1 = csk.vertices[group.indices[i + 0]];
+                        V2 = csk.vertices[group.indices[i + 1]];
+                        V3 = csk.vertices[group.indices[i + 2]];
                     }
 
-                    tri.nIndices = new ushort[] { 0, 0, 0 };
-                    tri.tIndices = new ushort[] { 0, 0, 0 };
+                    triangle.Indices[0] = result.AddUniqueVertex(V1.X, V1.Y, V1.Z);
+                    triangle.Indices[1] = result.AddUniqueVertex(V2.X, V2.Y, V2.Z);
+                    triangle.Indices[2] = result.AddUniqueVertex(V3.X, V3.Y, V3.Z);
+                    triangle.Indices[3] = result.AddUniqueNormal(0f, 0f, 0f);
+                    triangle.Indices[4] = triangle.Indices[3];
+                    triangle.Indices[5] = triangle.Indices[3];
+                    triangle.Indices[6] = result.AddUniqueTexcoord(0f, 0f);
+                    triangle.Indices[7] = triangle.Indices[6];
+                    triangle.Indices[8] = triangle.Indices[6];
+                    triangle.Indices[9] = groupColours[group.groupType];
+                    triangle.Indices[10] = groupColours[group.groupType];
+                    triangle.Indices[11] = groupColours[group.groupType];
 
-                    tri.cIndices = new ushort[] { (ushort)group.groupType, (ushort)group.groupType, (ushort)group.groupType };
-
-                    tris.Add(tri);
+                    mesh.primitives[i] = triangle;
                 }
 
-                Model.Mesh mesh = new Model.Mesh();
-                mesh.numTriangle = (uint)tris.Count;
-                mesh.triangles = tris.ToArray();
-
-                m.AddMesh(mesh);
-
-                tris.Clear();
+                result.AddMesh(mesh);
             }
 
-            return m;
+            return result;
         }
     }
 }

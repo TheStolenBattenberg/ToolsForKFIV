@@ -12,6 +12,7 @@ namespace ToolsForKFIV
         public void Receive(KeyboardEvent @e)
         {
             int keyIndex = (int)e.Key;
+       
             if (keyIndex < 0 || keyIndex > 255)
                 return;
 

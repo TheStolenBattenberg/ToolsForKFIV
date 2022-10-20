@@ -151,7 +151,7 @@ namespace ToolsForKFIV.UI.Control
             GL.Viewport(0, 0, tmOGL.ClientSize.Width, tmOGL.ClientSize.Height);
 
             //Compute Projection Matrix
-            matrixProjection = Matrix4.CreatePerspectiveFieldOfView(0.7f, (float)(((float)tmOGL.ClientSize.Width) / ((float)tmOGL.ClientSize.Height)), 0.1f, 256f);
+            matrixProjection = Matrix4.CreatePerspectiveFieldOfView(0.7f, (float)(((float)tmOGL.ClientSize.Width) / ((float)tmOGL.ClientSize.Height)), 0.1f, 8192f);
         }
         private void tmOGL_Paint(object sender, PaintEventArgs e)
         {
@@ -164,6 +164,11 @@ namespace ToolsForKFIV.UI.Control
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Multisample);
+            GL.Enable(EnableCap.AlphaTest);
+            GL.Disable(EnableCap.CullFace);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             //Draw Editor Shit
             shader3DColour.Bind();
@@ -187,9 +192,6 @@ namespace ToolsForKFIV.UI.Control
                     textureFile.Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
                 }
 
-                GL.CullFace(CullFaceMode.Back);
-                GL.Enable(EnableCap.CullFace);
-
                 if(modelFile != null)
                 {
                     for(int i = 0; i < modelFile.MeshCount; ++i)
@@ -200,8 +202,6 @@ namespace ToolsForKFIV.UI.Control
                         modelFile.DrawTriangleMesh(i);
                     }
                 }
-
-                GL.Disable(EnableCap.CullFace);
             }
 
             tmOGL.SwapBuffers();
@@ -226,7 +226,7 @@ namespace ToolsForKFIV.UI.Control
             if((MouseButtons & MouseButtons.Right) > 0 && IsInside == true)
             {
                 cameraZoom -= (mouseLastY - e.Y) / 100f;
-                cameraZoom = Math.Clamp(cameraZoom, 0.02f, 2f);
+                cameraZoom = Math.Clamp(cameraZoom, 0.02f, 32f);
 
                 tmOGL.Invalidate();
             }
@@ -298,7 +298,7 @@ namespace ToolsForKFIV.UI.Control
             tmDgModelProperties.Rows.Add("Total Vertex", model.VertexCount);
             tmDgModelProperties.Rows.Add("Total Normal", model.NormalCount);
             tmDgModelProperties.Rows.Add("Total Texcoords", model.TexcoordCount);
-            tmDgModelProperties.Rows.Add("Total Triangles", model.TriangleCount);
+            tmDgModelProperties.Rows.Add("Total Primitives", model.PrimitiveCount);
         }
     }
 }

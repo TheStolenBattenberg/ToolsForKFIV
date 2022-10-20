@@ -13,6 +13,9 @@ namespace FormatKFIV.Asset
 
             public int drawModelID;
             public int collisionModelID;
+
+            public int drawAABB;
+            public int collisionAABB;
         }
         public struct Object
         {
@@ -27,6 +30,7 @@ namespace FormatKFIV.Asset
         }
 
         //Data
+        public List<Model> aabbData = new List<Model>();
         public List<Model> omdData = new List<Model>();
         public List<Model> om2Data = new List<Model>();
         public List<Model> cskData = new List<Model>();

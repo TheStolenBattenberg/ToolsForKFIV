@@ -57,12 +57,42 @@ namespace ToolsForKFIV.Rendering
                 {
                     var sceneNode = new SceneNodeCollection(scene.omdData[chunk.drawModelID])
                     {
-                        Position = new Vector3f(chunk.position.X / 256f, -chunk.position.Y / 256f, -chunk.position.Z / 256f),
+                        Position = new Vector3f(chunk.position.X, chunk.position.Y, chunk.position.Z),
                         Rotation = new Vector3f(chunk.rotation.X, chunk.rotation.Y, chunk.rotation.Z),
                         Scale = new Vector3f(chunk.scale.X, chunk.scale.Y, chunk.scale.Z),
-                        Name = $"Map Chunk ({chunk.drawModelID.ToString("D4")})"
+                        Name = $"GeoChunk ({chunk.drawModelID.ToString("D4")})",
+                        DrawFlags = SceneDraw.Geometry
                     };
 
+                    if(chunk.drawAABB >= 0)
+                    {
+                        var aabbNode = new SceneNodeStaticMesh(scene.aabbData[chunk.drawAABB], scene.aabbData[chunk.drawAABB].Meshes[0])
+                        {
+                            Position = Vector3f.Zero,
+                            Rotation = Vector3f.Zero,
+                            Scale = Vector3f.One,
+                            Name = $"Render AABB",
+                            DrawFlags = SceneDraw.RenderAABB
+                        };
+
+                        sceneNode.Children.Add(aabbNode);
+                    }
+
+                    if(chunk.collisionAABB >= 0)
+                    {
+                        var aabbNode = new SceneNodeStaticMesh(scene.aabbData[chunk.collisionAABB], scene.aabbData[chunk.collisionAABB].Meshes[0])
+                        {
+                            Position = Vector3f.Zero,
+                            Rotation = Vector3f.Zero,
+                            Scale = Vector3f.One,
+                            Name = $"Collision AABB",
+                            DrawFlags = SceneDraw.RenderAABB
+                        };
+
+                        sceneNode.Children.Add(aabbNode);
+                    }
+
+                    //Chunk AABBs
                     sceneDrawGeometryRoot.Children.Add(sceneNode);
                 }
             }
@@ -81,9 +111,6 @@ namespace ToolsForKFIV.Rendering
                     case 0x01FC:
                         sceneNode = new SceneNodePointLight()
                         {
-                            Position = new Vector3f(obj.position.X / 256f, -obj.position.Y / 256f, -obj.position.Z / 256f),
-                            Rotation = new Vector3f(obj.rotation.X, obj.rotation.Y, obj.rotation.Z),
-                            Scale = new Vector3f(obj.scale.X, obj.scale.Y, obj.scale.Z),
                             Name = $"Point Light #{numPointLight}",
                             DrawFlags = SceneDraw.PointLight
                         };
@@ -96,9 +123,6 @@ namespace ToolsForKFIV.Rendering
                         {
                             sceneNode = new SceneNodeCollection(scene.omdData[obj.drawModelID])
                             {
-                                Position = new Vector3f(obj.position.X / 256f, -obj.position.Y / 256f, -obj.position.Z / 256f),
-                                Rotation = new Vector3f(obj.rotation.X, obj.rotation.Y, obj.rotation.Z),
-                                Scale = new Vector3f(obj.scale.X, obj.scale.Y, obj.scale.Z),
                                 Name = $"Object #{numObject}",
                                 DrawFlags = SceneDraw.Object
                             };
@@ -110,6 +134,9 @@ namespace ToolsForKFIV.Rendering
 
                 if(sceneNode != null)
                 {
+                    sceneNode.Position = new Vector3f(obj.position.X, obj.position.Y, obj.position.Z);
+                    sceneNode.Rotation = new Vector3f(obj.rotation.X, obj.rotation.Y, obj.rotation.Z);
+                    sceneNode.Scale = new Vector3f(obj.scale.X, obj.scale.Y, obj.scale.Z);
                     Nodes.Add(sceneNode);
                 }
             }
@@ -126,7 +153,7 @@ namespace ToolsForKFIV.Rendering
                     continue;
                 }
 
-                node.Draw(Vector3f.Zero, Vector3f.Zero, new Vector3f(1, 1, 1));
+                node.Draw(flags, Vector3f.Zero, Vector3f.Zero, Vector3f.One);
             }
         }
 

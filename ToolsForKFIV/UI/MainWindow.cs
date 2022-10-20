@@ -301,5 +301,11 @@ namespace ToolsForKFIV
 
             return; //Method end (incase you got lost in the woods lad)
         }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Environment.Exit(1);
+            Application.Exit();
+        }
     }
 }

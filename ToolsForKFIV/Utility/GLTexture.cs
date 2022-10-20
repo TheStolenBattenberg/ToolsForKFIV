@@ -111,7 +111,7 @@ namespace ToolsForKFIV.Utility
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
 
-            GL.TexImage2D<byte>(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb8, (int)texBuffer.Width, (int)texBuffer.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, rgbaTex);
+            GL.TexImage2D<byte>(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, (int)texBuffer.Width, (int)texBuffer.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, rgbaTex);
 
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 

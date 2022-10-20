@@ -7,7 +7,7 @@ using FormatKFIV.Utility;
 namespace FormatKFIV.Asset
 {
     /// <summary>Provides storage for model type data.</summary>
-    public class Model
+    public class ModelOld
     {
         /// <summary>Storage for triangle data</summary>
         public struct Triangle
@@ -61,7 +61,7 @@ namespace FormatKFIV.Asset
             }
             public override string ToString()
             {
-                return "{X=" + X.ToString() + ",Y=" + Y.ToString() + ",Z=" + Z.ToString() + "}";
+                return $"(x = {X}, y = {Y}, z = {Z})";
             }
 
             //Operators
@@ -172,6 +172,7 @@ namespace FormatKFIV.Asset
                 Z = z
             });
         }
+
         /// <summary>Adds a new vertex if it doesn't exist, or gets the ID if it does</summary>
         /// <returns>Vertex ID</returns>
         public int AddVertexExclusive(Vertex v)
@@ -188,6 +189,7 @@ namespace FormatKFIV.Asset
             //If we got here without returning, we need to add the vertex
             return AddVertex(v);
         }
+
         /// <summary>Adds a vertex</summary>
         /// <returns>Vertex ID</returns>
         public int AddVertex(float x, float y, float z)
@@ -199,6 +201,7 @@ namespace FormatKFIV.Asset
                 Z = z
             });
         }
+
         /// <summary>Adds a vertex</summary>
         /// <returns>Vertex ID</returns>
         public int AddVertex(Vertex v)
@@ -206,6 +209,8 @@ namespace FormatKFIV.Asset
             _vertices.Add(v);
             return _vertices.Count - 1;
         }
+
+
         public Vertex GetVertex(int index)
         {
             return _vertices[index];
@@ -278,6 +283,44 @@ namespace FormatKFIV.Asset
         public Mesh GetMesh(int index)
         {
             return _meshes[index];
+        }
+
+
+        public static Model GenerateAABB(Vector3f p1, Vector3f p2)
+        {
+            Model outModel = new Model();
+
+            //Construct bottom
+            outModel.AddVertex(p1.X, p1.Y, p1.Z);
+            outModel.AddVertex(p2.X, p1.Y, p1.Z);
+            outModel.AddVertex(p2.X, p1.Y, p1.Z);
+            outModel.AddVertex(p2.X, p2.Y, p1.Z);
+            outModel.AddVertex(p2.X, p2.Y, p1.Z);
+            outModel.AddVertex(p1.X, p2.Y, p1.Z);
+            outModel.AddVertex(p1.X, p2.Y, p1.Z);
+            outModel.AddVertex(p1.X, p1.Y, p1.Z);
+
+            //Construct top
+            outModel.AddVertex(p1.X, p1.Y, p2.Z);
+            outModel.AddVertex(p2.X, p1.Y, p2.Z);
+            outModel.AddVertex(p2.X, p1.Y, p2.Z);
+            outModel.AddVertex(p2.X, p2.Y, p2.Z);
+            outModel.AddVertex(p2.X, p2.Y, p2.Z);
+            outModel.AddVertex(p1.X, p2.Y, p2.Z);
+            outModel.AddVertex(p1.X, p2.Y, p2.Z);
+            outModel.AddVertex(p1.X, p1.Y, p2.Z);
+
+            //Construct Sides
+            outModel.AddVertex(p1.X, p1.Y, p1.Z);
+            outModel.AddVertex(p1.X, p1.Y, p2.Z);
+            outModel.AddVertex(p2.X, p1.Y, p1.Z);
+            outModel.AddVertex(p2.X, p1.Y, p2.Z);
+            outModel.AddVertex(p2.X, p2.Y, p1.Z);
+            outModel.AddVertex(p2.X, p2.Y, p2.Z);
+            outModel.AddVertex(p1.X, p2.Y, p1.Z);
+            outModel.AddVertex(p1.X, p2.Y, p2.Z);
+
+            return outModel;
         }
 
         /// <summary>Generates a flat normal from three vertices.</summary>

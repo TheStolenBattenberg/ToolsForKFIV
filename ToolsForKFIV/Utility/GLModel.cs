@@ -34,67 +34,85 @@ namespace ToolsForKFIV.Utility
         /// <returns>A GLModel containing a grid model</returns>
         public static GLModel Generate3DGrid()
         {
-            //Create model to return
             GLModel glModel = new GLModel();
             GLMesh glMesh = new GLMesh();
             glMesh.VertexCount = 0;
 
-            //Grid Colour array
             Color[] lineColour =
             {
-                Color.FromArgb(255, 250, 250, 250), //0
-                Color.FromArgb(255, 245, 245, 245), //1
-                Color.FromArgb(255, 238, 238, 238), //2
-                Color.FromArgb(255, 224, 224, 224), //3
-                Color.FromArgb(255, 189, 189, 189), //4
-                Color.FromArgb(255, 158, 158, 158), //5
-                Color.FromArgb(255, 117, 117, 117), //6
-                Color.FromArgb(255, 97,  97,  97),  //7
-                Color.FromArgb(255, 66,  66,  66),  //8
+                Color.FromArgb(0xFF, 0xF0, 0xF0, 0xF0),
+                Color.FromArgb(0xFF, 0xE8, 0xE8, 0xE8),
+                Color.FromArgb(0xFF, 0xE0, 0xE0, 0xE0),
+                Color.FromArgb(0xFF, 0xD8, 0xD8, 0xD8),
+                Color.FromArgb(0xFF, 0xD0, 0xD0, 0xD0),
+                Color.FromArgb(0xFF, 0xC8, 0xC8, 0xC8),
+                Color.FromArgb(0xFF, 0xC0, 0xC0, 0xC0),
+                Color.FromArgb(0xFF, 0xB8, 0xB8, 0xB8),
+                Color.FromArgb(0xFF, 0xB0, 0xB0, 0xB0),
+                Color.FromArgb(0xFF, 0xA8, 0xA8, 0xA8),
+                Color.FromArgb(0xFF, 0xA0, 0xA0, 0xA0),
+                Color.FromArgb(0xFF, 0x98, 0x98, 0x98),
+                Color.FromArgb(0xFF, 0x90, 0x90, 0x90),
+                Color.FromArgb(0xFF, 0x88, 0x88, 0x88),
+                Color.FromArgb(0xFF, 0x80, 0x80, 0x80),
+                Color.FromArgb(0xFF, 0x78, 0x78, 0x78)
             };
 
-            //Create vertex data
             List<float> VertexDataList = new List<float>();
+
+            int gridWidth = 15, gridHeight = 15;
 
             Color xAxisC = ResourceManager.settings.mtXAxC.ToColor();
             Color yAxisC = ResourceManager.settings.mtYAxC.ToColor();
             Color zAxisC = ResourceManager.settings.mtZAxC.ToColor();
 
-            for (int i = -8; i <= 8; ++i)
+            VertexDataList.AddRange(new float[] { 0, 0f, -100 * gridHeight});
+            VertexDataList.AddRange(new float[] { xAxisC.R / 255f, xAxisC.G / 255f, xAxisC.B / 255f, 1f });
+            VertexDataList.AddRange(new float[] { 0, 0f,  100 * gridHeight});
+            VertexDataList.AddRange(new float[] { xAxisC.R / 255f, xAxisC.G / 255f, xAxisC.B / 255f, 1f });
+            VertexDataList.AddRange(new float[] { -100 * gridWidth, 0f, 0 });
+            VertexDataList.AddRange(new float[] { zAxisC.R / 255f, zAxisC.G / 255f, zAxisC.B / 255f, 1f });
+            VertexDataList.AddRange(new float[] {  100 * gridWidth, 0f, 0 });
+            VertexDataList.AddRange(new float[] { zAxisC.R / 255f, zAxisC.G / 255f, zAxisC.B / 255f, 1f });
+            VertexDataList.AddRange(new float[] { 0f, -100 * (gridWidth / 2), 0f });
+            VertexDataList.AddRange(new float[] { yAxisC.R / 255f, yAxisC.G / 255f, yAxisC.B / 255f, 1f });
+            VertexDataList.AddRange(new float[] { 0f, 100 * (gridWidth / 2), 0f });
+            VertexDataList.AddRange(new float[] { yAxisC.R / 255f, yAxisC.G / 255f, yAxisC.B / 255f, 1f });
+            glMesh.VertexCount += 6;
+
+            Color C;
+            for(int i = -gridWidth; i <= gridWidth; ++i)
             {
-                //I like the effect this gives, but need to improve line generation to make it sweet af.
-                Color curColour = lineColour[Math.Abs(i)];
-
-                if (i != 0)
+                for (int j = -gridHeight; j <= gridHeight; ++j)
                 {
-                    VertexDataList.AddRange(new float[] { i, 0f, -8f });
-                    VertexDataList.AddRange(new float[] { curColour.R / 255f, curColour.G / 255f, curColour.B / 255f, curColour.A / 255f });
-                    VertexDataList.AddRange(new float[] { i, 0f, 8f });
-                    VertexDataList.AddRange(new float[] { curColour.R / 255f, curColour.G / 255f, curColour.B / 255f, curColour.A / 255f });
-                    VertexDataList.AddRange(new float[] { -8f, 0f, i });
-                    VertexDataList.AddRange(new float[] { curColour.R / 255f, curColour.G / 255f, curColour.B / 255f, curColour.A / 255f });
-                    VertexDataList.AddRange(new float[] { 8f, 0f, i });
-                    VertexDataList.AddRange(new float[] { curColour.R / 255f, curColour.G / 255f, curColour.B / 255f, curColour.A / 255f });
+                    if(j == 0)
+                    {
+                        continue;
+                    }
 
-                    glMesh.VertexCount += 4;
+                    C = lineColour[Math.Abs(j)];
+
+                    VertexDataList.AddRange(new float[] { -100 * gridWidth, 0f, 100 * j });
+                    VertexDataList.AddRange(new float[] { C.R / 255f, C.G / 255f, C.B / 255f, 1.0f });
+                    VertexDataList.AddRange(new float[] { 100 * gridWidth, 0f, 100 * j });
+                    VertexDataList.AddRange(new float[] { C.R / 255f, C.G / 255f, C.B / 255f, 1.0f });
+
+                    glMesh.VertexCount += 2;
                 }
-                else
+
+                if(i == 0)
                 {
-                    VertexDataList.AddRange(new float[] { i, 0f, -8f });
-                    VertexDataList.AddRange(new float[] { xAxisC.R / 255f, xAxisC.G / 255f, xAxisC.B / 255f, 1f });
-                    VertexDataList.AddRange(new float[] { i, 0f, 8f });
-                    VertexDataList.AddRange(new float[] { xAxisC.R / 255f, xAxisC.G / 255f, xAxisC.B / 255f, 1f });
-                    VertexDataList.AddRange(new float[] { -8f, 0f, i });
-                    VertexDataList.AddRange(new float[] { zAxisC.R / 255f, zAxisC.G / 255f, zAxisC.B / 255f, 1f });
-                    VertexDataList.AddRange(new float[] { 8f, 0f, i });
-                    VertexDataList.AddRange(new float[] { zAxisC.R / 255f, zAxisC.G / 255f, zAxisC.B / 255f, 1f });
-                    VertexDataList.AddRange(new float[] { 0f, -8f, 0f });
-                    VertexDataList.AddRange(new float[] { yAxisC.R / 255f, yAxisC.G / 255f, yAxisC.B / 255f, 1f });
-                    VertexDataList.AddRange(new float[] { 0f,  8f, 0f });
-                    VertexDataList.AddRange(new float[] { yAxisC.R / 255f, yAxisC.G / 255f, yAxisC.B / 255f, 1f });
-
-                    glMesh.VertexCount += 6;
+                    continue;
                 }
+
+                C = lineColour[Math.Abs(i)];
+
+                VertexDataList.AddRange(new float[] { 100 * i, 0f, -100 * gridHeight });
+                VertexDataList.AddRange(new float[] { C.R / 255f, C.G / 255f, C.B / 255f, 1.0f });
+                VertexDataList.AddRange(new float[] { 100 * i, 0f,  100 * gridHeight });
+                VertexDataList.AddRange(new float[] { C.R / 255f, C.G / 255f, C.B / 255f, 1.0f });
+
+                glMesh.VertexCount += 2;
             }
 
             float[] GridVertexData = VertexDataList.ToArray();
@@ -210,59 +228,68 @@ namespace ToolsForKFIV.Utility
             GLModel dataModel = new GLModel();
 
             //Generate Vertex Buffer.
-            List<float> VertexDataList = new List<float>();
+            List<float> vertexData = new List<float>();
 
-            for(int i = 0; i < m.MeshCount; ++i)
+            foreach(Model.Mesh mesh in m.Meshes)
             {
-                Model.Mesh mesh = m.GetMesh(i);
-                GLMesh glMesh = new GLMesh();
-
-                Vector3f meshP = mesh.transform.position;
-                meshP = new Vector3f(meshP.X / 512f, -meshP.Y / 512f, -meshP.Z / 512f);
-
-                foreach (Model.Triangle tri in mesh.triangles)
+                if (mesh.PrimitiveCount <= 0)
                 {
-                    for (int j = 0; j < 3; ++j)
-                    {
-                        Model.Vertex V = m.GetVertex(tri.vIndices[j]);
-                        VertexDataList.AddRange(new float[] { meshP.X + V.X, meshP.Y + V.Y, meshP.Z + V.Z });
-
-                        Model.Normal N = m.GetNormal(tri.nIndices[j]);
-                        VertexDataList.AddRange(new float[] { N.X, N.Y, N.Z });
-
-                        Model.Texcoord T = m.GetTexcoord(tri.tIndices[j]);
-                        VertexDataList.AddRange(new float[] { T.U, T.V});
-
-                        Model.Colour C = m.GetColour(tri.cIndices[j]);
-                        VertexDataList.AddRange(new float[] { C.R, C.G, C.B, C.A });
-                    }
+                    Logger.LogWarn("Tried to create GLMesh from a Model.Mesh with zero primitives");
+                    continue;
                 }
 
-                //Put vertices into GLMesh
-                glMesh.VertexCount = (VertexDataList.Count / 12);
+                vertexData.Clear();
 
-                //Build GLMesh
-                float[] ModelVertexData = VertexDataList.ToArray();
+                switch(mesh.primitives[0])
+                {
+                    case Model.LinePrimitive linep:
+                        Logger.LogWarn("Line primitives not supported on GLModel!");
+                        continue;
+
+                    case Model.TrianglePrimitive trianglep:
+                        foreach(Model.TrianglePrimitive primitive in mesh.primitives)
+                        {
+                            for(int i = 0; i < 3; ++i)
+                            {
+                                Model.Components VC = m.Vertices[primitive.Indices[0 + i]];
+                                Model.Components NC = m.Normals[primitive.Indices[3 + i]];
+                                Model.Components TC = m.Texcoords[primitive.Indices[6 + i]];
+                                Model.Components CC = m.Colours[primitive.Indices[9 + i]];
+
+                                vertexData.AddRange(new float[] { VC.X, VC.Y, VC.Z });
+                                vertexData.AddRange(new float[] { NC.X, NC.Y, NC.Z });
+                                vertexData.AddRange(new float[] { TC.U, TC.V });
+                                vertexData.AddRange(new float[] { CC.R, CC.G, CC.B, CC.A });
+                            }
+                        }
+                        break;
+                }
+
+                GLMesh glMesh = new GLMesh();
+                glMesh.VertexCount = vertexData.Count / 12;
+
+                float[] vertexDataArray = vertexData.ToArray();
 
                 glMesh.VBOHandle = GL.GenBuffer();
                 glMesh.VAOHandle = GL.GenVertexArray();
 
                 GL.BindVertexArray(glMesh.VAOHandle);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, glMesh.VBOHandle);
-                GL.BufferData(BufferTarget.ArrayBuffer, ModelVertexData.Length * sizeof(float), ModelVertexData, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertexDataArray.Length, vertexDataArray, BufferUsageHint.StaticDraw);
 
-                GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 48, 0);   //Position
-                GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, true, 48, 12);   //Normal
-                GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 48, 24);  //Texcoord
-                GL.VertexAttribPointer(3, 4, VertexAttribPointerType.Float, false, 48, 32);  //Colour
+                GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 48, 0);
                 GL.EnableVertexAttribArray(0);
+
+                GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, true, 48, 12);
                 GL.EnableVertexAttribArray(1);
+
+                GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 48, 24);
                 GL.EnableVertexAttribArray(2);
+
+                GL.VertexAttribPointer(3, 4, VertexAttribPointerType.Float, false, 48, 32);
                 GL.EnableVertexAttribArray(3);
 
                 GL.BindVertexArray(0);
-
-                VertexDataList.Clear();
 
                 dataModel.GLMeshes.Add(glMesh);
             }

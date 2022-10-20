@@ -72,27 +72,28 @@ namespace ToolsForKFIV
             // openKFIVToolStripMenuItem
             // 
             this.openKFIVToolStripMenuItem.Name = "openKFIVToolStripMenuItem";
-            this.openKFIVToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.openKFIVToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openKFIVToolStripMenuItem.Text = "Open KFIV";
             this.openKFIVToolStripMenuItem.Click += new System.EventHandler(this.openKFIVToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(126, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // mwOpenKFIVDialog
             // 

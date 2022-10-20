@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel;
 
 using FormatKFIV.Utility;
 using FormatKFIV.Asset;
-using System.ComponentModel;
+
 
 namespace ToolsForKFIV.Rendering
 {
@@ -21,6 +21,7 @@ namespace ToolsForKFIV.Rendering
         private SceneDraw _drawFlags = SceneDraw.Default;
 
         //Properties
+        [Browsable(false)]
         public List<ISceneNode> Children
         {
             get
@@ -79,7 +80,8 @@ namespace ToolsForKFIV.Rendering
             set { _visible = value; }
         }
 
-        [Category("Misc"), Description("The name of the node")]
+        //[Category("Misc"), Description("The name of the node")]
+        [Browsable(false)]
         public string Name
         {
             get { return _name; }
@@ -108,69 +110,23 @@ namespace ToolsForKFIV.Rendering
             Children = new List<ISceneNode>();
             Visible = true;
 
-            for(int i = 0; i < model.MeshCount; ++i)
+            foreach(Model.Mesh mesh in model.Meshes)
             {
-                var staticMeshKFIV = model.GetMesh(i);
-                
-                //Build vertex buffer
-                float[] vertexArray = new float[144 * staticMeshKFIV.numTriangle];
-                int vertexStride = 0;
-
-                foreach (Model.Triangle tri in staticMeshKFIV.triangles)
-                {
-                    for(int j = 0; j < 3; ++j)
-                    {
-                        //Position
-                        Model.Vertex vertex = model.GetVertex(tri.vIndices[j]); 
-                        vertexArray[vertexStride + 0] = vertex.X;
-                        vertexArray[vertexStride + 1] = vertex.Y;
-                        vertexArray[vertexStride + 2] = vertex.Z;
-
-                        //Normal
-                        Model.Normal normal = model.GetNormal(tri.nIndices[j]); 
-                        vertexArray[vertexStride + 3] = normal.X;
-                        vertexArray[vertexStride + 4] = normal.Y;
-                        vertexArray[vertexStride + 5] = normal.Z;
-
-                        //Texcoord
-                        Model.Texcoord texcoord = model.GetTexcoord(tri.tIndices[j]);
-                        vertexArray[vertexStride + 6] = texcoord.U;
-                        vertexArray[vertexStride + 7] = texcoord.V;
-
-                        //Colour
-                        Model.Colour colour = model.GetColour(tri.cIndices[j]);
-                        vertexArray[vertexStride + 8] = colour.R;
-                        vertexArray[vertexStride + 9] = colour.G;
-                        vertexArray[vertexStride + 10] = colour.B;
-                        vertexArray[vertexStride + 11] = colour.A;
-
-                        vertexStride += 12;
-                    }
-                }
-
-                //Add static mesh to children
-                IMesh staticMesh = new TriangleMesh(ref vertexArray, (int) (staticMeshKFIV.numTriangle * 3));
-                var staticMeshNode = new SceneNodeStaticMesh(staticMesh)
-                {
-                    Position = new Vector3f(0, 0, 0),
-                    Rotation = new Vector3f(0, 0, 0),
-                    Scale = new Vector3f(1, 1, 1)
-                };
-
-                Children.Add(staticMeshNode);
+                ISceneNode staticMesh = new SceneNodeStaticMesh(model, mesh);
+                Children.Add(staticMesh);
             }
         }
 
 
         //ISceneNode Interface
-        public void Draw(Vector3f position, Vector3f rotation, Vector3f scale)
+        public void Draw(SceneDraw flags, Vector3f position, Vector3f rotation, Vector3f scale)
         {
-            if (!Visible)
+            if (!Visible || (flags & DrawFlags) == 0)
                 return;
 
             foreach (ISceneNode child in Children)
             {
-                child.Draw(Vector3f.Add(Position, position), rotation, Vector3f.Multiply(Scale, scale));
+                child.Draw(flags, Vector3f.Add(Position, position), Vector3f.Add(Rotation, rotation), Vector3f.Multiply(Scale, scale));
             }
         }
 

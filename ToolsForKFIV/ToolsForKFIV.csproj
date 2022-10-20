@@ -13,6 +13,10 @@
     <Description>https://discord.gg/mzPPVvezSH</Description>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Include="$(SolutionDir)Resource\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Resource\" />
   </ItemGroup>
@@ -33,6 +37,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Update="UI\Control\ToolFFParamEditor - Copy.Designer.cs">
       <DependentUpon>ToolFFParamEditor.Designer.cs</DependentUpon>
@@ -60,6 +69,13 @@
     <Resource Include="Resource\shd_3DNormTexColour.fs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
 </Project>

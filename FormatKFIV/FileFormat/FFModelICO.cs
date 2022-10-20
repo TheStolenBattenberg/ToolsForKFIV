@@ -223,7 +223,7 @@ namespace FormatKFIV.FileFormat
         /// <returns>A Model Class containing the ICO data</returns>
         private static Model ImportICO(InputStream ins, out object ret2, out object ret3, out object ret4)
         {
-            Model ResultingModel = new Model();
+            Model result = new Model();
             Texture ResultingTexture = new Texture();
 
             try
@@ -349,73 +349,35 @@ namespace FormatKFIV.FileFormat
 
                 ResultingTexture.PutSubimage(imgBuff);
 
-                //Convert ICO data to Model
-                ResultingModel.transform = new Model.Transform
-                {
-                    position = new Vector3f(0, 0, 0),
-                    rotation = new Vector3f(0, 0, 0),
-                    scale = new Vector3f(1, 1, 1)
-                };
-
                 //Convert each shape to a mesh
                 for(int i = 0; i < model.shapes.Length; ++i)
                 {
-                    Model.Mesh mesh = new Model.Mesh
-                    {
-                        numTriangle = model.numVertex / 3
-                    };
-                    mesh.triangles = new Model.Triangle[mesh.numTriangle];
-                    
+                    Model.Mesh mesh = new Model.Mesh();
+
+                    mesh.primitives = new Model.IPrimitiveType[model.numVertex / 3];
+
                     for (int j = 0; j < model.numVertex; j += 3)
                     {
-                        Model.Triangle tri = new Model.Triangle
+                        Model.TrianglePrimitive tri = Model.TrianglePrimitive.New();
+
+                        for(int k = 0; k < 3; ++k)
                         {
-                            vIndices = new ushort[3],
-                            nIndices = new ushort[3],
-                            tIndices = new ushort[3],
-                            cIndices = new ushort[3]
-                        };
+                            ICOVertex V = model.shapes[i].vertices[j + k];
+                            ICONormal N = model.shapes[i].normals[j + k];
+                            ICOTexcoord T = model.shapes[i].texcoords[j + k];
+                            ICOColour C = model.shapes[i].colours[j + k];
 
-                        //Add Vertices to Triangle
-                        ICOVertex V;
-                        V = model.shapes[i].vertices[j + 2];
-                        tri.vIndices[0] = (ushort) ResultingModel.AddVertex(V.X / 4096f, -(V.Y / 4096f), V.Z / 4096f);
-                        V = model.shapes[i].vertices[j + 1];
-                        tri.vIndices[1] = (ushort) ResultingModel.AddVertex(V.X / 4096f, -(V.Y / 4096f), V.Z / 4096f);
-                        V = model.shapes[i].vertices[j + 0];
-                        tri.vIndices[2] = (ushort) ResultingModel.AddVertex(V.X / 4096f, -(V.Y / 4096f), V.Z / 4096f);
+                            tri.Indices[0 + k] = result.AddVertex(V.X / 1024f, -V.Y / 1024f, -V.Z / 1024f);
+                            tri.Indices[3 + k] = result.AddNormal(N.X / 4096f, -N.Y / 4096f, -N.Z / 4096f);
+                            tri.Indices[6 + k] = result.AddTexcoord(T.U / 4096f, T.V / 4096f);
+                            tri.Indices[9 + k] = result.AddColour(C.R / 128f, C.G / 128f, C.B / 128f, C.A / 128f);
 
-                        //Add Normals to Triangle
-                        ICONormal N;
-                        N = model.shapes[i].normals[j + 2];
-                        tri.nIndices[0] = (ushort)ResultingModel.AddNormal(N.X / 4096f, -(N.Y / 4096f), N.Z / 4096f);
-                        N = model.shapes[i].normals[j + 1];
-                        tri.nIndices[1] = (ushort)ResultingModel.AddNormal(N.X / 4096f, -(N.Y / 4096f), N.Z / 4096f);
-                        N = model.shapes[i].normals[j + 0];
-                        tri.nIndices[2] = (ushort)ResultingModel.AddNormal(N.X / 4096f, -(N.Y / 4096f), N.Z / 4096f);
+                        }
 
-                        //Add Texcoords to Triangle
-                        ICOTexcoord TC;
-                        TC = model.shapes[i].texcoords[j + 2];
-                        tri.tIndices[0] = (ushort)ResultingModel.AddTexcoord(TC.U / 4096f, TC.V / 4096f);
-                        TC = model.shapes[i].texcoords[j + 1];
-                        tri.tIndices[1] = (ushort)ResultingModel.AddTexcoord(TC.U / 4096f, TC.V / 4096f);
-                        TC = model.shapes[i].texcoords[j + 0];
-                        tri.tIndices[2] = (ushort)ResultingModel.AddTexcoord(TC.U / 4096f, TC.V / 4096f);
-
-                        //Add Colours to Triangle
-                        ICOColour C;
-                        C = model.shapes[i].colours[j + 2];
-                        tri.cIndices[0] = (ushort)ResultingModel.AddColour(C.R / 255f, C.G / 255f, C.B / 255f, 1.0f);
-                        C = model.shapes[i].colours[j + 1];
-                        tri.cIndices[1] = (ushort)ResultingModel.AddColour(C.R / 255f, C.G / 255f, C.B / 255f, 1.0f);
-                        C = model.shapes[i].colours[j + 0];
-                        tri.cIndices[2] = (ushort)ResultingModel.AddColour(C.R / 255f, C.G / 255f, C.B / 255f, 1.0f);
-
-                        mesh.triangles[j / 3] = tri; 
+                        mesh.primitives[j / 3] = tri;
                     }
 
-                    ResultingModel.AddMesh(mesh);
+                    result.AddMesh(mesh);
                 }
 
             } catch (Exception Ex)
@@ -432,7 +394,7 @@ namespace FormatKFIV.FileFormat
             ret2 = ResultingTexture;
             ret3 = null;
             ret4 = null;
-            return ResultingModel;
+            return result;
         }
 
         public void SaveToFile(string filepath, Model data)
