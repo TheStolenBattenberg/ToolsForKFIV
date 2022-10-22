@@ -24,9 +24,22 @@ namespace FormatKFIV.Asset
             public Vector3f scale;
 
             public int classID;
+            public byte[] classParams;
+
             public int drawModelID;
             public int collisionModelID;
             public int textureID;
+        }
+        public struct Item
+        {
+            public Vector3f position;
+            public Vector3f rotation;
+            public Vector3f scale;
+
+            public int classID;
+
+            public int omdID;
+            public int texID;
         }
 
         //Data
@@ -38,5 +51,6 @@ namespace FormatKFIV.Asset
 
         public List<Chunk> chunks = new List<Chunk>();
         public List<Object> objects = new List<Object>();
+        public List<Item> items = new List<Item>();
     }
 }

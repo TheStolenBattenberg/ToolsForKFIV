@@ -115,11 +115,21 @@ namespace FormatKFIV.FileFormat
         }
         public struct MAPNodeEntity
         {
-
+            public Vector4f position;
+            public Vector4f rotation;
+            public Vector4f scale;
+            public byte[] unknown0x30;  //Unknown bytes (48 of 'em)
         }
         public struct MAPNodeItem
         {
-
+            public Vector4f position;
+            public Vector4f rotation;
+            public Vector4f scale;
+            public ushort classID;
+            public ushort omdID;
+            public uint unknown0x34;
+            public uint unknown0x38;
+            public uint unknown0x3c;
         }
 
 
@@ -335,27 +345,52 @@ namespace FormatKFIV.FileFormat
                         ClassParams = ins.ReadBytes(64),
                     };
 
-                    /*
-                    if (mapObjectNode[i].ClassId == 0x1A)
-                    {
-                        Console.WriteLine($"Object #{i.ToString("D4")}: " +
-                            $"Class={mapObjectNode[i].ClassId}, " +
-                            $"Omd={mapObjectNode[i].RenderMeshId}, " +
-                            $"Csk={mapObjectNode[i].CollisionMeshId}, " +
-                            $"0x36={mapObjectNode[i].Unknown0x36}, " +
-                            $"0x38={mapObjectNode[i].Unknown0x38}, " +
-                            $"0x3A={mapObjectNode[i].Unknown0x3A}, " +
-                            $"0x3C={mapObjectNode[i].Unknown0x3C}, " +
-                            $"0x3E={mapObjectNode[i].Unknown0x3E}");
-                    }
-                    */
+                    Console.WriteLine($"Object {i} (Class ID: " +
+                        $"{mapObjectNode[i].ClassId}, RMesh ID: " +
+                        $"{mapObjectNode[i].RenderMeshId}, CMesh ID: " +
+                        $"{mapObjectNode[i].CollisionMeshId}, 0x36: " +
+                        $"{mapObjectNode[i].Unknown0x36.ToString("X4")}, 0x38: " +
+                        $"{mapObjectNode[i].Unknown0x38.ToString("X4")}, 0x3A: " +
+                        $"{mapObjectNode[i].Unknown0x3A.ToString("X4")}, 0x3C: " +
+                        $"{mapObjectNode[i].Unknown0x3C.ToString("X4")}, 0x3E: " +
+                        $"{mapObjectNode[i].Unknown0x3E.ToString("X4")}");
+                }
 
+                //Read Map Entity Nodes
+                MAPNodeEntity[] mapEntityNodes = new MAPNodeEntity[mapHeader.numNodeEntity];
+                for(int i = 0; i < mapHeader.numNodeEntity; ++i)
+                {
+                    mapEntityNodes[i] = new MAPNodeEntity
+                    {
+                        position = ins.ReadVector4f(),
+                        rotation = ins.ReadVector4f(),
+                        scale = ins.ReadVector4f(),
+                        unknown0x30 = ins.ReadBytes(48)
+                    };
+                }
+
+                MAPNodeItem[] mapItemNodes = new MAPNodeItem[mapHeader.numNodeItem];
+                for(int i = 0; i < mapHeader.numNodeItem; ++i)
+                {
+                    mapItemNodes[i] = new MAPNodeItem
+                    {
+                        position = ins.ReadVector4f(),
+                        rotation = ins.ReadVector4f(),
+                        scale = ins.ReadVector4f(),
+                        classID = ins.ReadUInt16(),
+                        omdID = ins.ReadUInt16(),
+                        unknown0x34 = ins.ReadUInt32(),
+                        unknown0x38 = ins.ReadUInt32(),
+                        unknown0x3c = ins.ReadUInt32()
+                    };
                 }
 
                 //
                 // MAP DATA
                 //
                 FFModelOMD OMDLoader = new FFModelOMD();
+                FFModelOM2 OM2Loader = new FFModelOM2();
+
                 FFTextureTX2 TX2Loader = new FFTextureTX2();
                 FFTexturePNG PNGFormat = new FFTexturePNG();
 
@@ -376,6 +411,7 @@ namespace FormatKFIV.FileFormat
                 */
 
                 // Map Geometry
+                Console.WriteLine("FFSceneMAP -> Importing Geometry...");
                 int[] mapChunkOMD = new int[mapHeader.numPieceOMD];
                 int[] mapChunkCSK = new int[mapHeader.numPieceCSK];
 
@@ -438,10 +474,12 @@ namespace FormatKFIV.FileFormat
                 //
                 // Map Objects
                 //
-                int[] mapObjectOMD = new int[mapHeader.numObjectStatic];    //OMD
-                int[] mapObjectOM2 = new int[mapHeader.numObjectMoveable];  //OM2
-                int[] mapObjectTX2 = new int[mapHeader.numObjectStatic];
-                int[] mapObjectCSK = new int[mapHeader.numObjectCSK];
+                Console.WriteLine("FFSceneMAP -> Importing Objects...");
+                int[] mapObjectOMD = new int[mapHeader.numObjectStatic];      //OMD
+                int[] mapObjectOM2 = new int[mapHeader.numObjectMoveable];    //OM2
+                int[] mapObjectOM2TX2 = new int[mapHeader.numObjectMoveable]; //OM2 TX2
+                int[] mapObjectOMDTX2 = new int[mapHeader.numObjectStatic];   //OMD TX2
+                int[] mapObjectCSK = new int[mapHeader.numObjectCSK];         //CSK
 
                 ins.Jump(mapHeader.offObjectStatic);
                 for(int i = 0; i < mapHeader.numObjectStatic; ++i)
@@ -450,7 +488,18 @@ namespace FormatKFIV.FileFormat
                     OUT.texData.Add(TX2Loader.ImportTX2(ins));
 
                     mapObjectOMD[i] = OUT.omdData.Count - 1;
-                    mapObjectTX2[i] = OUT.texData.Count - 1;
+                    mapObjectOMDTX2[i] = OUT.texData.Count - 1;
+                }
+                ins.Return();
+
+                ins.Jump(mapHeader.offObjectMoveable);
+                for(int i = 0; i < mapHeader.numObjectMoveable; ++i)
+                {
+                    OUT.om2Data.Add(OM2Loader.ImportOM2(ins));
+                    OUT.texData.Add(TX2Loader.ImportTX2(ins));
+
+                    mapObjectOM2[i] = OUT.om2Data.Count - 1;
+                    mapObjectOM2TX2[i] = OUT.texData.Count - 1;
                 }
                 ins.Return();
 
@@ -460,7 +509,8 @@ namespace FormatKFIV.FileFormat
                     OUT.cskData.Add(FFModelCSK.CSKToModel(FFModelCSK.ImportCSK(ins)));
                     mapObjectCSK[i] = OUT.cskData.Count - 1;
                 }
-
+                ins.Return();
+                 
                 foreach(MAPNodeObject mapObject in mapObjectNode)
                 {
 
@@ -470,16 +520,38 @@ namespace FormatKFIV.FileFormat
                         rotation = new Vector3f(mapObject.Rotation.X, 6.28318530718f - mapObject.Rotation.Y, 6.28318530718f - mapObject.Rotation.Z),
                         scale = mapObject.Scale.ToVector3(),
                         classID = mapObject.ClassId,
+                        classParams = mapObject.ClassParams,
                         drawModelID = -1,
                         textureID = -1,
                         collisionModelID = -1,
+                        
                     };
 
-                    if(mapObject.RenderMeshId >= 0 && mapObject.RenderMeshId < mapObjectOMD.Length)
+                    switch(sceneObject.classID)
                     {
-                        sceneObject.drawModelID = mapObjectOMD[mapObject.RenderMeshId];
-                        sceneObject.textureID = mapObjectTX2[mapObject.RenderMeshId];
+                        case 0x001A:
+                        case 0x0020:
+                        case 0x0041:
+                        case 0x0044:
+                        case 0x0045:
+                        case 0x0046:
+                            if(mapObject.RenderMeshId >= 0 && mapObject.RenderMeshId < mapObjectOM2.Length)
+                            {
+                                sceneObject.drawModelID = mapObjectOM2[mapObject.RenderMeshId];
+                                sceneObject.textureID = mapObjectOM2TX2[mapObject.RenderMeshId];
+                            }
+                            break;
+
+                        default:
+                            if (mapObject.RenderMeshId >= 0 && mapObject.RenderMeshId < mapObjectOMD.Length)
+                            {
+                                sceneObject.drawModelID = mapObjectOMD[mapObject.RenderMeshId];
+                                sceneObject.textureID = mapObjectOMDTX2[mapObject.RenderMeshId];
+                            }
+                            break;
                     }
+
+
 
                     if(mapObject.CollisionMeshId >= 0 && mapObject.CollisionMeshId < mapObjectCSK.Length)
                     {
@@ -487,6 +559,39 @@ namespace FormatKFIV.FileFormat
                     }
 
                     OUT.objects.Add(sceneObject);
+                }
+
+                //
+                // Map Items
+                //
+                Console.WriteLine("FFSceneMAP -> Importing Items...");
+                int[] mapItemOMD = new int[mapHeader.numItem];
+                int[] mapItemTX2 = new int[mapHeader.numItem];
+
+                ins.Jump(mapHeader.offItem);
+                for (int i = 0; i < mapHeader.numItem; ++i)
+                {
+                    OUT.omdData.Add(OMDLoader.ImportOMD(ins));
+                    OUT.texData.Add(TX2Loader.ImportTX2(ins));
+
+                    mapItemOMD[i] = OUT.omdData.Count - 1;
+                    mapItemTX2[i] = OUT.texData.Count - 1;
+                }
+                ins.Return();
+
+                foreach(MAPNodeItem mapItem in mapItemNodes)
+                {
+                    Scene.Item sceneItem = new Scene.Item()
+                    {
+                        position = new Vector3f(mapItem.position.X, -mapItem.position.Y, -mapItem.position.Z),
+                        rotation = new Vector3f(mapItem.rotation.X, 6.28318530718f - mapItem.rotation.Y, 6.28318530718f - mapItem.rotation.Z),
+                        scale = mapItem.scale.ToVector3(),
+                        classID = mapItem.classID,
+                        omdID = mapItemOMD[mapItem.omdID],
+                        texID = mapItemTX2[mapItem.omdID]
+                    };
+
+                    OUT.items.Add(sceneItem);
                 }
 
             } catch(Exception Ex) {

@@ -40,19 +40,29 @@ namespace ToolsForKFIV.Rendering
         {
             Nodes = new List<ISceneNode>();
 
-            //Construct scene geometry
             var sceneDrawGeometryRoot = new SceneNodeCollection()
             {
                 Position = Vector3f.Zero,
                 Rotation = Vector3f.Zero,
                 Scale = Vector3f.One,
                 Visible = true,
-                Name = "Map Geometry",
+                Name = "Draw Geometry",
                 DrawFlags = SceneDraw.Geometry
+            };
+
+            var sceneCollisionGeometryRoot = new SceneNodeCollection
+            {
+                Position = Vector3f.Zero,
+                Rotation = Vector3f.Zero,
+                Scale = Vector3f.One,
+                Visible = true,
+                Name = "Collision Geometry",
+                DrawFlags = SceneDraw.Collision
             };
 
             foreach (Scene.Chunk chunk in scene.chunks)
             {
+                //Construct draw geometry
                 if(chunk.drawModelID >= 0)
                 {
                     var sceneNode = new SceneNodeCollection(scene.omdData[chunk.drawModelID])
@@ -60,7 +70,7 @@ namespace ToolsForKFIV.Rendering
                         Position = new Vector3f(chunk.position.X, chunk.position.Y, chunk.position.Z),
                         Rotation = new Vector3f(chunk.rotation.X, chunk.rotation.Y, chunk.rotation.Z),
                         Scale = new Vector3f(chunk.scale.X, chunk.scale.Y, chunk.scale.Z),
-                        Name = $"GeoChunk ({chunk.drawModelID.ToString("D4")})",
+                        Name = $"GeoDrawChunk ({chunk.drawModelID.ToString("D4")})",
                         DrawFlags = SceneDraw.Geometry
                     };
 
@@ -78,7 +88,22 @@ namespace ToolsForKFIV.Rendering
                         sceneNode.Children.Add(aabbNode);
                     }
 
-                    if(chunk.collisionAABB >= 0)
+                    sceneDrawGeometryRoot.Children.Add(sceneNode);
+                }
+
+                //Construct collision geometry
+                if(chunk.collisionModelID >= 0)
+                {
+                    var sceneNode = new SceneNodeCollection(scene.cskData[chunk.collisionModelID])
+                    {
+                        Position = new Vector3f(chunk.position.X, chunk.position.Y, chunk.position.Z),
+                        Rotation = new Vector3f(chunk.rotation.X, chunk.rotation.Y, chunk.rotation.Z),
+                        Scale = new Vector3f(chunk.scale.X, chunk.scale.Y, chunk.scale.Z),
+                        Name = $"GeoCollisionChunk ({chunk.collisionModelID.ToString("D4")})",
+                        DrawFlags = SceneDraw.Collision
+                    };
+
+                    if (chunk.collisionAABB >= 0)
                     {
                         var aabbNode = new SceneNodeStaticMesh(scene.aabbData[chunk.collisionAABB], scene.aabbData[chunk.collisionAABB].Meshes[0])
                         {
@@ -92,12 +117,12 @@ namespace ToolsForKFIV.Rendering
                         sceneNode.Children.Add(aabbNode);
                     }
 
-                    //Chunk AABBs
-                    sceneDrawGeometryRoot.Children.Add(sceneNode);
+                    sceneCollisionGeometryRoot.Children.Add(sceneNode);
                 }
             }
 
             Nodes.Add(sceneDrawGeometryRoot);
+            Nodes.Add(sceneCollisionGeometryRoot);
 
             //Construct scene objects
             int numObject = 0, numPointLight = 0;
@@ -109,13 +134,33 @@ namespace ToolsForKFIV.Rendering
                 {
                     case 0x01FB:
                     case 0x01FC:
-                        sceneNode = new SceneNodePointLight()
+                        int radius = (obj.classParams[11] << 8) | obj.classParams[10];
+                        sceneNode = new SceneNodePointLight(Colour.FromARGB(0xFF, obj.classParams[4], obj.classParams[6], obj.classParams[8]), (float)radius)
                         {
                             Name = $"Point Light #{numPointLight}",
                             DrawFlags = SceneDraw.PointLight
                         };
 
                         numPointLight++;
+                        break;
+
+                    //Until we find exactly what value in the object struct decides if the object uses a OM2 model, this is  the best way.
+                    case 0x001A:
+                    case 0x0020:
+                    case 0x0041:
+                    case 0x0044:
+                    case 0x0045:
+                    case 0x0046:
+                        if (obj.drawModelID >= 0)
+                        {
+                            sceneNode = new SceneNodeCollection(scene.om2Data[obj.drawModelID])
+                            {
+                                Name = $"Object #{numObject}",
+                                DrawFlags = SceneDraw.Object
+                            };
+
+                            numObject++;
+                        }
                         break;
 
                     default:
@@ -139,6 +184,24 @@ namespace ToolsForKFIV.Rendering
                     sceneNode.Scale = new Vector3f(obj.scale.X, obj.scale.Y, obj.scale.Z);
                     Nodes.Add(sceneNode);
                 }
+            }
+
+            //Construct Scene Items
+            int numItem = 0;
+            foreach(Scene.Item item in scene.items)
+            {
+                var sceneNode = new SceneNodeCollection(scene.omdData[item.omdID])
+                {
+                    Position = new Vector3f(item.position.X, item.position.Y, item.position.Z),
+                    Rotation = new Vector3f(item.rotation.X, item.rotation.Y, item.rotation.Z),
+                    Scale = new Vector3f(item.scale.X, item.scale.Y, item.scale.Z),
+                    Name = $"Item #{numObject}",
+                    DrawFlags = SceneDraw.Object
+                };
+
+                Nodes.Add(sceneNode);
+
+                numItem++;
             }
         }
 

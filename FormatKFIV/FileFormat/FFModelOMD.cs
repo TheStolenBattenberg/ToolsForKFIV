@@ -253,83 +253,132 @@ namespace FormatKFIV.FileFormat
                 //Go to the end of the OMD buffer for sanities sake.
                 ins.Seek(omdStartOffset + header.length, System.IO.SeekOrigin.Begin);
 
-                //Convert OMD Meshes to our native mesh format.
-                List<Model.IPrimitiveType> primitives = new List<Model.IPrimitiveType>();
+                //
+                // Convert OMD to internal model asset
+                //
 
-                foreach (OMDMesh omdMesh in meshes)
+                //How many texture slots does the OMD use?
+                List<uint> textureSlots = new List<uint>();
+
+                foreach(OMDMesh omdMesh in meshes)
                 {
-                    Model.Mesh mesh = new Model.Mesh();
-
-                    primitives.Clear();
+                    //Skip empty meshes.
+                    if(omdMesh.tristrips.Length <= 0)
+                    {
+                        continue;
+                    }
 
                     foreach(OMDTristripPacket tristrip in omdMesh.tristrips)
                     {
-                        for(int i = 0; i < tristrip.vertices.Length - 2; ++i)
+                        //Skip empty tristrips.
+                        if((tristrip.numVertex - 2) <= 0)
                         {
-                            OMDVertex[] V = new OMDVertex[3];
-                            if((i & 1) == 1)
-                            {
-                                V[0] = tristrip.vertices[i + 1];
-                                V[1] = tristrip.vertices[i + 0];
-                                V[2] = tristrip.vertices[i + 2];
-                            }
-                            else
-                            {
-                                V[0] = tristrip.vertices[i + 0];
-                                V[1] = tristrip.vertices[i + 1];
-                                V[2] = tristrip.vertices[i + 2];
-                            }
+                            continue;
+                        }
 
-                            if(V[2].NW == -32768)
+                        uint textureKey = (tristrip.tex0Data.TBP << 16) | tristrip.tex0Data.CBP;
+                        if(!textureSlots.Contains(textureKey))
+                        {
+                            textureSlots.Add(textureKey);
+                        }
+                    }
+                }
+
+                //Split OMD meshes according to texture slots
+                List<Model.IPrimitiveType> primitives = new List<Model.IPrimitiveType>();
+
+                foreach(uint textureKey in textureSlots)
+                {
+                    foreach(OMDMesh omdMesh in meshes)
+                    {
+                        if(omdMesh.tristrips.Length <= 0)
+                        {
+                            continue;
+                        }
+
+                        Model.Mesh mesh = new Model.Mesh();
+
+                        foreach (OMDTristripPacket tristrip in omdMesh.tristrips)
+                        {
+                            if ((tristrip.numVertex - 2) <= 0)
                             {
-                                i += 1;
                                 continue;
                             }
 
-                            Model.TrianglePrimitive tri = Model.TrianglePrimitive.New();
-                            for (int j = 0; j < 3; ++j)
+                            uint tristripKey = (tristrip.tex0Data.TBP << 16) | tristrip.tex0Data.CBP;
+                            if(tristripKey != textureKey)
                             {
-                                tri.Indices[0 + j] = result.AddVertex(V[j].PX, -V[j].PY, -V[j].PZ);
-                                tri.Indices[3 + j] = result.AddNormal(V[j].NX / 4096f, -V[j].NY / 4096f, -V[j].NZ / 4096f);
-                                tri.Indices[6 + j] = result.AddTexcoord(V[j].TU / 4096f, V[j].TV / 4096f);
-                                tri.Indices[9 + j] = result.AddColour(V[j].CR / 128f, V[j].CG / 128f, V[j].CB / 128f, V[j].CA / 128f);
+                                continue;
                             }
 
-                            //
-                            // An annoying aspect to these models that still hasn't got a proper solution
-                            // is the fliping of seemingly non predictable triangles in the vertex data.
-                            // In order to fix that, we generate a flat normal and an averaged vertex normal
-                            // and perform a dot product between them. If the result is less than 0,
-                            // we flip the face.
-                            //
-
-                            //See the comment at this same point in FFModelOMD to understand why this is fresh bullshit on a paper plate...
-                            Vector3f faceNormal = Model.GenerateFlatNormal(
-                                new Vector3f(V[0].PX, -V[0].PY, -V[0].PZ),
-                                new Vector3f(V[1].PX, -V[1].PY, -V[1].PZ),
-                                new Vector3f(V[2].PX, -V[2].PY, -V[2].PZ));
-
-                            Vector3f averageNormal = Vector3f.Average(
-                                new Vector3f(V[0].NX / 4096f, -V[0].NY / 4096f, -V[0].NZ / 4096f),
-                                new Vector3f(V[1].NX / 4096f, -V[1].NY / 4096f, -V[1].NZ / 4096f),
-                                new Vector3f(V[2].NX / 4096f, -V[2].NY / 4096f, -V[2].NZ / 4096f));
-
-                            if (Vector3f.Dot(averageNormal, faceNormal) < 0)
+                            for (int i = 0; i < tristrip.numVertex - 2; ++i)
                             {
-                                tri.FlipIndices();
-                            }
+                                OMDVertex[] V = new OMDVertex[3];
+                                if ((i & 1) == 1)
+                                {
+                                    V[0] = tristrip.vertices[i + 1];
+                                    V[1] = tristrip.vertices[i + 0];
+                                    V[2] = tristrip.vertices[i + 2];
+                                }
+                                else
+                                {
+                                    V[0] = tristrip.vertices[i + 0];
+                                    V[1] = tristrip.vertices[i + 1];
+                                    V[2] = tristrip.vertices[i + 2];
+                                }
 
-                            primitives.Add(tri);
+                                if (V[2].NW == -32768)
+                                {
+                                    i += 1;
+                                    continue;
+                                }
+
+                                Model.TrianglePrimitive tri = Model.TrianglePrimitive.New();
+                                for (int j = 0; j < 3; ++j)
+                                {
+                                    tri.Indices[0 + j] = result.AddVertex(V[j].PX, -V[j].PY, -V[j].PZ);
+                                    tri.Indices[3 + j] = result.AddNormal(V[j].NX / 4096f, -V[j].NY / 4096f, -V[j].NZ / 4096f);
+                                    tri.Indices[6 + j] = result.AddTexcoord(V[j].TU / 4096f, V[j].TV / 4096f);
+                                    tri.Indices[9 + j] = result.AddColour(V[j].CR / 128f, V[j].CG / 128f, V[j].CB / 128f, V[j].CA / 128f);
+                                }
+
+                                //
+                                // An annoying aspect to these models that still hasn't got a proper solution
+                                // is the fliping of seemingly non predictable triangles in the vertex data.
+                                // In order to fix that, we generate a flat normal and an averaged vertex normal
+                                // and perform a dot product between them. If the result is less than 0,
+                                // we flip the face.
+                                //
+
+                                //See the comment at this same point in FFModelOMD to understand why this is fresh bullshit on a paper plate...
+                                Vector3f faceNormal = Model.GenerateFlatNormal(
+                                    new Vector3f(V[0].PX, -V[0].PY, -V[0].PZ),
+                                    new Vector3f(V[1].PX, -V[1].PY, -V[1].PZ),
+                                    new Vector3f(V[2].PX, -V[2].PY, -V[2].PZ));
+
+                                Vector3f averageNormal = Vector3f.Average(
+                                    new Vector3f(V[0].NX / 4096f, -V[0].NY / 4096f, -V[0].NZ / 4096f),
+                                    new Vector3f(V[1].NX / 4096f, -V[1].NY / 4096f, -V[1].NZ / 4096f),
+                                    new Vector3f(V[2].NX / 4096f, -V[2].NY / 4096f, -V[2].NZ / 4096f));
+
+                                if (Vector3f.Dot(averageNormal, faceNormal) < 0)
+                                {
+                                    tri.FlipIndices();
+                                }
+
+                                primitives.Add(tri);
+                            }
                         }
+
+                        mesh.position = new Vector3f(omdMesh.translation.X, -omdMesh.translation.Y, -omdMesh.translation.Z);
+                        mesh.rotation = new Vector3f(omdMesh.rotation.X, 6.28318530718f - omdMesh.rotation.Y, 6.28318530718f - omdMesh.rotation.Z);
+                        mesh.scale = omdMesh.scale;
+                        mesh.primitives = primitives.ToArray();
+
+                        result.AddMesh(mesh);
+
+                        primitives.Clear();
                     }
-
-                    mesh.position = new Vector3f(omdMesh.translation.X, -omdMesh.translation.Y, -omdMesh.translation.Z);
-                    mesh.rotation = new Vector3f(omdMesh.rotation.X, 6.28318530718f - omdMesh.rotation.Y, 6.28318530718f - omdMesh.rotation.Z);
-                    mesh.scale = omdMesh.scale;
-
-                    mesh.primitives = primitives.ToArray();
-
-                    result.AddMesh(mesh);
                 }
             }
             catch (Exception Ex)
@@ -378,6 +427,11 @@ namespace FormatKFIV.FileFormat
                         numTristrips = ins.ReadUInt32(),
                         pad = ins.ReadUInt32()
                     };
+
+                    Vector3f newT = omdMesh.translation;
+                    omdMesh.translation = new Vector3f(newT.X, -newT.Y, -newT.Z);
+                    newT = omdMesh.rotation;
+                    omdMesh.rotation = new Vector3f(newT.X, 6.28318530718f - newT.Y, 6.28318530718f - newT.Z);
 
                     //Read mesh tristrip packets
                     omdMesh.tristrips = new OMDTristripPacket[omdMesh.numTristrips];

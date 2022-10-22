@@ -158,8 +158,8 @@ namespace ToolsForKFIV.UI.Control
             GL.ClearColor(ResourceManager.settings.mtBgCC.ToColor());
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
-            GL.CullFace(CullFaceMode.Back);
-            GL.Enable(EnableCap.CullFace);
+            //GL.CullFace(CullFaceMode.Back);
+            //GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.Texture2D);
 
             matView = Matrix4.LookAt(cameraFrom, cameraTo, Vector3.UnitY);
@@ -171,6 +171,7 @@ namespace ToolsForKFIV.UI.Control
 
             SceneDraw myDrawFlags = 0;
             myDrawFlags |= SceneDraw.Geometry;
+            myDrawFlags |= stTSEnableCollision.Checked ? SceneDraw.Collision : 0;
             myDrawFlags |= stTSEnableAABB.Checked ? SceneDraw.RenderAABB : 0;
             myDrawFlags |= stTSEnableLight.Checked ? SceneDraw.PointLight : 0;
             myDrawFlags |= stTSEnableObj.Checked ? SceneDraw.Object : 0;

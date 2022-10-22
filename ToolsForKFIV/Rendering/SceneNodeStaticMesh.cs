@@ -104,12 +104,6 @@ namespace ToolsForKFIV.Rendering
         }
         public SceneNodeStaticMesh(Model model, Model.Mesh mesh)
         {
-            if(mesh.PrimitiveCount <= 0)
-            {
-                Logger.LogWarn("SceneNodeStaticMesh -> Primitive count is less than or zero :(");
-                return;
-            }
-
             float[] vertexBuffer = new float[144 * mesh.PrimitiveCount];
             int vertexOffset = 0;
 

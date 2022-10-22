@@ -40,8 +40,8 @@ namespace FormatKFIV.FileFormat
             public ushort numGroupTypeF;
             public ushort numGroupTypeG;
             public ushort numGroupTypeH;
-            public uint pad0x38;
-            public uint pad0x3C;
+            public uint pad0x48;
+            public uint pad0x4C;
         }
         public struct CSKGroup
         {
@@ -152,8 +152,8 @@ namespace FormatKFIV.FileFormat
                     numGroupTypeF = ins.ReadUInt16(),
                     numGroupTypeG = ins.ReadUInt16(),
                     numGroupTypeH = ins.ReadUInt16(),
-                    pad0x38 = ins.ReadUInt32(),
-                    pad0x3C = ins.ReadUInt32()
+                    pad0x48 = ins.ReadUInt32(),
+                    pad0x4C = ins.ReadUInt32()
                 };
 
                 //Read CSK Vertices
@@ -362,23 +362,23 @@ namespace FormatKFIV.FileFormat
 
             int[] groupColours = new int[]
             {
-                result.AddUniqueColour(0.160784f, 0.501960f, 0.725490f, 1f),
-                result.AddUniqueColour(0.160784f, 0.501960f, 0.725490f, 1f),
-                result.AddUniqueColour(0.160784f, 0.501960f, 0.725490f, 1f)
+                result.AddUniqueColour(0.20392f, 0.59607f, 0.85882f, 1f),
+                result.AddUniqueColour(0.94509f, 0.76862f, 0.05882f, 1f),
+                result.AddUniqueColour(0.08627f, 0.62745f, 0.52156f, 1f),
             };
 
             foreach(CSKGroup group in csk.groups)
             {
-                if (group.numIndices <= 2)
+                if(group.numIndices <= 0)
                 {
-                    //Console.WriteLine($"Low Index Count in CSKGroup, skipping... ({group.numIndices})");
                     continue;
                 }
-                
+
                 Model.Mesh mesh = new Model.Mesh();
                 mesh.position = Vector3f.Zero;
                 mesh.rotation = Vector3f.Zero;
                 mesh.scale = Vector3f.One;
+
                 mesh.primitives = new Model.IPrimitiveType[group.numIndices - 2];
 
                 for(int i = 0; i < group.numIndices - 2; ++i)
@@ -398,9 +398,9 @@ namespace FormatKFIV.FileFormat
                         V3 = csk.vertices[group.indices[i + 2]];
                     }
 
-                    triangle.Indices[0] = result.AddUniqueVertex(V1.X, V1.Y, V1.Z);
-                    triangle.Indices[1] = result.AddUniqueVertex(V2.X, V2.Y, V2.Z);
-                    triangle.Indices[2] = result.AddUniqueVertex(V3.X, V3.Y, V3.Z);
+                    triangle.Indices[0] = result.AddUniqueVertex(V1.X, -V1.Y, -V1.Z);
+                    triangle.Indices[1] = result.AddUniqueVertex(V2.X, -V2.Y, -V2.Z);
+                    triangle.Indices[2] = result.AddUniqueVertex(V3.X, -V3.Y, -V3.Z);
                     triangle.Indices[3] = result.AddUniqueNormal(0f, 0f, 0f);
                     triangle.Indices[4] = triangle.Indices[3];
                     triangle.Indices[5] = triangle.Indices[3];

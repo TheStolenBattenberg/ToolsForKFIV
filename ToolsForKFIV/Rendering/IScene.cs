@@ -13,6 +13,7 @@ namespace ToolsForKFIV.Rendering
         Object     = 0x00000002,
         PointLight = 0x00000004,
         RenderAABB = 0x00000008,
+        Collision  = 0x00000010,
         Default    = 0xFFFFFFFF
     }
 

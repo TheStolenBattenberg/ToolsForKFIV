@@ -112,6 +112,12 @@ namespace ToolsForKFIV.Rendering
 
             foreach(Model.Mesh mesh in model.Meshes)
             {
+                //Skip empty meshes
+                if(mesh.PrimitiveCount <= 0)
+                {
+                    continue;
+                }
+
                 ISceneNode staticMesh = new SceneNodeStaticMesh(model, mesh);
                 Children.Add(staticMesh);
             }
