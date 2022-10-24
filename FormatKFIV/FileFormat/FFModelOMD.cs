@@ -276,9 +276,10 @@ namespace FormatKFIV.FileFormat
                             continue;
                         }
 
-                        uint textureKey = (tristrip.tex0Data.TBP << 16) | tristrip.tex0Data.CBP;
-                        if(!textureSlots.Contains(textureKey))
+                        uint textureKey = ((tristrip.tex0Data.CBP & 0xFFFF) << 16) | (tristrip.tex0Data.TBP & 0xFFFF);
+                        if (!textureSlots.Contains(textureKey))
                         {
+                            result.AddTextureSlot(new Model.TextureSlot { slotKey = textureKey });
                             textureSlots.Add(textureKey);
                         }
                     }
@@ -287,6 +288,7 @@ namespace FormatKFIV.FileFormat
                 //Split OMD meshes according to texture slots
                 List<Model.IPrimitiveType> primitives = new List<Model.IPrimitiveType>();
 
+                int textureKeyId = 0;
                 foreach(uint textureKey in textureSlots)
                 {
                     foreach(OMDMesh omdMesh in meshes)
@@ -297,6 +299,7 @@ namespace FormatKFIV.FileFormat
                         }
 
                         Model.Mesh mesh = new Model.Mesh();
+                        mesh.textureSlot = textureKeyId;
 
                         foreach (OMDTristripPacket tristrip in omdMesh.tristrips)
                         {
@@ -305,8 +308,8 @@ namespace FormatKFIV.FileFormat
                                 continue;
                             }
 
-                            uint tristripKey = (tristrip.tex0Data.TBP << 16) | tristrip.tex0Data.CBP;
-                            if(tristripKey != textureKey)
+                            uint tristripKey = ((tristrip.tex0Data.CBP & 0xFFFF) << 16) | (tristrip.tex0Data.TBP & 0xFFFF);
+                            if (tristripKey != textureKey)
                             {
                                 continue;
                             }
@@ -379,6 +382,8 @@ namespace FormatKFIV.FileFormat
 
                         primitives.Clear();
                     }
+
+                    textureKeyId++;
                 }
             }
             catch (Exception Ex)
@@ -428,8 +433,11 @@ namespace FormatKFIV.FileFormat
                         pad = ins.ReadUInt32()
                     };
 
-                    Vector3f newT = omdMesh.translation;
+                    //Transform fixing
+                    Vector3f newT;
+                    newT = omdMesh.translation;
                     omdMesh.translation = new Vector3f(newT.X, -newT.Y, -newT.Z);
+
                     newT = omdMesh.rotation;
                     omdMesh.rotation = new Vector3f(newT.X, 6.28318530718f - newT.Y, 6.28318530718f - newT.Z);
 

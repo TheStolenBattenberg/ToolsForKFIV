@@ -274,6 +274,14 @@ namespace ToolsForKFIV.UI.Control
             modelFile = GLModel.GenerateFromAsset(mod);
             model = mod;
 
+            int tsCounter = 0;
+            foreach(Model.TextureSlot ts in model.TextureSlots)
+            {
+                Console.WriteLine($"Texture Slot [{tsCounter}]: {ts.slotKey.ToString("X8")}");
+
+                tsCounter++;
+            }
+
             SetViewModel(0);
 
             tmOGL.Invalidate();

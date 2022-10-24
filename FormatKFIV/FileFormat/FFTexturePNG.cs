@@ -119,11 +119,15 @@ namespace FormatKFIV.FileFormat
                         return;
                     }
 
-                    if (image.Format == Texture.ColourMode.M8 || image.Format == Texture.ColourMode.M4)
+                    if (image.Format == Texture.ColourMode.M8)
                     {
-                        using (OutputStream ousClut = new OutputStream(path + ".clut"))
+                        using(OutputStream ous2 = new OutputStream(path + ".idx"))
                         {
-                            ousClut.Write(clut.Value.data);
+                            ous2.Write(image.data);
+                        }
+                        using (OutputStream ous2 = new OutputStream(path + ".pal"))
+                        {
+                            ous2.Write(clut.Value.data);
                         }
                     }
 
@@ -139,15 +143,6 @@ namespace FormatKFIV.FileFormat
 
                     bm.Palette = bmPalette;
                 }
-
-                if (image.Format == Texture.ColourMode.M8 || image.Format == Texture.ColourMode.M4)
-                {
-                    using (OutputStream ousImg = new OutputStream(path + ".img"))
-                    {
-                        ousImg.Write(image.data);
-                    }
-                }
-
 
                 //Copy Direct or Mapped Image
                 BitmapData bmData = bm.LockBits(new Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.WriteOnly, bmFormat);

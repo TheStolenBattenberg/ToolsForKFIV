@@ -303,6 +303,7 @@ namespace FormatKFIV.Asset
 
             //Mesh Data
             public IPrimitiveType[] primitives;
+            public int textureSlot;
             
             public int PrimitiveCount
             {
@@ -421,6 +422,7 @@ namespace FormatKFIV.Asset
             _texcoords = new List<Components>();
             _colours = new List<Components>();
             _meshes = new List<Mesh>();
+            _textureSlots = new List<TextureSlot>();
         }
 
         /// <summary>Adds a unique vertex to the vertex list</summary>
@@ -598,6 +600,7 @@ namespace FormatKFIV.Asset
             mesh.rotation = Vector3f.Zero;
             mesh.scale = Vector3f.One;
             mesh.primitives = new IPrimitiveType[12];
+            mesh.textureSlot = -1;
 
             LinePrimitive B1 = LinePrimitive.New();
             B1.Indices[0] = result.AddUniqueVertex(cornerA.X, cornerA.Y, cornerA.Z);
@@ -705,6 +708,7 @@ namespace FormatKFIV.Asset
             mesh.rotation = Vector3f.Zero;
             mesh.scale = Vector3f.One;
             mesh.primitives = new IPrimitiveType[3 * resolution];
+            mesh.textureSlot = -1;
 
             float segmentSize = 6.28318530718f / resolution;
 

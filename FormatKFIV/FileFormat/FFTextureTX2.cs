@@ -243,6 +243,7 @@ namespace FormatKFIV.FileFormat
                     imgBuffer.Length = tx2GsID.gifTag1.NLOOP * 16;  //Calculate buffer width using nloop * 16 (nloop = num quad words in packet)
                     imgBuffer.Format = Texture.PSMtoColourMode(tx2GsID.bitbltbufData.DPSM);
                     imgBuffer.data = ins.ReadBytes((int)imgBuffer.Length);
+                    imgBuffer.UID = ((0x0000 & 0xFFFF) << 16) | (tx2GsID.bitbltbufData.DBP & 0xFFFF);
 
                     //Flip
                     Texture.FlipV(ref imgBuffer.data, imgBuffer.Format, (int)imgBuffer.Width, (int)imgBuffer.Height);
@@ -250,7 +251,7 @@ namespace FormatKFIV.FileFormat
                     //Fix 4BPP endianness
                     if (imgBuffer.Format == Texture.ColourMode.M4)
                     {
-                        //Texture.Fix4BPPIndicesEndianness(ref imgBuffer.data);
+                        Texture.Fix4BPPIndicesEndianness(ref imgBuffer.data);
                     }
 
                     //Load CLUT data (if applicable)
@@ -285,6 +286,8 @@ namespace FormatKFIV.FileFormat
                             clutBuffer.Length = tx2GsCD.gifTag1.NLOOP * 16;
                             clutBuffer.Format = Texture.PSMtoColourMode(tx2GsCD.bitbltbufData.DPSM);
                             clutBuffer.data = ins.ReadBytes((int)clutBuffer.Length);
+
+                            imgBuffer.UID = ((tx2GsCD.bitbltbufData.DBP & 0xFFFF) << 16) | (tx2GsID.bitbltbufData.DBP & 0xFFFF);
 
                             //Unswizzle the clut. Need to find a way to check if it IS swizzled
                             if (imgBuffer.Format == Texture.ColourMode.M8)

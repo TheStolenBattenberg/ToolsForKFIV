@@ -21,6 +21,8 @@ namespace ToolsForKFIV.Rendering
         private IMesh StaticMesh;
         private string _name = "Static Mesh Node";
         private SceneDraw _drawFlags = SceneDraw.Default;
+        private int _textureSlot = -1;
+        private uint _textureUID = 0x00000000;
 
         //Properties
         [Category("Transform"), Description("The position of the scene node")]
@@ -75,12 +77,21 @@ namespace ToolsForKFIV.Rendering
             }
         }
 
-        //[Category("Misc"), Description("The name of the node")]
         [Browsable(false)]
         public string Name
         {
             get { return _name; }
             set { _name = value; }
+        }
+
+        [Category("Rendering"), Description("The texture used for rendering.")]
+        public int TextureSlot
+        {
+            get { return _textureSlot; }
+        }
+        public uint TextureUID
+        {
+            get { return _textureUID; }
         }
 
         [Category("Visibility"), Description("Visibilty filter, 'Default' is always visible.")]
@@ -89,6 +100,7 @@ namespace ToolsForKFIV.Rendering
             get { return _drawFlags; }
             set { _drawFlags = value; }
         }
+
 
         #endregion
 
@@ -138,6 +150,27 @@ namespace ToolsForKFIV.Rendering
 
                     Name = "Static Mesh Node (Triangle Mesh)";
                     StaticMesh = new TriangleMesh(ref vertexBuffer, mesh.PrimitiveCount * 3);
+                    _textureSlot = -1;
+                    _textureUID  = 0x00000000;
+
+                    if (mesh.textureSlot != -1)
+                    {
+                        _textureSlot = mesh.textureSlot;
+                        _textureUID = model.TextureSlots[_textureSlot].slotKey;
+
+                        //Ensure only valid texture slots are rendered.
+                        if (model.TextureSlots[mesh.textureSlot].slotKey == 0x00000000)
+                        {
+                            _textureSlot = -1;
+                            _textureUID = 0x00000000;
+                        }
+
+                        if (!ResourceManager.glTextures.ContainsKey(model.TextureSlots[mesh.textureSlot].slotKey))
+                        {
+                            _textureSlot = -1;
+                            _textureUID = 0x00000000;
+                        }
+                    }
 
                     break;
 
@@ -167,6 +200,8 @@ namespace ToolsForKFIV.Rendering
                     }
                     Name = "Static Mesh Node (Line Mesh)";
                     StaticMesh = new LineMesh(ref vertexBuffer, mesh.PrimitiveCount * 2);
+                    _textureSlot = -1;
+                    _textureUID = 0x00000000;
                     break;
 
             }
@@ -210,7 +245,19 @@ namespace ToolsForKFIV.Rendering
             int worldMatrixLoc = GL.GetUniformLocation(currentProgram, "worldMatrix");
             GL.UniformMatrix4(worldMatrixLoc, false, ref Transform);
 
+            if(_textureSlot != -1)
+            {
+                //Set my personal texture.
+                ResourceManager.glTextures[_textureUID].Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
+            }
+            else
+            {
+                ResourceManager.glTextures[0xDEADBEEF].Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
+            }
+
             StaticMesh.Draw();
+
+            ResourceManager.glTextures[0xDEADBEEF].Bind(TextureUnit.Texture0, TextureTarget.Texture2D);
         }
 
         //Disposal

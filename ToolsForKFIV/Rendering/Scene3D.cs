@@ -5,6 +5,8 @@ using System.Text;
 using FormatKFIV.Asset;
 using FormatKFIV.Utility;
 
+using ToolsForKFIV.Utility;
+
 namespace ToolsForKFIV.Rendering
 {
     public class Scene3D : IScene
@@ -59,6 +61,31 @@ namespace ToolsForKFIV.Rendering
                 Name = "Collision Geometry",
                 DrawFlags = SceneDraw.Collision
             };
+
+            //Load scene Textures
+            uint currentTex = 0;
+            foreach(Texture tex in scene.texData)
+            {
+                for(int i = 0; i < tex.SubimageCount; ++i)
+                {
+                    Texture.ImageBuffer? subImage = tex.GetSubimage(i);
+
+                    if (subImage != null)
+                    {
+                        Console.WriteLine($"Texture [{currentTex}] SubImage [{i}] = 0x{subImage.Value.UID}");
+
+                        if (ResourceManager.glTextures.ContainsKey(subImage.Value.UID))
+                        {
+                            continue;
+                        }
+
+                        GLTexture glTexture = GLTexture.GenerateFromSubImage(tex, i);
+
+                        ResourceManager.glTextures.Add(subImage.Value.UID, glTexture);
+                    }
+                }
+                currentTex++;
+            }
 
             foreach (Scene.Chunk chunk in scene.chunks)
             {

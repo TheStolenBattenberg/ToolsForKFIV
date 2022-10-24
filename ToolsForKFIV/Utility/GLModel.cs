@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 using FormatKFIV.Asset;
 using FormatKFIV.Utility;
@@ -19,6 +20,10 @@ namespace ToolsForKFIV.Utility
             public int VAOHandle;
             public int VBOHandle;
             public int VertexCount;
+
+            public Vector3f position;
+            public Vector3f rotation;
+            public Vector3f scale;
         }
 
         //Properties
@@ -268,6 +273,10 @@ namespace ToolsForKFIV.Utility
                 GLMesh glMesh = new GLMesh();
                 glMesh.VertexCount = vertexData.Count / 12;
 
+                glMesh.position = mesh.position;
+                glMesh.rotation = mesh.rotation;
+                glMesh.scale = mesh.scale;
+
                 float[] vertexDataArray = vertexData.ToArray();
 
                 glMesh.VBOHandle = GL.GenBuffer();
@@ -310,6 +319,7 @@ namespace ToolsForKFIV.Utility
         /// <summary>Draw entire nodel with triangle primitives</summary>
         public void DrawTriangles()
         {
+
             foreach (GLMesh mesh in GLMeshes)
             {
                 GL.BindVertexArray(mesh.VAOHandle);
@@ -325,7 +335,21 @@ namespace ToolsForKFIV.Utility
 
             GLMesh mesh = GLMeshes[index];
 
-            GL.BindVertexArray(mesh.VAOHandle);
+            //Build Mesh Transform
+            Matrix4 translation = Matrix4.CreateTranslation(mesh.position.X, mesh.position.Y, mesh.position.Z);
+            Matrix4 rotationX = Matrix4.CreateRotationX(mesh.rotation.X);
+            Matrix4 rotationY = Matrix4.CreateRotationY(mesh.rotation.Y);
+            Matrix4 rotationZ = Matrix4.CreateRotationZ(mesh.rotation.Z);
+            Matrix4 scale = Matrix4.CreateScale(mesh.scale.X, mesh.scale.Y, mesh.scale.Z);
+
+            Matrix4 transform = ((rotationX * rotationY * rotationZ) * scale) * translation;
+
+            //We need to set the transformation on to the current shader, and this bit of magic does the trick.
+            int currentProgram = GL.GetInteger(GetPName.CurrentProgram);
+            int worldMatrixLoc = GL.GetUniformLocation(currentProgram, "worldMatrix");
+            GL.UniformMatrix4(worldMatrixLoc, false, ref transform);
+
+            GL.BindVertexArray(mesh.VAOHandle); 
             GL.DrawArrays(PrimitiveType.Triangles, 0, mesh.VertexCount);
         }
 

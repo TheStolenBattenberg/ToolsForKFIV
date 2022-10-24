@@ -118,6 +118,36 @@ namespace ToolsForKFIV.Utility
             GL.BindTexture(TextureTarget.Texture2D, 0);
             return glTex;
         }
+        public static GLTexture GenerateFromSubImage(Texture texture, int subImage)
+        {
+            //Get RGBA Version of texture
+            Texture.ImageBuffer? bufNullable = texture.GetSubimage(subImage);
+            Texture.ImageBuffer texBuffer;
+            if (!bufNullable.HasValue || bufNullable == null)
+            {
+                Logger.LogError("GLTEXTURE -> NULL SUBIMAGE, FML? YEAH.");
+                return null;
+            }
+            texBuffer = bufNullable.Value;
+            byte[] rgbaTex = texture.GetSubimageAsRGBA(subImage);
+
+            GLTexture glTex = new GLTexture();
+
+            glTex._TexHandle = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, glTex._TexHandle);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, (int)texBuffer.Width, (int)texBuffer.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, rgbaTex);
+
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            return glTex;
+        }
 
         public void Bind(TextureUnit unit = TextureUnit.Texture0, TextureTarget target = TextureTarget.Texture2D)
         {

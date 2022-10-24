@@ -41,6 +41,15 @@ namespace ToolsForKFIV.UI.Control
         {
             if(scene != null)
             {
+                //Clear Texture Data
+                foreach (uint texKey in ResourceManager.glTextures.Keys)
+                {
+                    GLTexture tex = ResourceManager.glTextures[texKey];
+                    tex.Destroy();
+                }
+                ResourceManager.glTextures.Clear();
+                ResourceManager.glTextures.Add(0xDEADBEEF, GLTexture.Generate44Grid());
+
                 scene.Dispose();
                 scene = null;
             }
@@ -117,6 +126,8 @@ namespace ToolsForKFIV.UI.Control
             glSceneTextures = new GLTexture[2];
             glSceneTextures[0] = GLTexture.Generate44Grid();
             glSceneTextures[1] = GLTexture.Generate44White();
+
+            ResourceManager.glTextures.Add(0xDEADBEEF, GLTexture.Generate44Grid());
         }
 
         private void stSceneNodeTree_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -157,10 +168,15 @@ namespace ToolsForKFIV.UI.Control
             stPreviewGL.MakeCurrent();
             GL.ClearColor(ResourceManager.settings.mtBgCC.ToColor());
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.Enable(EnableCap.DepthTest);
-            //GL.CullFace(CullFaceMode.Back);
-            //GL.Enable(EnableCap.CullFace);
+
+            GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.Texture2D);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.AlphaTest);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.Disable(EnableCap.CullFace);
+
 
             matView = Matrix4.LookAt(cameraFrom, cameraTo, Vector3.UnitY);
             Matrix4 mVP = matView * matProjection;

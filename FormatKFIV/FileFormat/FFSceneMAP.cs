@@ -394,8 +394,8 @@ namespace FormatKFIV.FileFormat
                 FFTextureTX2 TX2Loader = new FFTextureTX2();
                 FFTexturePNG PNGFormat = new FFTexturePNG();
 
-                /*
-                // Attempt texture extraction
+                // Map Textures
+                Console.WriteLine("FFSceneMAP -> Importing Textures...");
                 FFModelOMD.OMDModel[] mapOMDs = new FFModelOMD.OMDModel[mapHeader.numPieceOMD];
                 Texture mapTextures;
 
@@ -407,8 +407,8 @@ namespace FormatKFIV.FileFormat
                 ins.Return();
 
                 mapTextures = UnpackMAPTX2(ins, mapHeader, ref mapOMDs);
-                PNGFormat.SaveToFile("D:\\REEEE\\KF4TexOut\\tex", mapTextures);
-                */
+
+                OUT.texData.Add(mapTextures);
 
                 // Map Geometry
                 Console.WriteLine("FFSceneMAP -> Importing Geometry...");
@@ -551,8 +551,6 @@ namespace FormatKFIV.FileFormat
                             break;
                     }
 
-
-
                     if(mapObject.CollisionMeshId >= 0 && mapObject.CollisionMeshId < mapObjectCSK.Length)
                     {
                         sceneObject.collisionModelID = mapObjectCSK[mapObject.CollisionMeshId];
@@ -610,12 +608,7 @@ namespace FormatKFIV.FileFormat
             Texture textures = new Texture();
 
             //Byte array mimics PS2 VRAM
-            byte[] vram = new byte[4194304];
-
-            //Array of OMD models for texture restoration
-            FFModelOMD.OMDModel[] models = omdModels;
-
-            //Read MAP Textures
+            byte[] gsMemory = new byte[(1024 * 1024) * 4];
 
             //Calculate Texture Chunk Size
             long tx2ChunkSize = header.offSoundFX - header.offTexture;
@@ -635,34 +628,27 @@ namespace FormatKFIV.FileFormat
 
                 ins.Seek(44, System.IO.SeekOrigin.Current); //Skip 44 bytes we really don't care about.
                 sceGsBitbltbuf bitbltbuf = ins.ReadPS28ByteRegister()._sceGsBitbltbuf;
-                ins.Seek(24, System.IO.SeekOrigin.Current);
-                sceGsTrxreg texreg = ins.ReadPS28ByteRegister()._sceGsTrxreg;
+                ins.Seek(8, System.IO.SeekOrigin.Current);
+                sceGsTrxpos trxpos = ins.ReadPS28ByteRegister()._sceGsTrxpos;
+                ins.Seek(8, System.IO.SeekOrigin.Current);
+                sceGsTrxreg trxreg = ins.ReadPS28ByteRegister()._sceGsTrxreg;
                 ins.Seek(40, System.IO.SeekOrigin.Current); //Skip 40 bytes we also really don't care about.
 
                 //Read data into buffer
                 byte[] tx2Buffer = ins.ReadBytes(tx2Length);
 
-                int vramDestination = (int)(bitbltbuf.DBP * 0x100);
-
                 //Copy buffer into vram
-                Array.Copy(tx2Buffer, 0, vram, vramDestination, tx2Length);
+                Texture.GsWrite32(ref gsMemory, ref tx2Buffer, (int)bitbltbuf.DBP, (int)bitbltbuf.DBW, 0, 0, (int)trxreg.RRW, (int)trxreg.RRH);
 
                 texID++;
-                Console.WriteLine($"Read TX2 Texture {texID}");
-                Console.WriteLine($"DBP: {bitbltbuf.DBP.ToString("X8")}");
-                Console.WriteLine($"SBP: {bitbltbuf.SBP.ToString("X8")}");
-                Console.WriteLine($"Width: {texreg.RRW.ToString("D8")}");
-                Console.WriteLine($"Height: {texreg.RRH.ToString("D8")}");
             }
             ins.Return();
 
-            //Extract Textures using OMDs
-
             //Allocate a dictionary to store texture locations we've already extracted.
-            Dictionary<uint, bool> keys = new Dictionary<uint, bool>();
+            List<uint> keys = new List<uint>();
 
             //Loop through each OMD model.
-            foreach(FFModelOMD.OMDModel omdModel in models)
+            foreach(FFModelOMD.OMDModel omdModel in omdModels)
             {
                 //For each omdMesh in the model...
                 foreach(FFModelOMD.OMDMesh omdMesh in omdModel.meshes)
@@ -671,36 +657,30 @@ namespace FormatKFIV.FileFormat
                     foreach(FFModelOMD.OMDTristripPacket omdTriS in omdMesh.tristrips)
                     {
                         //Do magic with PS2 registers
-                        int clutAddr = (int)(omdTriS.tex0Data.CBP * 0x100);
-                        int clutFrmt = (int)(omdTriS.tex0Data.CPSM);
-                        int imgbAddr = (int)(omdTriS.tex0Data.TBP * 0x100);
                         int imgbFrmt = (int)(omdTriS.tex0Data.PSM);
                         int imgbW = (int)Math.Pow(2, omdTriS.tex0Data.TW);
                         int imgbH = (int)Math.Pow(2, omdTriS.tex0Data.TH);
 
                         uint texKey = ((omdTriS.tex0Data.CBP & 0xFFFF) << 16) | (omdTriS.tex0Data.TBP & 0xFFFF);
 
-                        if (keys.ContainsKey(texKey))
+                        if (keys.Contains(texKey))
                         {
                             continue;
                         }
-                        keys.Add(texKey, true);
-
-                        //Console.WriteLine($"Clut Address: {(clutAddr / 0x100).ToString("X4")}");
-                        Console.WriteLine($"Image Address: {(imgbAddr / 0x100).ToString("X4")}");
-                        Console.WriteLine($"Image BW: {omdTriS.tex0Data.TBW * 0x40}");
-                        Console.WriteLine($"Image W: {imgbW}");
+                        keys.Add(texKey);
 
                         //Extract a texture from our PS2 Vram
                         Texture.ImageBuffer imgdBuffer = new Texture.ImageBuffer
                         {
+                            UID = texKey,
+
                             Name = null,
                             Width = (uint)imgbW,
                             Height = (uint)imgbH,
                             Format = Texture.PSMtoColourMode((uint)imgbFrmt),
                         };
 
-                        int lineByteSize = 0;
+                        //Configure Image
                         switch(imgdBuffer.Format)
                         {
                             case Texture.ColourMode.M4:
@@ -708,9 +688,9 @@ namespace FormatKFIV.FileFormat
                                 imgdBuffer.ClutCount = 1;
                                 imgdBuffer.ClutIDs = new int[1];
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
-                                imgdBuffer.Name = "[TBP 0x"+omdTriS.tex0Data.TBP.ToString("X8")+"][CBP 0x"+omdTriS.tex0Data.CBP.ToString("X8") +"][BPP 4]";
+                                imgdBuffer.Name = "4_[TBP 0x"+omdTriS.tex0Data.TBP.ToString("X8")+"][CBP 0x"+omdTriS.tex0Data.CBP.ToString("X8") +"]";
 
-                                lineByteSize = (int)(imgdBuffer.Width >> 1);
+                                Console.WriteLine("Map Textures -> 4BPP Detected.");
                                 break;
 
                             case Texture.ColourMode.M8:
@@ -718,106 +698,79 @@ namespace FormatKFIV.FileFormat
                                 imgdBuffer.ClutCount = 1;
                                 imgdBuffer.ClutIDs = new int[1];
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
-                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][CBP 0x" + omdTriS.tex0Data.CBP.ToString("X8") + "][BPP 8]";
+                                imgdBuffer.Name = "8_[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][CBP 0x" + omdTriS.tex0Data.CBP.ToString("X8") + "]";
 
-                                lineByteSize = (int)imgdBuffer.Width;
+                                Console.WriteLine("Map Textures -> 8BPP Detected.");
                                 break;
 
                             case Texture.ColourMode.D16:
                                 imgdBuffer.Length = (imgdBuffer.Width * 2) * imgdBuffer.Height;
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
-                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][BPP 16]";
+                                imgdBuffer.Name = "16_[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "]";
 
-                                lineByteSize = (int)imgdBuffer.Width * 2;
+                                Console.WriteLine("Map Textures -> 16BPP Detected.");
                                 break;
 
                             case Texture.ColourMode.D24:
                                 imgdBuffer.Length = (imgdBuffer.Width * 3) * imgdBuffer.Height;
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
-                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][BPP 24]";
+                                imgdBuffer.Name = "24_[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "]";
 
-                                lineByteSize = (int)imgdBuffer.Width * 3;
+                                Console.WriteLine("Map Textures -> 24BPP Detected.");
                                 break;
 
                             case Texture.ColourMode.D32:
                                 imgdBuffer.Length = (imgdBuffer.Width * 4) * imgdBuffer.Height;
                                 imgdBuffer.data = new byte[imgdBuffer.Length];
-                                imgdBuffer.Name = "[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "][BPP 32]";
+                                imgdBuffer.Name = "32_[TBP 0x" + omdTriS.tex0Data.TBP.ToString("X8") + "]";
 
-                                lineByteSize = (int)imgdBuffer.Width * 4;
+                                Console.WriteLine("Map Textures -> 32BPP Detected.");
                                 break;
                         }
 
-                        //Copy Texture by rows... This needs to actually work please.
-                        int imgReadOffset = imgbAddr;
-                        int imgWriteOffset = 0;
-                        for(int i = 0; i < imgdBuffer.Height; ++i)
+                        //Read Image
+                        Texture.ClutBuffer? ncb = Texture.GetNewClut(imgdBuffer.Format);
+                        Texture.ClutBuffer clutBuffer;
+
+                        switch (imgdBuffer.Format)
                         {
-                            Array.Copy(vram, imgReadOffset, imgdBuffer.data, imgWriteOffset, lineByteSize);
-                            imgReadOffset += 256;
-                            imgWriteOffset += lineByteSize;
-                        }
+                            case Texture.ColourMode.M4:
+                                Texture.GsRead4(ref gsMemory, ref imgdBuffer.data, (int)omdTriS.tex0Data.TBP, (int)omdTriS.tex0Data.TBW, 0, 0, imgbW, imgbH);
+                                Texture.Fix4BPPIndicesEndianness(ref imgdBuffer.data);
 
-                        if (imgdBuffer.Format == Texture.ColourMode.M4 || imgdBuffer.Format == Texture.ColourMode.M8)
-                        {
-                            Texture.PS2UnswizzleImageData(ref imgdBuffer.data, imgdBuffer.Format, (int)imgdBuffer.Width, (int)imgdBuffer.Height);
-                        }
+                                if(ncb.HasValue)
+                                {
+                                    clutBuffer = ncb.Value;
 
-                        //Does texture have clut?
-                        if(imgdBuffer.Format == Texture.ColourMode.M4 || imgdBuffer.Format == Texture.ColourMode.M8)
-                        {
-                            Texture.ClutBuffer clutBuffer = new Texture.ClutBuffer
-                            {
-                                Format = Texture.PSMtoColourMode((uint)clutFrmt),
-                            };
-
-                            int lineReadOffset = 0, lineWriteOffset = 0;
-
-                            switch (imgdBuffer.Format)
-                            {
-                                case Texture.ColourMode.M4:
-                                    clutBuffer.Width = 8;
-                                    clutBuffer.Height = 2;
-                                    clutBuffer.Length = (clutBuffer.Width * 4) * clutBuffer.Height;
-                                    clutBuffer.data = new byte[clutBuffer.Length];
-
-                                    //Read palette
-                                    lineReadOffset = clutAddr;
-                                    lineWriteOffset = 0;
-
-                                    for (int i = 0; i < clutBuffer.Height; ++i)
-                                    {
-                                        Array.Copy(vram, lineReadOffset, clutBuffer.data, lineWriteOffset, (clutBuffer.Width * 4));
-                                        lineReadOffset += 256;
-                                        lineWriteOffset += (int) (clutBuffer.Width * 4);
-                                    }
-
+                                    Texture.GsRead32(ref gsMemory, ref clutBuffer.data, (int)omdTriS.tex0Data.CBP, 0, 0, 0, 8, 2);
                                     Texture.ConvColourSpaceBGRAtoRGBA(ref clutBuffer.data, Texture.ColourMode.D32, true);
 
-                                    break;
+                                    imgdBuffer.ClutIDs[0] = textures.PutClut(clutBuffer);
+                                }
+                                break;
 
-                                case Texture.ColourMode.M8:
-                                    clutBuffer.Width = 16;
-                                    clutBuffer.Height = 16;
-                                    clutBuffer.Length = (clutBuffer.Width * 4) * clutBuffer.Height;
-                                    clutBuffer.data = new byte[clutBuffer.Length];
+                            case Texture.ColourMode.M8:
+                                Texture.GsRead8(ref gsMemory, ref imgdBuffer.data, (int)omdTriS.tex0Data.TBP, (int)omdTriS.tex0Data.TBW, 0, 0, imgbW, imgbH);
 
-                                    //Read palette
-                                    lineReadOffset = clutAddr + 2048;
-                                    lineWriteOffset = 0;
+                                if (ncb.HasValue)
+                                {
+                                    clutBuffer = ncb.Value;
 
-                                    for(int i = 0; i < clutBuffer.Height; ++i)
-                                    {
-                                        Array.Copy(vram, lineReadOffset, clutBuffer.data, lineWriteOffset, (clutBuffer.Width * 4));
-                                        lineReadOffset  += 256;
-                                        lineWriteOffset += (int)( clutBuffer.Width * 4);
-                                    }
+                                    Texture.GsRead32(ref gsMemory, ref clutBuffer.data, (int)omdTriS.tex0Data.CBP, 2, 0, 0, 16, 16);
+                                    Texture.PS2UnswizzleImageData(ref clutBuffer.data, Texture.ColourMode.D32, 16, 16);
+                                    Texture.ConvColourSpaceBGRAtoRGBA(ref clutBuffer.data, Texture.ColourMode.D32, true);
 
-                                   Texture.ConvColourSpaceBGRAtoRGBA(ref clutBuffer.data, Texture.ColourMode.D32, true);
-                                    break;
-                            }
+                                    imgdBuffer.ClutIDs[0] = textures.PutClut(clutBuffer);
+                                }
+                                break;
 
-                            imgdBuffer.ClutIDs[0] = textures.PutClut(clutBuffer);
+                            case Texture.ColourMode.D32:
+                                Texture.GsRead32(ref gsMemory, ref imgdBuffer.data, (int)omdTriS.tex0Data.TBP, (int)omdTriS.tex0Data.TBW, 0, 0, imgbW, imgbH);
+                                Texture.ConvColourSpaceBGRAtoRGBA(ref imgdBuffer.data, Texture.ColourMode.D32, true);
+                                break;
+
+                            default:
+                                continue;
                         }
 
                         textures.PutSubimage(imgdBuffer);

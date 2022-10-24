@@ -380,6 +380,7 @@ namespace FormatKFIV.FileFormat
                 mesh.scale = Vector3f.One;
 
                 mesh.primitives = new Model.IPrimitiveType[group.numIndices - 2];
+                mesh.textureSlot = -1;
 
                 for(int i = 0; i < group.numIndices - 2; ++i)
                 {

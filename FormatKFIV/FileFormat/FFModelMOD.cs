@@ -241,6 +241,7 @@ namespace FormatKFIV.FileFormat
                 foreach(MODModelMesh modMesh in meshes)
                 {
                     Model.Mesh mesh = new Model.Mesh();
+                    mesh.textureSlot = -1;
                     primitives.Clear();
 
                     for (int i = 0; i < modMesh.numVertex - 2; ++i)

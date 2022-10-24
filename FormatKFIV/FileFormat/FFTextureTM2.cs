@@ -140,7 +140,8 @@ namespace FormatKFIV.FileFormat
                     Format = Texture.PSMtoColourMode(header.gsTex0.PSM),
                     ClutCount = 0,
                     ClutIDs = null,
-                    data = null
+                    data = null,
+                    UID = ((header.gsTex0.CBP & 0xFFFF) << 16) | (header.gsTex0.TBP & 0xFFFF)
                 };
 
                 subimage.data = ins.ReadBytes(imageSize);

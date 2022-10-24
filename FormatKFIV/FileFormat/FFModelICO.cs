@@ -353,6 +353,7 @@ namespace FormatKFIV.FileFormat
                 for(int i = 0; i < model.shapes.Length; ++i)
                 {
                     Model.Mesh mesh = new Model.Mesh();
+                    mesh.textureSlot = -1;
 
                     mesh.primitives = new Model.IPrimitiveType[model.numVertex / 3];
 

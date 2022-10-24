@@ -133,8 +133,9 @@ namespace FormatKFIV.FileFormat
                         Format = Texture.PSMtoColourMode(tm2Header.gsTex0.PSM),
                         ClutCount = 0,
                         ClutIDs = null,
-                        data = null
-                    };
+                        data = null,
+                        UID = ((tm2Header.gsTex0.CBP & 0xFFFF) << 16) | (tm2Header.gsTex0.TBP & 0xFFFF)
+                };
 
                     //Calculate TM2 Image Size
                     int tm2ImageSize = 0;

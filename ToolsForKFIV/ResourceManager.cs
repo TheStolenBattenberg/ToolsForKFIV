@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using FormatKFIV.Asset;
 using FormatKFIV.FileFormat;
+using ToolsForKFIV.Utility;
 
 namespace ToolsForKFIV
 {
@@ -14,6 +15,8 @@ namespace ToolsForKFIV
         private static List<FIFormat<Texture>> formatsTexture;
         private static List<FIFormat<Scene>> formatsScene;
         private static List<FIFormat<Param>> formatsParam;
+
+        public static Dictionary<uint, GLTexture> glTextures = new Dictionary<uint, GLTexture>();
 
         /// <summary>Stores data files</summary>
         public static VirtualFileSystem vfs = new VirtualFileSystem();

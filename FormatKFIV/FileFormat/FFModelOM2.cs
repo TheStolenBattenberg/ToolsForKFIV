@@ -261,8 +261,9 @@ namespace FormatKFIV.FileFormat
                 foreach(OM2Mesh om2Mesh in meshes)
                 {
                     Model.Mesh mesh = new Model.Mesh();
+                    mesh.textureSlot = -1;
                     primitives.Clear();
-
+                 
                     //Copy Transform of OMD
                     if (omd.HasValue)
                     {
