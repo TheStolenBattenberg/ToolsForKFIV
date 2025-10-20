@@ -98,7 +98,7 @@ namespace ToolsForKFIV
             // mwOpenKFIVDialog
             // 
             this.mwOpenKFIVDialog.FileName = "King\'s Field IV EXE";
-            this.mwOpenKFIVDialog.Filter = "King\'s Field IV |SLUS_203.18;SLUS_203.53;SLPS_250.57;SLES_309.20";
+            this.mwOpenKFIVDialog.Filter = "King\'s Field IV |SLUS_203.18;SLUS_203.53;SLPS_250.57;SLES_509.20";
             // 
             // mwSplit
             // 
